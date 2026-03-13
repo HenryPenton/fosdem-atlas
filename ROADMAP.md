@@ -26,7 +26,16 @@ Build an open-source tool that scrapes the FOSDEM schedule, stores it in DuckDB 
 - [ ] Set up development environment (devcontainer, Makefile, scripts)
 - [ ] Configure linting, formatting, and pre-commit hooks
 
-### 1.2 FOSDEM Schedule Scraper
+### 1.2 Licensing & Legal Compliance
+- [ ] Add `LICENSE` file with MIT license for application code
+- [ ] Create `DATA_LICENSE.md` documenting FOSDEM data provenance
+- [ ] Add SPDX identifiers to `package.json` / `pyproject.toml`
+- [ ] Document dual-license approach in README:
+  - Application code: MIT License
+  - FOSDEM schedule data: CC BY 4.0
+- [ ] Note in documentation that talk abstracts/bios are speaker-owned
+
+### 1.3 FOSDEM Schedule Scraper
 - [ ] Research FOSDEM data sources:
   - Primary: https://fosdem.org/2026/schedule/xml
   - Backup: HTML scraping of schedule pages
@@ -40,7 +49,7 @@ Build an open-source tool that scrapes the FOSDEM schedule, stores it in DuckDB 
 - [ ] Add error handling and retry logic
 - [ ] Logging and monitoring for scrape jobs
 
-### 1.3 DuckDB Integration
+### 1.4 DuckDB Integration
 - [ ] Design database schema:
   ```sql
   -- Core tables
@@ -57,7 +66,7 @@ Build an open-source tool that scrapes the FOSDEM schedule, stores it in DuckDB 
 - [ ] Implement data access layer (DAL)
 - [ ] Set up DuckDB persistence and backup strategy
 
-### 1.4 Scheduled Scraping
+### 1.5 Scheduled Scraping
 - [ ] Implement scheduler (APScheduler/cron/background worker)
 - [ ] Configure 5-minute scrape interval
 - [ ] Add health check endpoint for scraper status
@@ -127,6 +136,12 @@ Build an open-source tool that scrapes the FOSDEM schedule, stores it in DuckDB 
 - [ ] Export to iCal (.ics file)
 - [ ] Share schedule link
 - [ ] Conflict detection (overlapping events)
+
+### 3.5 Attribution UI
+- [ ] Add footer attribution: "Schedule data © FOSDEM, licensed under CC BY 4.0"
+- [ ] Include link to https://creativecommons.org/licenses/by/4.0/ in footer
+- [ ] Display "Data sourced from fosdem.org" prominently
+- [ ] Link back to original FOSDEM event pages from event details
 
 ---
 
@@ -257,9 +272,9 @@ Build an open-source tool that scrapes the FOSDEM schedule, stores it in DuckDB 
 
 | Milestone | Target | Description |
 |-----------|--------|-------------|
-| **v0.1.0-alpha** | Week 2 | Scraper working, DuckDB populated, basic API |
+| **v0.1.0-alpha** | Week 2 | Scraper working, DuckDB populated, basic API, licensing done |
 | **v0.2.0-alpha** | Week 4 | Frontend with search and schedule viewer |
-| **v0.3.0-beta** | Week 6 | Analytics dashboard, Docker deployment |
+| **v0.3.0-beta** | Week 6 | Analytics dashboard, Docker deployment, attribution UI |
 | **v0.4.0-beta** | Week 8 | Personal schedule, iCal export |
 | **v1.0.0** | Week 10 | Stable release, full documentation |
 
@@ -285,10 +300,19 @@ open http://localhost:8000
 
 ---
 
+---
+
 ## Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
 ## License
 
-MIT License - see [LICENSE](LICENSE) for details.
+This project uses a **dual-license** approach:
+
+| Component | License | File |
+|-----------|---------|------|
+| Application code | [MIT License](https://opensource.org/licenses/MIT) | `LICENSE` |
+| FOSDEM schedule data | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) | `DATA_LICENSE.md` |
+
+Schedule data © FOSDEM. See Phase 0 for full attribution requirements.
