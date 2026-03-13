@@ -1,0 +1,1 @@
+"""FOSDEM schedule scraper."""

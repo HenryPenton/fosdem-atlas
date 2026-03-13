@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{{ title }}{% endblock %}</title>
+
+    <!-- HTMX -->
+    <script src="https://unpkg.com/htmx.org@1.9.10" integrity="sha384-D1Kt99CQMDuVetoL1lrYwg5t+9QdHez7Nber2GpfwVz/aP64QfJawONqrMBQyJGl" crossorigin="anonymous"></script>
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="/static/css/style.css">
+
+    {% block head %}{% endblock %}
+</head>
+<body hx-boost="true">
+    <header>
+        <nav>
+            <div class="nav-brand">
+                <a href="/">🎪 FOSDEM Explorer</a>
+            </div>
+            <div class="nav-links">
+                <a href="/">Schedule</a>
+                <a href="/speakers">Speakers</a>
+                <a href="/tracks">Tracks</a>
+                <a href="/analytics">Analytics</a>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer>
+        <p>
+            Schedule data © <a href="https://fosdem.org" target="_blank" rel="noopener">FOSDEM</a>,
+            licensed under <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a>
+        </p>
+        <p>
+            <a href="https://github.com/yourusername/fosdem-explorer" target="_blank" rel="noopener">Source Code</a> ·
+            MIT License
+        </p>
+    </footer>
+
+    {% block scripts %}{% endblock %}
+</body>
+</html>
