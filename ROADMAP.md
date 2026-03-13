@@ -45,10 +45,10 @@ Build an open-source tool that scrapes the FOSDEM schedule, stores it in DuckDB 
 
 ### 1.6 Docker & First Release
 
-- [ ] Dockerfile that runs the app
-- [ ] `docker-compose.yml` with volume for DuckDB persistence
-- [ ] GitHub Actions: lint + test on push
-- [ ] Tag `v0.1.0` → build and push Docker image
+- [x] Dockerfile that runs the app
+- [x] `docker-compose.yml` with volume for DuckDB persistence
+- [x] GitHub Actions: lint + test on push
+- [x] Tag `v0.1.0` → build and push Docker image
 
 **🎯 Deliverable:** `docker-compose up` shows a page listing all FOSDEM events.
 
