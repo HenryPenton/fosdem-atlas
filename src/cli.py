@@ -39,6 +39,7 @@ def main() -> int:
 
 def cmd_scrape(args: argparse.Namespace) -> int:
     """Run the scraper."""
+    from db.connection import close_connection
     from db.events import insert_events
     from scraper.fosdem import scrape
 
@@ -75,6 +76,8 @@ def cmd_scrape(args: argparse.Namespace) -> int:
     except Exception as e:
         print(f"Error: {e}", file=sys.stderr)
         return 1
+    finally:
+        close_connection()
 
 
 def cmd_serve(args: argparse.Namespace) -> int:

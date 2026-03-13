@@ -23,8 +23,8 @@ dev: venv ## Install development dependencies
 run: ## Run the application
 	$(BIN)/uvicorn src.main:app --reload --host 0.0.0.0 --port 8000
 
-run-prod: ## Run in production mode
-	$(BIN)/uvicorn src.main:app --host 0.0.0.0 --port 8000 --workers 4
+run-prod: ## Run in production mode (single worker — DuckDB is single-process)
+	$(BIN)/uvicorn src.main:app --host 0.0.0.0 --port 8000
 
 scrape: ## Scrape the FOSDEM schedule
 	$(BIN)/python -m src.cli scrape

@@ -1,35 +1,48 @@
 """DuckDB database connection and schema management."""
 
 import contextlib
+import threading
 from pathlib import Path
 
 import duckdb
 
 from src.config import settings
 
-# Global connection (singleton for embedded DuckDB)
 _connection: duckdb.DuckDBPyConnection | None = None
+_lock = threading.Lock()
 
 
 def get_connection() -> duckdb.DuckDBPyConnection:
-    """Get or create the DuckDB connection."""
-    global _connection
-    if _connection is None:
-        # Ensure data directory exists
-        db_path = Path(settings.database_path)
-        db_path.parent.mkdir(parents=True, exist_ok=True)
+    """Get or create the DuckDB connection.
 
-        _connection = duckdb.connect(str(db_path))
-        _init_schema(_connection)
-    return _connection
+    Thread-safe: uses a lock to serialize access. DuckDB's Python
+    connection is not safe to share across threads without
+    synchronization, so all callers go through this single lock.
+    """
+    global _connection
+    with _lock:
+        if _connection is None:
+            db_path = Path(settings.database_path)
+            db_path.parent.mkdir(parents=True, exist_ok=True)
+
+            _connection = duckdb.connect(str(db_path))
+            _init_schema(_connection)
+        return _connection
+
+
+def db_lock() -> threading.Lock:
+    """Return the database lock for callers that need to hold it across
+    multiple statements (e.g. transactions)."""
+    return _lock
 
 
 def close_connection() -> None:
     """Close the DuckDB connection."""
     global _connection
-    if _connection is not None:
-        _connection.close()
-        _connection = None
+    with _lock:
+        if _connection is not None:
+            _connection.close()
+            _connection = None
 
 
 def _init_schema(conn: duckdb.DuckDBPyConnection) -> None:

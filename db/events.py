@@ -2,51 +2,54 @@
 
 from datetime import datetime
 
-from db.connection import get_connection
+from db.connection import db_lock, get_connection
 from scraper.fosdem import Event
 
 
 def insert_events(events: list[Event]) -> int:
     """Insert or replace events in the database.
 
+    Holds the DB lock for the entire operation so readers never see
+    a partially-cleared state.
+
     Returns:
         Number of events inserted.
     """
-    conn = get_connection()
+    with db_lock():
+        conn = get_connection()
 
-    # Clear existing data and insert fresh
-    conn.execute("DELETE FROM event_speakers")
-    conn.execute("DELETE FROM events")
-    conn.execute("DELETE FROM speakers")
+        conn.execute("DELETE FROM event_speakers")
+        conn.execute("DELETE FROM events")
+        conn.execute("DELETE FROM speakers")
 
-    for event in events:
-        conn.execute(
-            """
-            INSERT INTO events (id, title, subtitle, abstract, start_time, duration_minutes, room, track, day)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """,
-            [
-                event.id,
-                event.title,
-                event.subtitle,
-                event.abstract,
-                event.start_time,
-                event.duration_minutes,
-                event.room,
-                event.track,
-                event.day,
-            ],
-        )
-
-        for speaker in event.speakers:
+        for event in events:
             conn.execute(
-                "INSERT OR IGNORE INTO speakers (id, name) VALUES (?, ?)",
-                [speaker.id, speaker.name],
+                """
+                INSERT INTO events (id, title, subtitle, abstract, start_time, duration_minutes, room, track, day)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                [
+                    event.id,
+                    event.title,
+                    event.subtitle,
+                    event.abstract,
+                    event.start_time,
+                    event.duration_minutes,
+                    event.room,
+                    event.track,
+                    event.day,
+                ],
             )
-            conn.execute(
-                "INSERT OR IGNORE INTO event_speakers (event_id, speaker_id) VALUES (?, ?)",
-                [event.id, speaker.id],
-            )
+
+            for speaker in event.speakers:
+                conn.execute(
+                    "INSERT OR IGNORE INTO speakers (id, name) VALUES (?, ?)",
+                    [speaker.id, speaker.name],
+                )
+                conn.execute(
+                    "INSERT OR IGNORE INTO event_speakers (event_id, speaker_id) VALUES (?, ?)",
+                    [event.id, speaker.id],
+                )
 
     return len(events)
 
