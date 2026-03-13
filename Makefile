@@ -1,4 +1,4 @@
-.PHONY: help venv dev install run test lint format clean
+.PHONY: help venv dev install run test lint format clean scrape
 
 PYTHON := python3.13
 VENV := venv
@@ -25,6 +25,9 @@ run: ## Run the application
 
 run-prod: ## Run in production mode
 	$(BIN)/uvicorn src.main:app --host 0.0.0.0 --port 8000 --workers 4
+
+scrape: ## Scrape the FOSDEM schedule
+	$(BIN)/python -m src.cli scrape
 
 test: ## Run tests
 	$(BIN)/pytest

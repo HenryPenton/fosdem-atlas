@@ -18,17 +18,17 @@ Build an open-source tool that scrapes the FOSDEM schedule, stores it in DuckDB 
 - [x] Tech stack: Python + FastAPI + DuckDB + HTMX
 - [x] Makefile, linting, pre-commit
 
-### 1.2 Licensing
+### 1.2 Licensing ✓
 
-- [ ] Add `LICENSE` (MIT)
-- [ ] Add `DATA_LICENSE.md` (FOSDEM data is CC BY 4.0)
-- [ ] Footer attribution in templates
+- [x] Add `LICENSE` (MIT)
+- [x] Add `DATA_LICENSE.md` (FOSDEM data is CC BY 4.0)
+- [x] Footer attribution in templates
 
-### 1.3 Basic Scraper
+### 1.3 Basic Scraper ✓
 
-- [ ] Fetch FOSDEM XML schedule (https://fosdem.org/2026/schedule/xml)
-- [ ] Parse events: id, title, start/end time, room, track
-- [ ] Run manually via CLI command
+- [x] Fetch FOSDEM XML schedule (https://fosdem.org/2026/schedule/xml)
+- [x] Parse events: id, title, start/end time, room, track
+- [x] Run manually via CLI command (`make scrape`)
 
 ### 1.4 Basic DuckDB
 
