@@ -14,18 +14,22 @@ def insert_events(events: list[Event]) -> int:
     """
     conn = get_connection()
 
-    # Clear existing events and insert fresh (simple approach for now)
+    # Clear existing data and insert fresh
+    conn.execute("DELETE FROM event_speakers")
     conn.execute("DELETE FROM events")
+    conn.execute("DELETE FROM speakers")
 
     for event in events:
         conn.execute(
             """
-            INSERT INTO events (id, title, start_time, duration_minutes, room, track, day)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO events (id, title, subtitle, abstract, start_time, duration_minutes, room, track, day)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             [
                 event.id,
                 event.title,
+                event.subtitle,
+                event.abstract,
                 event.start_time,
                 event.duration_minutes,
                 event.room,
@@ -33,6 +37,16 @@ def insert_events(events: list[Event]) -> int:
                 event.day,
             ],
         )
+
+        for speaker in event.speakers:
+            conn.execute(
+                "INSERT OR IGNORE INTO speakers (id, name) VALUES (?, ?)",
+                [speaker.id, speaker.name],
+            )
+            conn.execute(
+                "INSERT OR IGNORE INTO event_speakers (event_id, speaker_id) VALUES (?, ?)",
+                [event.id, speaker.id],
+            )
 
     return len(events)
 
@@ -127,3 +141,19 @@ def get_unique_rooms() -> list[str]:
     """
     ).fetchall()
     return [str(row[0]) for row in result]
+
+
+def get_speakers_for_event(event_id: str) -> list[dict[str, str]]:
+    """Get speakers for a specific event."""
+    conn = get_connection()
+    result = conn.execute(
+        """
+        SELECT s.id, s.name
+        FROM speakers s
+        JOIN event_speakers es ON es.speaker_id = s.id
+        WHERE es.event_id = ?
+        ORDER BY s.name
+        """,
+        [event_id],
+    ).fetchall()
+    return [{"id": row[0], "name": row[1]} for row in result]

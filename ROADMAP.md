@@ -60,9 +60,9 @@ Build an open-source tool that scrapes the FOSDEM schedule, stores it in DuckDB 
 
 ### 2.1 Enhanced Scraper
 
-- [ ] Parse additional fields: abstract, subtitle, speakers, links
-- [ ] Store speakers in separate table with `event_speakers` join
-- [ ] Scheduled scraping every 5 minutes (APScheduler)
+- [x] Parse additional fields: abstract, subtitle, speakers, links
+- [x] Store speakers in separate table with `event_speakers` join
+- [x] Scheduled scraping every 5 minutes (APScheduler)
 
 ### 2.2 Search API & UI
 
@@ -212,16 +212,18 @@ Build an open-source tool that scrapes the FOSDEM schedule, stores it in DuckDB 
 
 ## Milestones
 
-| Version        | Phase   | Deliverable                              |
-| -------------- | ------- | ---------------------------------------- |
-| **v0.1.0**     | Phase 1 | Walking skeleton — list all events       |
-| **v0.2.0**     | Phase 2 | Search & filter, event details           |
-| **v0.3.0**     | Phase 3 | Grid view, track/speaker browsers        |
-| **v0.4.0**     | Phase 4 | Analytics dashboard                      |
-| **v1.0.0**     | Phase 5 | Personal schedule, polish, docs          |
+| Version    | Phase   | Deliverable                        |
+| ---------- | ------- | ---------------------------------- |
+| **v0.1.0** | Phase 1 | Walking skeleton — list all events |
+| **v0.2.0** | Phase 2 | Search & filter, event details     |
+| **v0.3.0** | Phase 3 | Grid view, track/speaker browsers  |
+| **v0.4.0** | Phase 4 | Analytics dashboard                |
+| **v1.0.0** | Phase 5 | Personal schedule, polish, docs    |
 
 # Access the app
+
 open http://localhost:8000
+
 ```
 
 ---
@@ -242,3 +244,4 @@ This project uses a **dual-license** approach:
 | FOSDEM schedule data | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) | `DATA_LICENSE.md` |
 
 Schedule data © FOSDEM. See Phase 0 for full attribution requirements.
+```

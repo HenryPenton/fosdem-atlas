@@ -1,5 +1,6 @@
 """DuckDB database connection and schema management."""
 
+import contextlib
 from pathlib import Path
 
 import duckdb
@@ -38,11 +39,38 @@ def _init_schema(conn: duckdb.DuckDBPyConnection) -> None:
         CREATE TABLE IF NOT EXISTS events (
             id VARCHAR PRIMARY KEY,
             title VARCHAR NOT NULL,
+            subtitle VARCHAR NOT NULL DEFAULT '',
+            abstract VARCHAR NOT NULL DEFAULT '',
             start_time TIMESTAMP NOT NULL,
             duration_minutes INTEGER NOT NULL,
             room VARCHAR NOT NULL,
             track VARCHAR NOT NULL,
             day DATE NOT NULL
+        )
+    """
+    )
+    # Add new columns if upgrading from an older schema
+    for col, definition in [
+        ("subtitle", "VARCHAR NOT NULL DEFAULT ''"),
+        ("abstract", "VARCHAR NOT NULL DEFAULT ''"),
+    ]:
+        with contextlib.suppress(Exception):
+            conn.execute(f"ALTER TABLE events ADD COLUMN {col} {definition}")
+
+    conn.execute(
+        """
+        CREATE TABLE IF NOT EXISTS speakers (
+            id VARCHAR PRIMARY KEY,
+            name VARCHAR NOT NULL
+        )
+    """
+    )
+    conn.execute(
+        """
+        CREATE TABLE IF NOT EXISTS event_speakers (
+            event_id VARCHAR NOT NULL REFERENCES events(id),
+            speaker_id VARCHAR NOT NULL REFERENCES speakers(id),
+            PRIMARY KEY (event_id, speaker_id)
         )
     """
     )

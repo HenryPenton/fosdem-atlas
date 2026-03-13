@@ -72,6 +72,10 @@ disallow_any_generics = false
 module = ["lxml", "lxml.*"]
 ignore_missing_imports = true
 
+[[tool.mypy.overrides]]
+module = ["apscheduler", "apscheduler.*"]
+ignore_missing_imports = true
+
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 testpaths = ["tests"]

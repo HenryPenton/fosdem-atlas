@@ -4,6 +4,7 @@ from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 from pathlib import Path
 
+from apscheduler.schedulers.background import BackgroundScheduler
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
@@ -18,18 +19,50 @@ BASE_DIR = Path(__file__).resolve().parent
 TEMPLATES_DIR = BASE_DIR / "templates"
 STATIC_DIR = BASE_DIR / "static"
 
+_scheduler: BackgroundScheduler | None = None
+
+
+def _run_scrape_job() -> None:
+    """Scheduled scrape job."""
+    from db.events import insert_events
+    from scraper.fosdem import scrape
+
+    print(f"Scheduled scrape: fetching {settings.fosdem_schedule_url}")
+    try:
+        events = scrape(settings.fosdem_schedule_url)
+        count = insert_events(events)
+        print(f"Scheduled scrape complete: {count} events stored")
+    except Exception as exc:
+        print(f"Scheduled scrape failed: {exc}")
+
 
 @asynccontextmanager
 async def lifespan(_app: FastAPI) -> AsyncGenerator[None, None]:
     """Application lifespan handler for startup/shutdown events."""
+    global _scheduler
+
     # Startup
     print(f"Starting FOSDEM Explorer v{settings.version}")
     print(f"Database: {settings.database_path}")
-    # Initialize DuckDB connection
     get_connection()
     print("Database connected")
+
+    _scheduler = BackgroundScheduler()
+    _scheduler.add_job(
+        _run_scrape_job,
+        "interval",
+        minutes=settings.scrape_interval_minutes,
+        id="scrape",
+    )
+    _scheduler.start()
+    print(f"Scheduler started (every {settings.scrape_interval_minutes} minutes)")
+
     yield
+
     # Shutdown
+    if _scheduler is not None:
+        _scheduler.shutdown(wait=False)
+        print("Scheduler stopped")
     print("Shutting down FOSDEM Explorer")
     close_connection()
     print("Database connection closed")

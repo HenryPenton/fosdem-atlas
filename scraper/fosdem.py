@@ -1,10 +1,26 @@
 """FOSDEM schedule scraper - fetches and parses the Pentabarf XML feed."""
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime
 
 import httpx
 from lxml import etree
+
+
+@dataclass
+class Speaker:
+    """A speaker at FOSDEM."""
+
+    id: str
+    name: str
+
+
+@dataclass
+class Link:
+    """A link associated with an event."""
+
+    href: str
+    title: str
 
 
 @dataclass
@@ -18,6 +34,10 @@ class Event:
     room: str
     track: str
     day: str
+    subtitle: str = ""
+    abstract: str = ""
+    speakers: list[Speaker] = field(default_factory=list)
+    links: list[Link] = field(default_factory=list)
 
 
 def fetch_schedule_xml(url: str) -> bytes:
@@ -44,6 +64,8 @@ def parse_schedule(xml_content: bytes) -> list[Event]:
 
                 # Extract text fields
                 title = _get_text(event_elem, "title")
+                subtitle = _get_text(event_elem, "subtitle")
+                abstract = _get_text(event_elem, "abstract")
                 track = _get_text(event_elem, "track")
                 start_str = _get_text(event_elem, "start")
                 duration_str = _get_text(event_elem, "duration")
@@ -54,15 +76,35 @@ def parse_schedule(xml_content: bytes) -> list[Event]:
                 # Parse duration (format: HH:MM)
                 duration_minutes = _parse_duration(duration_str)
 
+                # Parse speakers
+                speakers: list[Speaker] = []
+                for person in event_elem.findall(".//person"):
+                    person_id = person.get("id", "")
+                    person_name = person.text.strip() if person.text else ""
+                    if person_name:
+                        speakers.append(Speaker(id=person_id, name=person_name))
+
+                # Parse links
+                links: list[Link] = []
+                for link in event_elem.findall(".//link"):
+                    href = link.get("href", "")
+                    link_title = link.text.strip() if link.text else href
+                    if href:
+                        links.append(Link(href=href, title=link_title))
+
                 events.append(
                     Event(
                         id=event_id,
                         title=title,
+                        subtitle=subtitle,
+                        abstract=abstract,
                         start_time=start_time,
                         duration_minutes=duration_minutes,
                         room=room_name,
                         track=track,
                         day=day_date,
+                        speakers=speakers,
+                        links=links,
                     )
                 )
 
