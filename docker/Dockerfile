@@ -13,8 +13,6 @@ ENV PATH="/app/venv/bin:$PATH"
 
 COPY pyproject.toml .
 COPY src/ src/
-COPY scraper/ scraper/
-COPY db/ db/
 RUN pip install --upgrade pip && pip install --no-cache-dir .
 
 # Set ownership and switch to non-root user

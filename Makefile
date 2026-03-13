@@ -21,7 +21,7 @@ dev: venv ## Install development dependencies
 	$(BIN)/pre-commit install
 
 run: ## Run the application
-	$(BIN)/uvicorn src.main:app --reload --host 0.0.0.0 --port 8000
+	$(BIN)/uvicorn src.main:app --reload --host 0.0.0.0 --port 8001
 
 run-prod: ## Run in production mode (single worker — DuckDB is single-process)
 	$(BIN)/uvicorn src.main:app --host 0.0.0.0 --port 8000
