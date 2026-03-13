@@ -35,7 +35,7 @@ test: ## Run tests
 lint: ## Run linting
 	$(BIN)/ruff check src scraper db tests
 	$(BIN)/ruff format --check src scraper db tests
-	$(BIN)/mypy src
+	$(BIN)/mypy src scraper db
 
 format: ## Format code
 	$(BIN)/ruff check --fix src scraper db tests
