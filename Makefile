@@ -1,4 +1,4 @@
-.PHONY: help venv dev install run test lint format clean scrape
+.PHONY: help venv dev install run test lint format clean
 
 PYTHON := python3.13
 VENV := venv
@@ -26,20 +26,17 @@ run: ## Run the application
 run-prod: ## Run in production mode (single worker — DuckDB is single-process)
 	$(BIN)/uvicorn src.main:app --host 0.0.0.0 --port 8000
 
-scrape: ## Scrape the FOSDEM schedule
-	$(BIN)/python -m src.cli scrape
-
 test: ## Run tests
 	$(BIN)/pytest
 
 lint: ## Run linting
-	$(BIN)/ruff check src scraper db tests
-	$(BIN)/ruff format --check src scraper db tests
-	$(BIN)/mypy src scraper db
+	$(BIN)/ruff check src tests
+	$(BIN)/ruff format --check src tests
+	$(BIN)/mypy src
 
 format: ## Format code
-	$(BIN)/ruff check --fix src scraper db tests
-	$(BIN)/ruff format src scraper db tests
+	$(BIN)/ruff check --fix src tests
+	$(BIN)/ruff format src tests
 
 clean: ## Clean up
 	rm -rf $(VENV) __pycache__ .pytest_cache .mypy_cache .ruff_cache htmlcov .coverage

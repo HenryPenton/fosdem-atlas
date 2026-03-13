@@ -1,122 +1,74 @@
-"""FOSDEM Explorer - FastAPI application entry point."""
+"""FOSDEM Explorer - composition root.
+
+Wires together all adapters and starts the application.
+"""
 
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
-from pathlib import Path
+from datetime import datetime
 
 from apscheduler.schedulers.background import BackgroundScheduler
-from fastapi import FastAPI, Request
-from fastapi.responses import HTMLResponse
-from fastapi.staticfiles import StaticFiles
-from fastapi.templating import Jinja2Templates
+from fastapi import FastAPI
 
-from db.connection import close_connection, get_connection
-from db.events import get_all_events, get_event_count, get_unique_days
+from src.adapters.persistence.duckdb_connection import DuckDBConnection
+from src.adapters.persistence.duckdb_repository import DuckDBEventRepository
+from src.adapters.scraper.fosdem_scraper import FosdemScheduleFetcher
+from src.adapters.web.app import create_app
+from src.application.services import ScrapeService
 from src.config import settings
 
-# Paths
-BASE_DIR = Path(__file__).resolve().parent
-TEMPLATES_DIR = BASE_DIR / "templates"
-STATIC_DIR = BASE_DIR / "static"
+# Wire adapters
+_db = DuckDBConnection(settings.database_path)
+_event_repository = DuckDBEventRepository(_db)
+_schedule_fetcher = FosdemScheduleFetcher()
+_scrape_service = ScrapeService(_schedule_fetcher, _event_repository)
 
-_scheduler: BackgroundScheduler | None = None
 
-
-def _run_scrape_job() -> None:
-    """Scheduled scrape job."""
-    from db.events import insert_events
-    from scraper.fosdem import scrape
-
+def _run_scrape() -> None:
+    """Scheduled scrape job with error handling."""
     print(f"Scheduled scrape: fetching {settings.fosdem_schedule_url}")
     try:
-        events = scrape(settings.fosdem_schedule_url)
-        count = insert_events(events)
+        count = _scrape_service.run(settings.fosdem_schedule_url)
         print(f"Scheduled scrape complete: {count} events stored")
     except Exception as exc:
         print(f"Scheduled scrape failed: {exc}")
 
 
 @asynccontextmanager
-async def lifespan(_app: FastAPI) -> AsyncGenerator[None, None]:
-    """Application lifespan handler for startup/shutdown events."""
-    global _scheduler
-
-    # Startup
+async def _lifespan(_app: FastAPI) -> AsyncGenerator[None, None]:
     print(f"Starting FOSDEM Explorer v{settings.version}")
     print(f"Database: {settings.database_path}")
-    get_connection()
+    _db.get()
     print("Database connected")
 
-    _scheduler = BackgroundScheduler()
-    _scheduler.add_job(
-        _run_scrape_job,
+    scheduler = BackgroundScheduler()
+    scheduler.add_job(
+        _run_scrape,
         "interval",
         minutes=settings.scrape_interval_minutes,
         id="scrape",
+        next_run_time=datetime.now(),
     )
-    _scheduler.start()
+    scheduler.start()
     print(f"Scheduler started (every {settings.scrape_interval_minutes} minutes)")
 
     yield
 
-    # Shutdown
-    if _scheduler is not None:
-        _scheduler.shutdown(wait=False)
-        print("Scheduler stopped")
+    scheduler.shutdown(wait=False)
+    print("Scheduler stopped")
     print("Shutting down FOSDEM Explorer")
-    close_connection()
+    _db.close()
     print("Database connection closed")
 
 
-app = FastAPI(
-    title="FOSDEM Explorer",
-    description="A DuckDB-powered web application for exploring the FOSDEM schedule",
-    version=settings.version,
-    lifespan=lifespan,
+app = create_app(
+    event_repository=_event_repository,
+    settings=settings,
+    lifespan=_lifespan,
 )
 
-# Mount static files
-app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
-# Templates
-templates = Jinja2Templates(directory=TEMPLATES_DIR)
-
-
-@app.get("/", response_class=HTMLResponse)
-async def index(request: Request) -> HTMLResponse:
-    """Render the main page."""
-    event_count = get_event_count()
-    days = get_unique_days()
-    return templates.TemplateResponse(
-        request=request,
-        name="index.html",
-        context={
-            "title": "FOSDEM Explorer",
-            "event_count": event_count,
-            "days": days,
-        },
-    )
-
-
-@app.get("/api/events", response_class=HTMLResponse)
-async def api_events(request: Request) -> HTMLResponse:
-    """Return events as HTML partial for HTMX."""
-    events = get_all_events()
-    return templates.TemplateResponse(
-        request=request,
-        name="partials/event_list.html",
-        context={"events": events},
-    )
-
-
-@app.get("/health")
-async def health() -> dict[str, str]:
-    """Health check endpoint."""
-    return {"status": "healthy", "version": settings.version}
-
-
-def run() -> None:
-    """Run the application with uvicorn."""
+if __name__ == "__main__":
     import uvicorn
 
     uvicorn.run(
@@ -125,7 +77,3 @@ def run() -> None:
         port=settings.port,
         reload=settings.debug,
     )
-
-
-if __name__ == "__main__":
-    run()
