@@ -39,6 +39,7 @@ def main() -> int:
 
 def cmd_scrape(args: argparse.Namespace) -> int:
     """Run the scraper."""
+    from db.events import insert_events
     from scraper.fosdem import scrape
 
     print(f"Fetching schedule from {args.url}...")
@@ -46,6 +47,11 @@ def cmd_scrape(args: argparse.Namespace) -> int:
     try:
         events = scrape(args.url)
         print(f"Found {len(events)} events")
+
+        # Save to database
+        print("Saving to database...")
+        count = insert_events(events)
+        print(f"Saved {count} events to database")
 
         # Group by day
         days: dict[str, int] = {}
@@ -63,14 +69,6 @@ def cmd_scrape(args: argparse.Namespace) -> int:
 
         print(f"Tracks: {len(tracks)}")
         print(f"Rooms: {len(rooms)}")
-
-        # Show first few events as sample
-        print("\nSample events:")
-        for event in events[:5]:
-            print(f"  [{event.id}] {event.title[:60]}...")
-            print(
-                f"       {event.day} {event.start_time.strftime('%H:%M')} | {event.room} | {event.track}"
-            )
 
         return 0
 

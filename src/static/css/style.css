@@ -98,6 +98,30 @@ main {
     font-size: 1.1rem;
 }
 
+.hero .stats {
+    margin-top: 0.5rem;
+    font-weight: 500;
+    color: var(--secondary-color);
+}
+
+/* Event List */
+.event-list {
+    display: grid;
+    gap: 1rem;
+}
+
+.no-events {
+    text-align: center;
+    padding: 3rem;
+    color: var(--text-muted);
+}
+
+.no-events code {
+    background: var(--border-color);
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+}
+
 /* Search Section */
 .search-section {
     margin-bottom: 2rem;

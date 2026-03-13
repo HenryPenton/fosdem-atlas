@@ -9,6 +9,8 @@ from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
+from db.connection import close_connection, get_connection
+from db.events import get_all_events, get_event_count, get_unique_days
 from src.config import settings
 
 # Paths
@@ -23,13 +25,14 @@ async def lifespan(_app: FastAPI) -> AsyncGenerator[None, None]:
     # Startup
     print(f"Starting FOSDEM Explorer v{settings.version}")
     print(f"Database: {settings.database_path}")
-    # TODO: Initialize DuckDB connection
-    # TODO: Start scheduler for scraping
+    # Initialize DuckDB connection
+    get_connection()
+    print("Database connected")
     yield
     # Shutdown
     print("Shutting down FOSDEM Explorer")
-    # TODO: Close DuckDB connection
-    # TODO: Stop scheduler
+    close_connection()
+    print("Database connection closed")
 
 
 app = FastAPI(
@@ -49,12 +52,27 @@ templates = Jinja2Templates(directory=TEMPLATES_DIR)
 @app.get("/", response_class=HTMLResponse)
 async def index(request: Request) -> HTMLResponse:
     """Render the main page."""
+    event_count = get_event_count()
+    days = get_unique_days()
     return templates.TemplateResponse(
         request=request,
         name="index.html",
         context={
             "title": "FOSDEM Explorer",
+            "event_count": event_count,
+            "days": days,
         },
+    )
+
+
+@app.get("/api/events", response_class=HTMLResponse)
+async def api_events(request: Request) -> HTMLResponse:
+    """Return events as HTML partial for HTMX."""
+    events = get_all_events()
+    return templates.TemplateResponse(
+        request=request,
+        name="partials/event_list.html",
+        context={"events": events},
     )
 
 

@@ -4,30 +4,15 @@
 <div class="container">
     <section class="hero">
         <h1>FOSDEM Explorer</h1>
-        <p>Explore, search, and analyze the FOSDEM 2026 schedule</p>
-    </section>
-
-    <section class="search-section">
-        <form hx-get="/api/events/search" hx-target="#results" hx-trigger="submit, keyup changed delay:300ms from:input">
-            <input
-                type="search"
-                name="q"
-                placeholder="Search talks, speakers, tracks..."
-                autocomplete="off"
-            >
-            <button type="submit">Search</button>
-        </form>
-    </section>
-
-    <section class="filters">
-        <div hx-get="/api/tracks" hx-trigger="load" hx-target="this">
-            Loading tracks...
-        </div>
+        <p>Explore the FOSDEM 2026 schedule</p>
+        {% if event_count > 0 %}
+        <p class="stats">{{ event_count }} events across {{ days|length }} days</p>
+        {% endif %}
     </section>
 
     <section id="results" class="results">
         <div hx-get="/api/events" hx-trigger="load" hx-target="this">
-            Loading schedule...
+            <div class="loading">Loading schedule...</div>
         </div>
     </section>
 </div>

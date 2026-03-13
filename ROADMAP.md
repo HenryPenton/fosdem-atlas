@@ -30,18 +30,18 @@ Build an open-source tool that scrapes the FOSDEM schedule, stores it in DuckDB 
 - [x] Parse events: id, title, start/end time, room, track
 - [x] Run manually via CLI command (`make scrape`)
 
-### 1.4 Basic DuckDB
+### 1.4 Basic DuckDB ✓
 
-- [ ] Single `events` table (id, title, start_time, end_time, room, track)
-- [ ] Insert scraped events
-- [ ] Basic query to list all events
+- [x] Single `events` table (id, title, start_time, end_time, room, track)
+- [x] Insert scraped events
+- [x] Basic query to list all events
 
-### 1.5 Basic Web Page
+### 1.5 Basic Web Page ✓
 
-- [ ] Homepage lists all events from DuckDB
-- [ ] Each event shows: title, time, room, track
-- [ ] HTMX loads event list
-- [ ] Footer with FOSDEM attribution
+- [x] Homepage lists all events from DuckDB
+- [x] Each event shows: title, time, room, track
+- [x] HTMX loads event list
+- [x] Footer with FOSDEM attribution
 
 ### 1.6 Docker & First Release
 
