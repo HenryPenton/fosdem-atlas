@@ -195,6 +195,34 @@ def create_app(
             },
         )
 
+    @app.get("/tracks", response_class=HTMLResponse)
+    async def tracks_browser(request: Request) -> HTMLResponse:
+        tracks = event_repository.get_unique_tracks()
+        track_events = {t: len(event_repository.get_events_by_track(t)) for t in tracks}
+        return templates.TemplateResponse(
+            request=request,
+            name="tracks.html",
+            context={
+                "title": "FOSDEM Explorer — Tracks",
+                "tracks": tracks,
+                "track_events": track_events,
+            },
+        )
+
+    @app.get("/track/{track:path}", response_class=HTMLResponse)
+    async def track_detail(request: Request, track: str) -> HTMLResponse:
+        events = event_repository.get_events_by_track(track)
+        return templates.TemplateResponse(
+            request=request,
+            name="track.html",
+            context={
+                "title": f"FOSDEM Explorer — {track}",
+                "day": None,
+                "track": track,
+                "events": events,
+            },
+        )
+
     @app.get("/event/{event_id}", response_class=HTMLResponse)
     async def event_detail(request: Request, event_id: str) -> HTMLResponse:
         from fastapi.responses import Response

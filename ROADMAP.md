@@ -104,9 +104,8 @@ Build an open-source tool that scrapes the FOSDEM schedule, stores it in DuckDB 
 
 ### 3.3 Track Browser
 
-- [ ] List all tracks
-- [ ] Click track → see all events in that track
-- [ ] Track description if available
+- [x] List all tracks
+- [x] Click track → see all events in that track
 
 ### 3.4 Speaker Browser
 

@@ -4,14 +4,22 @@
 <div class="container">
     <nav class="breadcrumb">
         <a href="/">Schedule</a> <span class="sep">&rsaquo;</span>
+        {% if day %}
         <a href="/day/{{ day }}">{{ day }}</a> <span class="sep">&rsaquo;</span>
+        {% else %}
+        <a href="/tracks">Tracks</a> <span class="sep">&rsaquo;</span>
+        {% endif %}
         <span>{{ track }}</span>
     </nav>
 
     <section class="hero">
         <div class="hero-icon">🎤</div>
         <h1>{{ track }}</h1>
+        {% if day %}
         <p class="hero-subtitle">{{ events|length }} talk{{ 's' if events|length != 1 }} on {{ day }}</p>
+        {% else %}
+        <p class="hero-subtitle">{{ events|length }} talk{{ 's' if events|length != 1 }} across all days</p>
+        {% endif %}
     </section>
 
     <section class="event-list">
@@ -24,6 +32,7 @@
                 <p class="subtitle">{{ event.subtitle }}</p>
                 {% endif %}
                 <div class="meta">
+                    {% if not day %}<span class="day">📅 {{ event.day }}</span>{% endif %}
                     <span class="room">📍 {{ event.room }}</span>
                     <span class="duration">⏱️ {{ event.duration_minutes }} min</span>
                 </div>

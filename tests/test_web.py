@@ -255,3 +255,50 @@ class TestEventDetailPage:
     def test_returns_404_for_unknown_event(self, client: TestClient) -> None:
         response = client.get("/event/nonexistent")
         assert response.status_code == 404
+
+
+class TestTracksBrowserPage:
+    def test_returns_200(self, client: TestClient) -> None:
+        response = client.get("/tracks")
+        assert response.status_code == 200
+
+    def test_lists_all_tracks(self, client: TestClient) -> None:
+        response = client.get("/tracks")
+        assert "Rust" in response.text
+        assert "Python" in response.text
+        assert "Databases" in response.text
+
+    def test_shows_talk_counts(self, client: TestClient) -> None:
+        response = client.get("/tracks")
+        assert "1 talk" in response.text
+
+    def test_links_to_track_detail(self, client: TestClient) -> None:
+        response = client.get("/tracks")
+        assert "/track/Rust" in response.text
+
+
+class TestTrackDetailPage:
+    def test_returns_200(self, client: TestClient) -> None:
+        response = client.get("/track/Rust")
+        assert response.status_code == 200
+
+    def test_shows_events_in_track(self, client: TestClient) -> None:
+        response = client.get("/track/Rust")
+        assert "Intro to Rust" in response.text
+
+    def test_shows_events_across_days(self, client: TestClient) -> None:
+        response = client.get("/track/Databases")
+        assert "DuckDB Internals" in response.text
+        assert "2026-02-08" in response.text
+
+    def test_breadcrumb_links_to_tracks(self, client: TestClient) -> None:
+        response = client.get("/track/Rust")
+        assert "/tracks" in response.text
+
+    def test_nonexistent_track_returns_200(self, client: TestClient) -> None:
+        response = client.get("/track/NoSuchTrack")
+        assert response.status_code == 200
+
+    def test_track_with_slash_in_name(self, client: TestClient) -> None:
+        response = client.get("/track/BOF/Unconference")
+        assert response.status_code == 200
