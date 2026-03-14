@@ -3,7 +3,7 @@
 from pathlib import Path
 from typing import Any
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Query, Request
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -77,6 +77,17 @@ def create_app(
                 "track": track,
                 "events": events,
             },
+        )
+
+    @app.get("/api/events/search", response_class=HTMLResponse)
+    async def api_events_search(
+        request: Request, q: str = Query(default="", max_length=200)
+    ) -> HTMLResponse:
+        events = event_repository.search_events(q.strip()) if q.strip() else []
+        return templates.TemplateResponse(
+            request=request,
+            name="partials/search_results.html",
+            context={"events": events, "query": q.strip()},
         )
 
     @app.get("/api/events", response_class=HTMLResponse)

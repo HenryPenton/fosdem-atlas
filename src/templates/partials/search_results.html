@@ -1,0 +1,29 @@
+{% if query %}
+    {% if events %}
+    <div class="search-results-header">
+        <span class="search-results-count">{{ events|length }} result{{ 's' if events|length != 1 }} for <strong>"{{ query }}"</strong></span>
+    </div>
+    <div class="event-list">
+        {% for event in events %}
+        <div class="event-card">
+            <h3>{{ event.title }}</h3>
+            {% if event.abstract %}
+            <p class="event-abstract">{{ event.abstract | truncate(160) }}</p>
+            {% endif %}
+            <div class="meta">
+                <span class="day">📅 {{ event.day }}</span>
+                <span class="time">{{ event.start_time.strftime('%H:%M') }}</span>
+                <span class="room">📍 {{ event.room }}</span>
+                <span class="duration">⏱️ {{ event.duration_minutes }} min</span>
+            </div>
+            <span class="track">{{ event.track }}</span>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="no-events search-no-results">
+        <div class="no-events-icon">🔍</div>
+        <p>No events found for <strong>"{{ query }}"</strong>.</p>
+    </div>
+    {% endif %}
+{% endif %}

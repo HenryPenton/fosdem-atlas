@@ -31,6 +31,8 @@ class EventRepository(Protocol):
 
     def get_speakers_for_event(self, event_id: str) -> list[dict[str, str]]: ...
 
+    def search_events(self, q: str) -> list[dict[str, str | int | datetime]]: ...
+
 
 class ScheduleFetcher(Protocol):
     """Port for fetching the conference schedule."""

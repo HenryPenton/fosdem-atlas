@@ -171,3 +171,30 @@ class DuckDBEventRepository:
             [event_id],
         ).fetchall()
         return [{"id": row[0], "name": row[1]} for row in result]
+
+    def search_events(self, q: str) -> list[dict[str, str | int | datetime]]:
+        conn = self._db.get()
+        pattern = f"%{q}%"
+        result = conn.execute(
+            """
+            SELECT id, title, abstract, start_time, duration_minutes, room, track, day
+            FROM events
+            WHERE title ILIKE ? OR abstract ILIKE ?
+            ORDER BY start_time, room
+            LIMIT 100
+            """,
+            [pattern, pattern],
+        ).fetchall()
+        return [
+            {
+                "id": row[0],
+                "title": row[1],
+                "abstract": row[2],
+                "start_time": row[3],
+                "duration_minutes": row[4],
+                "room": row[5],
+                "track": row[6],
+                "day": row[7],
+            }
+            for row in result
+        ]

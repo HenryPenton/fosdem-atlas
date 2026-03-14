@@ -21,6 +21,25 @@
     </section>
 
     {% if days %}
+    <section class="search-section">
+        <div class="search-bar">
+            <input
+                type="search"
+                name="q"
+                placeholder="Search talks by title or abstract…"
+                autocomplete="off"
+                hx-get="/api/events/search"
+                hx-trigger="input changed delay:300ms, search"
+                hx-target="#search-results"
+                hx-swap="innerHTML"
+                class="search-input"
+                aria-label="Search events"
+            />
+            <span class="search-icon">🔍</span>
+        </div>
+        <div id="search-results"></div>
+    </section>
+
     <section class="day-picker">
         <h2>Choose a day</h2>
         <div class="day-grid">
