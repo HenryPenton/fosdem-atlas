@@ -183,6 +183,49 @@ class TestSchedulePage:
         assert "Intro to Rust" in response.text
 
 
+class TestGridPage:
+    def test_returns_200(self, client: TestClient) -> None:
+        response = client.get("/grid")
+        assert response.status_code == 200
+
+    def test_defaults_to_first_day(self, client: TestClient) -> None:
+        response = client.get("/grid")
+        assert "2026-02-07" in response.text
+
+    def test_select_specific_day(self, client: TestClient) -> None:
+        response = client.get("/grid?day=2026-02-08")
+        assert response.status_code == 200
+        assert "DuckDB Internals" in response.text
+
+    def test_shows_rooms_as_columns(self, client: TestClient) -> None:
+        response = client.get("/grid?day=2026-02-07")
+        assert "Room A" in response.text
+        assert "Room B" in response.text
+
+    def test_shows_time_slots(self, client: TestClient) -> None:
+        response = client.get("/grid?day=2026-02-07")
+        assert "10:00" in response.text
+
+    def test_events_link_to_detail(self, client: TestClient) -> None:
+        response = client.get("/grid?day=2026-02-07")
+        assert "/event/1" in response.text
+
+    def test_shows_day_picker(self, client: TestClient) -> None:
+        response = client.get("/grid")
+        assert "day=2026-02-07" in response.text
+        assert "day=2026-02-08" in response.text
+
+    def test_invalid_day_falls_back_to_first(self, client: TestClient) -> None:
+        response = client.get("/grid?day=invalid")
+        assert response.status_code == 200
+        # Should still show content (falls back to first day)
+        assert "Room A" in response.text
+
+    def test_grid_table_present(self, client: TestClient) -> None:
+        response = client.get("/grid?day=2026-02-07")
+        assert "schedule-grid" in response.text
+
+
 class TestEventDetailPage:
     def test_returns_200(self, client: TestClient) -> None:
         response = client.get("/event/1")

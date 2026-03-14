@@ -98,9 +98,9 @@ Build an open-source tool that scrapes the FOSDEM schedule, stores it in DuckDB 
 
 ### 3.2 Timeline/Grid View
 
-- [ ] Visual grid: rooms × time slots
-- [ ] Click cell → event details
-- [ ] Mobile-responsive
+- [x] Visual grid: rooms × time slots
+- [x] Click cell → event details
+- [x] Mobile-responsive
 
 ### 3.3 Track Browser
 

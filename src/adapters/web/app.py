@@ -1,5 +1,6 @@
 """FastAPI web adapter."""
 
+from collections import defaultdict
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any
@@ -95,6 +96,71 @@ def create_app(
                 "sort": sort,
                 "now_ids": now_ids,
                 "next_ids": next_ids,
+            },
+        )
+
+    @app.get("/grid", response_class=HTMLResponse)
+    async def grid(
+        request: Request,
+        day: str = Query(default="", max_length=20),
+    ) -> HTMLResponse:
+        days = event_repository.get_unique_days()
+        if not days:
+            return templates.TemplateResponse(
+                request=request,
+                name="grid.html",
+                context={
+                    "title": "FOSDEM Explorer — Grid",
+                    "days": [],
+                    "selected_day": "",
+                    "rooms": [],
+                    "time_slots": [],
+                    "grid": {},
+                },
+            )
+
+        selected_day = day if day in days else days[0]
+        rooms = event_repository.get_rooms_by_day(selected_day)
+        events = event_repository.get_events_by_day(selected_day)
+
+        # Build set of 30-minute time slots spanning the day's events
+        starts: list[datetime] = []
+        ends: list[datetime] = []
+        for ev in events:
+            st = ev["start_time"]
+            if isinstance(st, datetime):
+                starts.append(st)
+                dur = ev["duration_minutes"]
+                ends.append(st + timedelta(minutes=int(dur)))  # type: ignore[arg-type]
+
+        time_slots: list[datetime] = []
+        if starts:
+            slot_start = min(starts).replace(minute=(min(starts).minute // 30) * 30, second=0)
+            slot_end = max(ends)
+            current = slot_start
+            while current < slot_end:
+                time_slots.append(current)
+                current += timedelta(minutes=30)
+
+        # Map (slot, room) → list of events
+        grid: dict[str, dict[str, list[dict[str, Any]]]] = defaultdict(lambda: defaultdict(list))
+        for ev in events:
+            st = ev["start_time"]
+            if not isinstance(st, datetime):
+                continue
+            slot_key = st.replace(minute=(st.minute // 30) * 30, second=0).strftime("%H:%M")
+            grid[slot_key][str(ev["room"])].append(ev)
+
+        return templates.TemplateResponse(
+            request=request,
+            name="grid.html",
+            context={
+                "title": f"FOSDEM Explorer — Grid ({selected_day})",
+                "days": days,
+                "selected_day": selected_day,
+                "rooms": rooms,
+                "time_slots": time_slots,
+                "grid": dict(grid),
             },
         )
 

@@ -129,6 +129,14 @@ class DuckDBEventRepository:
         result = conn.execute("SELECT DISTINCT room FROM events ORDER BY room").fetchall()
         return [str(row[0]) for row in result]
 
+    def get_rooms_by_day(self, day: str) -> list[str]:
+        conn = self._db.get()
+        result = conn.execute(
+            "SELECT DISTINCT room FROM events WHERE day = ? ORDER BY room",
+            [day],
+        ).fetchall()
+        return [str(row[0]) for row in result]
+
     def get_tracks_by_day(self, day: str) -> list[str]:
         conn = self._db.get()
         result = conn.execute(

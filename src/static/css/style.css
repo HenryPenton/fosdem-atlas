@@ -532,6 +532,136 @@ main {
     font-weight: 600;
 }
 
+/* Schedule Grid */
+.grid-controls {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+}
+
+.grid-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    background: var(--card-background);
+}
+
+.schedule-grid {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 600px;
+    font-size: 0.85rem;
+}
+
+.schedule-grid th,
+.schedule-grid td {
+    border: 1px solid var(--border-color);
+    padding: 0.5rem;
+    vertical-align: top;
+    text-align: left;
+}
+
+.grid-corner {
+    position: sticky;
+    left: 0;
+    z-index: 2;
+    background: var(--card-background);
+    min-width: 65px;
+    font-weight: 700;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    text-transform: uppercase;
+}
+
+.grid-room-header {
+    background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+    color: white;
+    font-weight: 600;
+    font-size: 0.8rem;
+    white-space: nowrap;
+    min-width: 140px;
+    text-align: center;
+}
+
+.grid-time {
+    position: sticky;
+    left: 0;
+    z-index: 1;
+    background: var(--background-color);
+    font-weight: 700;
+    color: var(--primary-color);
+    font-size: 0.85rem;
+    white-space: nowrap;
+    text-align: center;
+}
+
+.grid-cell {
+    min-height: 50px;
+    background: var(--card-background);
+}
+
+.grid-cell--filled {
+    background: var(--primary-light);
+}
+
+.grid-event {
+    display: block;
+    padding: 0.35rem 0.5rem;
+    margin-bottom: 0.25rem;
+    border-radius: 6px;
+    background: var(--card-background);
+    border-left: 3px solid var(--primary-color);
+    text-decoration: none;
+    color: var(--text-color);
+    transition: box-shadow 0.15s, border-color 0.15s;
+}
+
+.grid-event:hover {
+    box-shadow: 0 2px 8px rgba(26, 86, 219, 0.15);
+    border-left-color: var(--gradient-end);
+}
+
+.grid-event:last-child {
+    margin-bottom: 0;
+}
+
+.grid-event-title {
+    display: block;
+    font-weight: 600;
+    font-size: 0.8rem;
+    line-height: 1.3;
+}
+
+.grid-event-meta {
+    display: block;
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    margin-top: 0.15rem;
+}
+
+@media (max-width: 768px) {
+    .grid-room-header {
+        min-width: 110px;
+        font-size: 0.7rem;
+    }
+
+    .grid-event-title {
+        font-size: 0.7rem;
+    }
+
+    .grid-event-meta {
+        font-size: 0.65rem;
+    }
+
+    .schedule-grid th,
+    .schedule-grid td {
+        padding: 0.35rem;
+    }
+}
+
 /* Footer */
 footer {
     background: var(--text-color);
