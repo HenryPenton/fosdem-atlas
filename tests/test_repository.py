@@ -191,3 +191,30 @@ class TestFilterEvents:
         # Rust track is only on 2026-02-07, not 2026-02-08
         results = seeded_repository.filter_events(track="Rust", day="2026-02-08")
         assert results == []
+
+
+class TestGetEventById:
+    def test_returns_event(self, seeded_repository: DuckDBEventRepository) -> None:
+        event = seeded_repository.get_event_by_id("1")
+        assert event is not None
+        assert event["title"] == "Intro to Rust"
+
+    def test_returns_none_for_missing_id(self, seeded_repository: DuckDBEventRepository) -> None:
+        assert seeded_repository.get_event_by_id("nonexistent") is None
+
+    def test_includes_all_fields(self, seeded_repository: DuckDBEventRepository) -> None:
+        event = seeded_repository.get_event_by_id("1")
+        assert event is not None
+        for field in (
+            "id",
+            "title",
+            "subtitle",
+            "abstract",
+            "start_time",
+            "duration_minutes",
+            "room",
+            "track",
+            "day",
+            "fosdem_url",
+        ):
+            assert field in event

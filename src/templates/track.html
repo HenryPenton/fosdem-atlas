@@ -19,7 +19,7 @@
         <div class="event-card">
             <div class="event-time-badge">{{ event.start_time.strftime('%H:%M') }}</div>
             <div class="event-body">
-                <h3>{{ event.title }}</h3>
+                <h3><a href="/event/{{ event.id }}" class="event-title-link">{{ event.title }}</a></h3>
                 {% if event.subtitle %}
                 <p class="subtitle">{{ event.subtitle }}</p>
                 {% endif %}

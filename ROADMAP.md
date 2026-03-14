@@ -78,9 +78,9 @@ Build an open-source tool that scrapes the FOSDEM schedule, stores it in DuckDB 
 
 ### 2.4 Event Detail Page
 
-- [ ] `/event/{id}` page with full abstract
-- [ ] Speaker names and links
-- [ ] Link to original FOSDEM page
+- [x] `/event/{id}` page with full abstract
+- [x] Speaker names and links
+- [x] Link to original FOSDEM page
 
 **🎯 Deliverable:** Search "Rust" → see all Rust talks, click through to details.
 

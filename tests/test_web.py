@@ -142,3 +142,34 @@ class TestApiEventsSearch:
     def test_filter_no_match(self, client: TestClient) -> None:
         response = client.get("/api/events/search?track=NoSuchTrack")
         assert "No events found" in response.text
+
+
+class TestEventDetailPage:
+    def test_returns_200(self, client: TestClient) -> None:
+        response = client.get("/event/1")
+        assert response.status_code == 200
+
+    def test_shows_event_title(self, client: TestClient) -> None:
+        response = client.get("/event/1")
+        assert "Intro to Rust" in response.text
+
+    def test_shows_abstract(self, client: TestClient) -> None:
+        response = client.get("/event/1")
+        assert "Learn Rust basics" in response.text
+
+    def test_shows_speaker(self, client: TestClient) -> None:
+        response = client.get("/event/3")
+        assert "Mark" in response.text
+
+    def test_shows_track_and_room(self, client: TestClient) -> None:
+        response = client.get("/event/1")
+        assert "Rust" in response.text
+        assert "Room A" in response.text
+
+    def test_shows_back_link(self, client: TestClient) -> None:
+        response = client.get("/event/1")
+        assert "/day/2026-02-07/track/Rust" in response.text
+
+    def test_returns_404_for_unknown_event(self, client: TestClient) -> None:
+        response = client.get("/event/nonexistent")
+        assert response.status_code == 404

@@ -12,7 +12,7 @@
     <div class="event-list">
         {% for event in events %}
         <div class="event-card">
-            <h3>{{ event.title }}</h3>
+            <h3><a href="/event/{{ event.id }}" class="event-title-link">{{ event.title }}</a></h3>
             {% if event.abstract %}
             <p class="event-abstract">{{ event.abstract | truncate(160) }}</p>
             {% endif %}

@@ -83,6 +83,24 @@ def create_app(
             },
         )
 
+    @app.get("/event/{event_id}", response_class=HTMLResponse)
+    async def event_detail(request: Request, event_id: str) -> HTMLResponse:
+        from fastapi.responses import Response
+
+        event = event_repository.get_event_by_id(event_id)
+        if event is None:
+            return Response(content="Event not found", status_code=404)  # type: ignore[return-value]
+        speakers = event_repository.get_speakers_for_event(event_id)
+        return templates.TemplateResponse(
+            request=request,
+            name="event.html",
+            context={
+                "title": f"FOSDEM Explorer — {event['title']}",
+                "event": event,
+                "speakers": speakers,
+            },
+        )
+
     @app.get("/api/events/search", response_class=HTMLResponse)
     async def api_events_search(
         request: Request,

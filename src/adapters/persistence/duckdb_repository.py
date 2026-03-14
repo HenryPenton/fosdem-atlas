@@ -21,12 +21,13 @@ class DuckDBEventRepository:
             conn.execute("DELETE FROM speakers")
 
             for event in events:
+                fosdem_url = next((lk.href for lk in event.links if "fosdem.org" in lk.href), "")
                 conn.execute(
                     """
                     INSERT INTO events
                         (id, title, subtitle, abstract, start_time,
-                         duration_minutes, room, track, day)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                         duration_minutes, room, track, day, fosdem_url)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                     """,
                     [
                         event.id,
@@ -38,6 +39,7 @@ class DuckDBEventRepository:
                         event.room,
                         event.track,
                         event.day,
+                        fosdem_url,
                     ],
                 )
 
@@ -171,6 +173,32 @@ class DuckDBEventRepository:
             [event_id],
         ).fetchall()
         return [{"id": row[0], "name": row[1]} for row in result]
+
+    def get_event_by_id(self, event_id: str) -> dict[str, str | int | datetime] | None:
+        conn = self._db.get()
+        row = conn.execute(
+            """
+            SELECT id, title, subtitle, abstract, start_time,
+                   duration_minutes, room, track, day, fosdem_url
+            FROM events
+            WHERE id = ?
+            """,
+            [event_id],
+        ).fetchone()
+        if row is None:
+            return None
+        return {
+            "id": row[0],
+            "title": row[1],
+            "subtitle": row[2],
+            "abstract": row[3],
+            "start_time": row[4],
+            "duration_minutes": row[5],
+            "room": row[6],
+            "track": row[7],
+            "day": row[8],
+            "fosdem_url": row[9],
+        }
 
     def filter_events(
         self, q: str = "", track: str = "", room: str = "", day: str = ""

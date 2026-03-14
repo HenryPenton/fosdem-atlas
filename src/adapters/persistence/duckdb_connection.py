@@ -1,6 +1,5 @@
 """DuckDB connection management."""
 
-import contextlib
 import threading
 from pathlib import Path
 
@@ -50,17 +49,11 @@ class DuckDBConnection:
                 duration_minutes INTEGER NOT NULL,
                 room VARCHAR NOT NULL,
                 track VARCHAR NOT NULL,
-                day DATE NOT NULL
+                day DATE NOT NULL,
+                fosdem_url VARCHAR NOT NULL DEFAULT ''
             )
         """
         )
-        for col, definition in [
-            ("subtitle", "VARCHAR NOT NULL DEFAULT ''"),
-            ("abstract", "VARCHAR NOT NULL DEFAULT ''"),
-        ]:
-            with contextlib.suppress(Exception):
-                conn.execute(f"ALTER TABLE events ADD COLUMN {col} {definition}")
-
         conn.execute(
             """
             CREATE TABLE IF NOT EXISTS speakers (
