@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <nav class="breadcrumb">
+        <a href="/">Schedule</a> <span class="sep">&rsaquo;</span> <span>Speakers</span>
+    </nav>
+
+    <section class="hero">
+        <div class="hero-icon">🎤</div>
+        <h1>Speakers</h1>
+        <p class="hero-subtitle">{{ speakers|length }} speaker{{ 's' if speakers|length != 1 }} at this year's conference</p>
+    </section>
+
+    <section class="track-list">
+        {% for speaker in speakers %}
+        <a href="/speaker/{{ speaker.id }}" class="track-card">
+            <div class="track-info">
+                <h3>{{ speaker.name }}</h3>
+                <span class="track-count">{{ speaker.talk_count }} talk{{ 's' if speaker.talk_count != 1 }}</span>
+            </div>
+            <span class="track-arrow">&rarr;</span>
+        </a>
+        {% endfor %}
+    </section>
+</div>
+{% endblock %}

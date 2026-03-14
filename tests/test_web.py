@@ -299,6 +299,54 @@ class TestTrackDetailPage:
         response = client.get("/track/NoSuchTrack")
         assert response.status_code == 200
 
+
+class TestSpeakersBrowserPage:
+    def test_returns_200(self, client: TestClient) -> None:
+        response = client.get("/speakers")
+        assert response.status_code == 200
+
+    def test_lists_speakers(self, client: TestClient) -> None:
+        response = client.get("/speakers")
+        assert "Mark" in response.text
+
+    def test_shows_talk_count(self, client: TestClient) -> None:
+        response = client.get("/speakers")
+        assert "1 talk" in response.text
+
+    def test_links_to_speaker_detail(self, client: TestClient) -> None:
+        response = client.get("/speakers")
+        assert "/speaker/s1" in response.text
+
+    def test_shows_speaker_count(self, client: TestClient) -> None:
+        response = client.get("/speakers")
+        assert "1 speaker" in response.text
+
+
+class TestSpeakerDetailPage:
+    def test_returns_200(self, client: TestClient) -> None:
+        response = client.get("/speaker/s1")
+        assert response.status_code == 200
+
+    def test_shows_speaker_name(self, client: TestClient) -> None:
+        response = client.get("/speaker/s1")
+        assert "Mark" in response.text
+
+    def test_shows_their_talks(self, client: TestClient) -> None:
+        response = client.get("/speaker/s1")
+        assert "DuckDB Internals" in response.text
+
+    def test_returns_404_for_unknown_speaker(self, client: TestClient) -> None:
+        response = client.get("/speaker/nonexistent")
+        assert response.status_code == 404
+
+    def test_links_back_to_speakers(self, client: TestClient) -> None:
+        response = client.get("/speaker/s1")
+        assert "/speakers" in response.text
+
+    def test_event_links_to_detail(self, client: TestClient) -> None:
+        response = client.get("/speaker/s1")
+        assert "/event/3" in response.text
+
     def test_track_with_slash_in_name(self, client: TestClient) -> None:
         response = client.get("/track/BOF/Unconference")
         assert response.status_code == 200

@@ -218,3 +218,68 @@ class TestGetEventById:
             "fosdem_url",
         ):
             assert field in event
+
+
+class TestGetAllSpeakers:
+    def test_returns_speakers_with_talk_counts(
+        self, seeded_repository: DuckDBEventRepository
+    ) -> None:
+        speakers = seeded_repository.get_all_speakers()
+        assert len(speakers) == 1
+        assert speakers[0]["name"] == "Mark"
+        assert speakers[0]["talk_count"] == 1
+
+    def test_empty_when_no_speakers(self, repository: DuckDBEventRepository) -> None:
+        assert repository.get_all_speakers() == []
+
+    def test_ordered_by_name(self, repository: DuckDBEventRepository) -> None:
+        from datetime import datetime
+
+        from src.domain.models import Event, Speaker
+
+        events = [
+            Event(
+                id="a",
+                title="Talk A",
+                start_time=datetime(2026, 2, 7, 10, 0),
+                duration_minutes=30,
+                room="Room A",
+                track="Test",
+                day="2026-02-07",
+                speakers=[Speaker(id="z1", name="Zelda"), Speaker(id="a1", name="Alice")],
+            )
+        ]
+        repository.insert_events(events)
+        speakers = repository.get_all_speakers()
+        names = [s["name"] for s in speakers]
+        assert names == sorted(names)
+
+
+class TestGetSpeakerById:
+    def test_returns_speaker(self, seeded_repository: DuckDBEventRepository) -> None:
+        speaker = seeded_repository.get_speaker_by_id("s1")
+        assert speaker is not None
+        assert speaker["name"] == "Mark"
+        assert speaker["id"] == "s1"
+
+    def test_returns_none_for_missing_id(self, seeded_repository: DuckDBEventRepository) -> None:
+        assert seeded_repository.get_speaker_by_id("nonexistent") is None
+
+
+class TestGetEventsBySpeaker:
+    def test_returns_speakers_events(self, seeded_repository: DuckDBEventRepository) -> None:
+        events = seeded_repository.get_events_by_speaker("s1")
+        assert len(events) == 1
+        assert events[0]["title"] == "DuckDB Internals"
+
+    def test_returns_empty_for_unknown_speaker(
+        self, seeded_repository: DuckDBEventRepository
+    ) -> None:
+        assert seeded_repository.get_events_by_speaker("nonexistent") == []
+
+    def test_events_include_expected_fields(self, seeded_repository: DuckDBEventRepository) -> None:
+        events = seeded_repository.get_events_by_speaker("s1")
+        assert len(events) == 1
+        event = events[0]
+        for field in ("id", "title", "start_time", "duration_minutes", "room", "track", "day"):
+            assert field in event

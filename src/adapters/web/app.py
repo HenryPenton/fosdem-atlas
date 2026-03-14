@@ -209,6 +209,36 @@ def create_app(
             },
         )
 
+    @app.get("/speakers", response_class=HTMLResponse)
+    async def speakers_browser(request: Request) -> HTMLResponse:
+        speakers = event_repository.get_all_speakers()
+        return templates.TemplateResponse(
+            request=request,
+            name="speakers.html",
+            context={
+                "title": "FOSDEM Explorer — Speakers",
+                "speakers": speakers,
+            },
+        )
+
+    @app.get("/speaker/{speaker_id}", response_class=HTMLResponse)
+    async def speaker_detail(request: Request, speaker_id: str) -> HTMLResponse:
+        from fastapi.responses import Response
+
+        speaker = event_repository.get_speaker_by_id(speaker_id)
+        if speaker is None:
+            return Response(content="Speaker not found", status_code=404)  # type: ignore[return-value]
+        events = event_repository.get_events_by_speaker(speaker_id)
+        return templates.TemplateResponse(
+            request=request,
+            name="speaker.html",
+            context={
+                "title": f"FOSDEM Explorer — {speaker['name']}",
+                "speaker": speaker,
+                "events": events,
+            },
+        )
+
     @app.get("/track/{track:path}", response_class=HTMLResponse)
     async def track_detail(request: Request, track: str) -> HTMLResponse:
         events = event_repository.get_events_by_track(track)

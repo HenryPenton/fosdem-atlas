@@ -32,7 +32,7 @@
                 {% for speaker in speakers %}
                 <li class="speaker-item">
                     <span class="speaker-icon">🎤</span>
-                    <span class="speaker-name">{{ speaker.name }}</span>
+                    <a href="/speaker/{{ speaker.id }}" class="speaker-name">{{ speaker.name }}</a>
                 </li>
                 {% endfor %}
             </ul>
