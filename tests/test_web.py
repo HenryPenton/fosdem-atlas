@@ -144,6 +144,45 @@ class TestApiEventsSearch:
         assert "No events found" in response.text
 
 
+class TestSchedulePage:
+    def test_returns_200(self, client: TestClient) -> None:
+        response = client.get("/schedule")
+        assert response.status_code == 200
+
+    def test_shows_all_events_grouped_by_day(self, client: TestClient) -> None:
+        response = client.get("/schedule")
+        assert "Intro to Rust" in response.text
+        assert "Python Packaging" in response.text
+        assert "DuckDB Internals" in response.text
+        assert "2026-02-07" in response.text
+        assert "2026-02-08" in response.text
+
+    def test_shows_sort_controls(self, client: TestClient) -> None:
+        response = client.get("/schedule")
+        assert "sort=time" in response.text
+        assert "sort=track" in response.text
+        assert "sort=room" in response.text
+
+    def test_sort_time_is_active_by_default(self, client: TestClient) -> None:
+        response = client.get("/schedule")
+        assert "sort-btn--active" in response.text
+
+    def test_sort_by_track(self, client: TestClient) -> None:
+        response = client.get("/schedule?sort=track")
+        assert response.status_code == 200
+        assert "Intro to Rust" in response.text
+
+    def test_sort_by_room(self, client: TestClient) -> None:
+        response = client.get("/schedule?sort=room")
+        assert response.status_code == 200
+        assert "Intro to Rust" in response.text
+
+    def test_invalid_sort_falls_back_to_time(self, client: TestClient) -> None:
+        response = client.get("/schedule?sort=invalid")
+        assert response.status_code == 200
+        assert "Intro to Rust" in response.text
+
+
 class TestEventDetailPage:
     def test_returns_200(self, client: TestClient) -> None:
         response = client.get("/event/1")

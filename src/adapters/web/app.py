@@ -1,5 +1,6 @@
 """FastAPI web adapter."""
 
+from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any
 
@@ -49,6 +50,51 @@ def create_app(
                 "day_events": day_events,
                 "tracks": tracks,
                 "rooms": rooms,
+            },
+        )
+
+    @app.get("/schedule", response_class=HTMLResponse)
+    async def schedule(
+        request: Request,
+        sort: str = Query(default="time", max_length=10),
+    ) -> HTMLResponse:
+        valid_sorts = {"time", "track", "room"}
+        sort = sort if sort in valid_sorts else "time"
+        events = event_repository.get_all_events(sort=sort)
+
+        days_events: dict[str, list[dict[str, str | int | datetime]]] = {}
+        for event in events:
+            days_events.setdefault(str(event["day"]), []).append(event)
+
+        now = datetime.now()
+        now_ids: set[str] = set()
+        upcoming: list[dict[str, str | int | datetime]] = []
+        for event in events:
+            start = event["start_time"]
+            if not isinstance(start, datetime):
+                continue
+            end = start + timedelta(minutes=int(event["duration_minutes"]))  # type: ignore[arg-type]
+            if start <= now < end:
+                now_ids.add(str(event["id"]))
+            elif start > now:
+                upcoming.append(event)
+
+        next_ids: set[str] = set()
+        if upcoming:
+            next_start = min(
+                e["start_time"] for e in upcoming if isinstance(e["start_time"], datetime)
+            )
+            next_ids = {str(e["id"]) for e in upcoming if e["start_time"] == next_start}
+
+        return templates.TemplateResponse(
+            request=request,
+            name="schedule.html",
+            context={
+                "title": "FOSDEM Explorer — Schedule",
+                "days_events": days_events,
+                "sort": sort,
+                "now_ids": now_ids,
+                "next_ids": next_ids,
             },
         )
 

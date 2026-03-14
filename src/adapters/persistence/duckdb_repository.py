@@ -55,14 +55,20 @@ class DuckDBEventRepository:
 
         return len(events)
 
-    def get_all_events(self) -> list[dict[str, str | int | datetime]]:
+    def get_all_events(self, sort: str = "time") -> list[dict[str, str | int | datetime]]:
+        _order_map = {
+            "time": "start_time, room",
+            "track": "track, start_time",
+            "room": "room, start_time",
+        }
+        order_by = _order_map.get(sort, "start_time, room")
         conn = self._db.get()
         result = conn.execute(
-            """
+            f"""
             SELECT id, title, start_time, duration_minutes, room, track, day
             FROM events
-            ORDER BY start_time, room
-        """
+            ORDER BY day, {order_by}
+            """
         ).fetchall()
 
         return [

@@ -92,9 +92,9 @@ Build an open-source tool that scrapes the FOSDEM schedule, stores it in DuckDB 
 
 ### 3.1 List View (Enhanced)
 
-- [ ] Grouped by day
-- [ ] Sort by time, track, or room
-- [ ] "Now & Next" highlighting
+- [x] Grouped by day
+- [x] Sort by time, track, or room
+- [x] "Now & Next" highlighting
 
 ### 3.2 Timeline/Grid View
 
