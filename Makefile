@@ -1,4 +1,4 @@
-.PHONY: help venv dev install run test lint format clean commit bump
+.PHONY: help venv dev install run test lint format clean commit bump patch minor major
 
 PYTHON := python3.13
 VENV := venv
@@ -46,8 +46,15 @@ clean: ## Clean up
 commit: ## Create a conventional commit interactively
 	$(BIN)/cz commit
 
-bump: ## Bump version, update CHANGELOG.md, and tag
-	$(BIN)/cz bump
+# Determine optional increment level from goal (e.g. make bump patch)
+_BUMP_LEVEL := $(filter patch minor major,$(MAKECMDGOALS))
+_BUMP_FLAG  := $(if $(_BUMP_LEVEL),--increment $(shell echo $(_BUMP_LEVEL) | tr a-z A-Z),)
+
+bump: ## Bump version, update CHANGELOG.md, and tag (e.g. make bump [patch|minor|major])
+	$(BIN)/cz bump $(_BUMP_FLAG)
+
+patch minor major: ## Increment level selector for use with bump (e.g. make bump patch)
+	@true
 
 docker-build: ## Build Docker image
 	docker build -t fosdem-explorer:latest -f docker/Dockerfile .
