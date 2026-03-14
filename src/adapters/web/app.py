@@ -37,6 +37,8 @@ def create_app(
         event_count = event_repository.get_event_count()
         days = event_repository.get_unique_days()
         day_events = {d: len(event_repository.get_events_by_day(d)) for d in days}
+        tracks = event_repository.get_unique_tracks()
+        rooms = event_repository.get_unique_rooms()
         return templates.TemplateResponse(
             request=request,
             name="index.html",
@@ -45,6 +47,8 @@ def create_app(
                 "event_count": event_count,
                 "days": days,
                 "day_events": day_events,
+                "tracks": tracks,
+                "rooms": rooms,
             },
         )
 
@@ -65,7 +69,7 @@ def create_app(
             },
         )
 
-    @app.get("/day/{day}/track/{track}", response_class=HTMLResponse)
+    @app.get("/day/{day}/track/{track:path}", response_class=HTMLResponse)
     async def track_events(request: Request, day: str, track: str) -> HTMLResponse:
         events = event_repository.get_events_by_day_and_track(day, track)
         return templates.TemplateResponse(
@@ -81,13 +85,21 @@ def create_app(
 
     @app.get("/api/events/search", response_class=HTMLResponse)
     async def api_events_search(
-        request: Request, q: str = Query(default="", max_length=200)
+        request: Request,
+        q: str = Query(default="", max_length=200),
+        track: str = Query(default="", max_length=200),
+        room: str = Query(default="", max_length=200),
+        day: str = Query(default="", max_length=20),
     ) -> HTMLResponse:
-        events = event_repository.search_events(q.strip()) if q.strip() else []
+        q, track, room, day = q.strip(), track.strip(), room.strip(), day.strip()
+        if q or track or room or day:
+            events = event_repository.filter_events(q=q, track=track, room=room, day=day)
+        else:
+            events = []
         return templates.TemplateResponse(
             request=request,
             name="partials/search_results.html",
-            context={"events": events, "query": q.strip()},
+            context={"events": events, "query": q, "track": track, "room": room, "day": day},
         )
 
     @app.get("/api/events", response_class=HTMLResponse)

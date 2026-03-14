@@ -41,6 +41,12 @@ class TestIndexPage:
         assert 'name="q"' in response.text
         assert "/api/events/search" in response.text
 
+    def test_contains_filter_dropdowns(self, client: TestClient) -> None:
+        response = client.get("/")
+        assert 'name="track"' in response.text
+        assert 'name="room"' in response.text
+        assert 'name="day"' in response.text
+
 
 class TestDayPage:
     def test_returns_200(self, client: TestClient) -> None:
@@ -68,6 +74,11 @@ class TestTrackPage:
 
     def test_nonexistent_track_returns_200(self, client: TestClient) -> None:
         response = client.get("/day/2026-02-07/track/Go")
+        assert response.status_code == 200
+
+    def test_track_with_slash_in_name(self, client: TestClient) -> None:
+        # Tracks like "BOF/Unconference" contain a slash; the route must capture it
+        response = client.get("/day/2026-02-07/track/BOF/Unconference")
         assert response.status_code == 200
 
 
@@ -104,3 +115,30 @@ class TestApiEventsSearch:
     def test_search_by_abstract(self, client: TestClient) -> None:
         response = client.get("/api/events/search?q=under+the+hood")
         assert "DuckDB Internals" in response.text
+
+    def test_filter_by_track(self, client: TestClient) -> None:
+        response = client.get("/api/events/search?track=Rust")
+        assert response.status_code == 200
+        assert "Intro to Rust" in response.text
+        assert "Python Packaging" not in response.text
+
+    def test_filter_by_room(self, client: TestClient) -> None:
+        response = client.get("/api/events/search?room=Room+B")
+        assert response.status_code == 200
+        assert "Python Packaging" in response.text
+        assert "Intro to Rust" not in response.text
+
+    def test_filter_by_day(self, client: TestClient) -> None:
+        response = client.get("/api/events/search?day=2026-02-08")
+        assert response.status_code == 200
+        assert "DuckDB Internals" in response.text
+        assert "Intro to Rust" not in response.text
+
+    def test_filter_combined_with_query(self, client: TestClient) -> None:
+        response = client.get("/api/events/search?q=Rust&day=2026-02-07")
+        assert response.status_code == 200
+        assert "Intro to Rust" in response.text
+
+    def test_filter_no_match(self, client: TestClient) -> None:
+        response = client.get("/api/events/search?track=NoSuchTrack")
+        assert "No events found" in response.text

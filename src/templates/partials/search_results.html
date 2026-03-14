@@ -1,7 +1,13 @@
-{% if query %}
+{% if query or track or room or day %}
     {% if events %}
     <div class="search-results-header">
-        <span class="search-results-count">{{ events|length }} result{{ 's' if events|length != 1 }} for <strong>"{{ query }}"</strong></span>
+        <span class="search-results-count">
+            {{ events|length }} result{{ 's' if events|length != 1 }}
+            {% if query %} for <strong>"{{ query }}"</strong>{% endif %}
+            {% if track %}<span class="filter-tag">track: {{ track }}</span>{% endif %}
+            {% if room %}<span class="filter-tag">room: {{ room }}</span>{% endif %}
+            {% if day %}<span class="filter-tag">{{ day }}</span>{% endif %}
+        </span>
     </div>
     <div class="event-list">
         {% for event in events %}
@@ -23,7 +29,7 @@
     {% else %}
     <div class="no-events search-no-results">
         <div class="no-events-icon">🔍</div>
-        <p>No events found for <strong>"{{ query }}"</strong>.</p>
+        <p>No events found{% if query %} for <strong>"{{ query }}"</strong>{% endif %}.</p>
     </div>
     {% endif %}
 {% endif %}

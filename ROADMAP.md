@@ -72,9 +72,9 @@ Build an open-source tool that scrapes the FOSDEM schedule, stores it in DuckDB 
 
 ### 2.3 Filter by Track/Room/Day
 
-- [ ] Filter dropdowns (track, room, day)
-- [ ] API supports filter params
-- [ ] Results update via HTMX
+- [x] Filter dropdowns (track, room, day)
+- [x] API supports filter params
+- [x] Results update via HTMX
 
 ### 2.4 Event Detail Page
 

@@ -22,21 +22,43 @@
 
     {% if days %}
     <section class="search-section">
-        <div class="search-bar">
-            <input
-                type="search"
-                name="q"
-                placeholder="Search talks by title or abstract…"
-                autocomplete="off"
-                hx-get="/api/events/search"
-                hx-trigger="input changed delay:300ms, search"
-                hx-target="#search-results"
-                hx-swap="innerHTML"
-                class="search-input"
-                aria-label="Search events"
-            />
-            <span class="search-icon">🔍</span>
-        </div>
+        <form id="filter-form"
+              hx-get="/api/events/search"
+              hx-trigger="input changed delay:300ms from:input[type=search], change from:select"
+              hx-target="#search-results"
+              hx-swap="innerHTML">
+            <div class="search-bar">
+                <input
+                    type="search"
+                    name="q"
+                    placeholder="Search talks by title or abstract…"
+                    autocomplete="off"
+                    class="search-input"
+                    aria-label="Search events"
+                />
+                <span class="search-icon">🔍</span>
+            </div>
+            <div class="filter-bar">
+                <select name="track" class="filter-select" aria-label="Filter by track">
+                    <option value="">All tracks</option>
+                    {% for t in tracks %}
+                    <option value="{{ t }}">{{ t }}</option>
+                    {% endfor %}
+                </select>
+                <select name="room" class="filter-select" aria-label="Filter by room">
+                    <option value="">All rooms</option>
+                    {% for r in rooms %}
+                    <option value="{{ r }}">{{ r }}</option>
+                    {% endfor %}
+                </select>
+                <select name="day" class="filter-select" aria-label="Filter by day">
+                    <option value="">All days</option>
+                    {% for d in days %}
+                    <option value="{{ d }}">{{ d }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </form>
         <div id="search-results"></div>
     </section>
 

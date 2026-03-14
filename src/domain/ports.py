@@ -31,6 +31,10 @@ class EventRepository(Protocol):
 
     def get_speakers_for_event(self, event_id: str) -> list[dict[str, str]]: ...
 
+    def filter_events(
+        self, q: str = "", track: str = "", room: str = "", day: str = ""
+    ) -> list[dict[str, str | int | datetime]]: ...
+
     def search_events(self, q: str) -> list[dict[str, str | int | datetime]]: ...
 
 

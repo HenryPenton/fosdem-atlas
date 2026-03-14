@@ -154,3 +154,40 @@ class TestSearchEvents:
         results = seeded_repository.search_events("Pack")
         assert len(results) == 1
         assert results[0]["title"] == "Python Packaging"
+
+
+class TestFilterEvents:
+    def test_filter_by_track(self, seeded_repository: DuckDBEventRepository) -> None:
+        results = seeded_repository.filter_events(track="Rust")
+        assert len(results) == 1
+        assert results[0]["title"] == "Intro to Rust"
+
+    def test_filter_by_room(self, seeded_repository: DuckDBEventRepository) -> None:
+        results = seeded_repository.filter_events(room="Room B")
+        assert len(results) == 1
+        assert results[0]["title"] == "Python Packaging"
+
+    def test_filter_by_day(self, seeded_repository: DuckDBEventRepository) -> None:
+        results = seeded_repository.filter_events(day="2026-02-08")
+        assert len(results) == 1
+        assert results[0]["title"] == "DuckDB Internals"
+
+    def test_filter_combines_with_query(self, seeded_repository: DuckDBEventRepository) -> None:
+        results = seeded_repository.filter_events(q="Rust", day="2026-02-07")
+        assert len(results) == 1
+        assert results[0]["title"] == "Intro to Rust"
+
+    def test_filter_no_params_returns_all(self, seeded_repository: DuckDBEventRepository) -> None:
+        results = seeded_repository.filter_events()
+        assert len(results) == 3
+
+    def test_filter_no_match(self, seeded_repository: DuckDBEventRepository) -> None:
+        results = seeded_repository.filter_events(track="NonExistent")
+        assert results == []
+
+    def test_filter_mismatched_track_and_day(
+        self, seeded_repository: DuckDBEventRepository
+    ) -> None:
+        # Rust track is only on 2026-02-07, not 2026-02-08
+        results = seeded_repository.filter_events(track="Rust", day="2026-02-08")
+        assert results == []
