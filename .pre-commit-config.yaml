@@ -27,3 +27,9 @@ repos:
           - pydantic-settings
           - fastapi
         args: [--ignore-missing-imports]
+
+  - repo: https://github.com/commitizen-tools/commitizen
+    rev: v4.4.1
+    hooks:
+      - id: commitizen
+        stages: [commit-msg]

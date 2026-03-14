@@ -1,4 +1,4 @@
-.PHONY: help venv dev install run test lint format clean
+.PHONY: help venv dev install run test lint format clean commit bump
 
 PYTHON := python3.13
 VENV := venv
@@ -19,6 +19,7 @@ install: venv ## Install production dependencies
 dev: venv ## Install development dependencies
 	$(BIN)/pip install -e ".[dev]"
 	$(BIN)/pre-commit install
+	$(BIN)/pre-commit install --hook-type commit-msg
 
 run: ## Run the application
 	$(BIN)/uvicorn src.main:app --reload --host 0.0.0.0 --port 8001
@@ -41,6 +42,12 @@ format: ## Format code
 clean: ## Clean up
 	rm -rf $(VENV) __pycache__ .pytest_cache .mypy_cache .ruff_cache htmlcov .coverage
 	find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
+
+commit: ## Create a conventional commit interactively
+	$(BIN)/cz commit
+
+bump: ## Bump version, update CHANGELOG.md, and tag
+	$(BIN)/cz bump
 
 docker-build: ## Build Docker image
 	docker build -t fosdem-explorer:latest -f docker/Dockerfile .
