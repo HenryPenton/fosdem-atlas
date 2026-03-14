@@ -32,12 +32,14 @@ jobs:
           pip install commitizen -q
           PREV_TAG=$(git tag --sort=-version:refname | grep -v "^${{ github.ref_name }}$" | head -1 || true)
           if [ -n "$PREV_TAG" ]; then
-            cz changelog --start-rev "$PREV_TAG" --file-name release_notes.txt 2>/dev/null \
-              || echo "See [CHANGELOG.md](CHANGELOG.md) for changes." > release_notes.txt
+            cz changelog --start-rev "$PREV_TAG" --file-name release_notes.txt \
+              || git log "${PREV_TAG}".."${{ github.ref_name }}" --pretty=format:"- %s" > release_notes.txt
           else
-            cz changelog --file-name release_notes.txt 2>/dev/null \
-              || echo "See [CHANGELOG.md](CHANGELOG.md) for changes." > release_notes.txt
+            cz changelog --file-name release_notes.txt \
+              || git log "${{ github.ref_name }}" --pretty=format:"- %s" > release_notes.txt
           fi
+          # Ensure the file is non-empty
+          [ -s release_notes.txt ] || echo "Initial release." > release_notes.txt
 
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v4
