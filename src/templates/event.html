@@ -42,7 +42,7 @@
         {% if event.abstract %}
         <section class="event-detail-abstract">
             <h2>Abstract</h2>
-            <div class="abstract-body">{{ event.abstract }}</div>
+            <div class="abstract-body">{{ event.abstract | safe }}</div>
         </section>
         {% endif %}
 

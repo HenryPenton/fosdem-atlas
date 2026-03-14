@@ -30,7 +30,7 @@
                 {% if event.abstract %}
                 <details class="abstract-toggle">
                     <summary>Show abstract</summary>
-                    <p class="abstract">{{ event.abstract }}</p>
+                    <p class="abstract">{{ event.abstract | safe }}</p>
                 </details>
                 {% endif %}
             </div>

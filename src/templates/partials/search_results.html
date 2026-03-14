@@ -14,7 +14,7 @@
         <div class="event-card">
             <h3><a href="/event/{{ event.id }}" class="event-title-link">{{ event.title }}</a></h3>
             {% if event.abstract %}
-            <p class="event-abstract">{{ event.abstract | truncate(160) }}</p>
+            <p class="event-abstract">{{ event.abstract | striptags | truncate(160) }}</p>
             {% endif %}
             <div class="meta">
                 <span class="day">📅 {{ event.day }}</span>
