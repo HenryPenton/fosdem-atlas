@@ -36,6 +36,7 @@ def create_app(
     async def index(request: Request) -> HTMLResponse:
         event_count = event_repository.get_event_count()
         days = event_repository.get_unique_days()
+        day_events = {d: len(event_repository.get_events_by_day(d)) for d in days}
         return templates.TemplateResponse(
             request=request,
             name="index.html",
@@ -43,6 +44,38 @@ def create_app(
                 "title": "FOSDEM Explorer",
                 "event_count": event_count,
                 "days": days,
+                "day_events": day_events,
+            },
+        )
+
+    @app.get("/day/{day}", response_class=HTMLResponse)
+    async def day_tracks(request: Request, day: str) -> HTMLResponse:
+        tracks = event_repository.get_tracks_by_day(day)
+        track_events = {
+            t: len(event_repository.get_events_by_day_and_track(day, t)) for t in tracks
+        }
+        return templates.TemplateResponse(
+            request=request,
+            name="day.html",
+            context={
+                "title": f"FOSDEM Explorer — {day}",
+                "day": day,
+                "tracks": tracks,
+                "track_events": track_events,
+            },
+        )
+
+    @app.get("/day/{day}/track/{track}", response_class=HTMLResponse)
+    async def track_events(request: Request, day: str, track: str) -> HTMLResponse:
+        events = event_repository.get_events_by_day_and_track(day, track)
+        return templates.TemplateResponse(
+            request=request,
+            name="track.html",
+            context={
+                "title": f"FOSDEM Explorer — {track}",
+                "day": day,
+                "track": track,
+                "events": events,
             },
         )
 

@@ -3,17 +3,43 @@
 {% block content %}
 <div class="container">
     <section class="hero">
+        <div class="hero-icon">🎪</div>
         <h1>FOSDEM Explorer</h1>
-        <p>Explore the FOSDEM 2026 schedule</p>
+        <p class="hero-subtitle">Explore the FOSDEM 2026 schedule</p>
         {% if event_count > 0 %}
-        <p class="stats">{{ event_count }} events across {{ days|length }} days</p>
+        <div class="hero-stats">
+            <div class="stat">
+                <span class="stat-number">{{ event_count }}</span>
+                <span class="stat-label">Events</span>
+            </div>
+            <div class="stat">
+                <span class="stat-number">{{ days|length }}</span>
+                <span class="stat-label">Days</span>
+            </div>
+        </div>
         {% endif %}
     </section>
 
-    <section id="results" class="results">
-        <div hx-get="/api/events" hx-trigger="load" hx-target="this">
-            <div class="loading">Loading schedule...</div>
+    {% if days %}
+    <section class="day-picker">
+        <h2>Choose a day</h2>
+        <div class="day-grid">
+            {% for day in days %}
+            <a href="/day/{{ day }}" class="day-card">
+                <span class="day-icon">📅</span>
+                <span class="day-label">{{ day }}</span>
+                <span class="day-count">{{ day_events[day] }} events</span>
+                <span class="day-arrow">&rarr;</span>
+            </a>
+            {% endfor %}
         </div>
     </section>
+    {% else %}
+    <div class="no-events">
+        <div class="no-events-icon">📡</div>
+        <p>No events found yet.</p>
+        <p class="no-events-hint">Events will be fetched automatically by the scheduler.</p>
+    </div>
+    {% endif %}
 </div>
 {% endblock %}

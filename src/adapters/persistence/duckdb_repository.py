@@ -121,6 +121,43 @@ class DuckDBEventRepository:
         result = conn.execute("SELECT DISTINCT room FROM events ORDER BY room").fetchall()
         return [str(row[0]) for row in result]
 
+    def get_tracks_by_day(self, day: str) -> list[str]:
+        conn = self._db.get()
+        result = conn.execute(
+            "SELECT DISTINCT track FROM events WHERE day = ? ORDER BY track",
+            [day],
+        ).fetchall()
+        return [str(row[0]) for row in result]
+
+    def get_events_by_day_and_track(
+        self, day: str, track: str
+    ) -> list[dict[str, str | int | datetime]]:
+        conn = self._db.get()
+        result = conn.execute(
+            """
+            SELECT id, title, subtitle, abstract, start_time,
+                   duration_minutes, room, track, day
+            FROM events
+            WHERE day = ? AND track = ?
+            ORDER BY start_time, room
+            """,
+            [day, track],
+        ).fetchall()
+        return [
+            {
+                "id": row[0],
+                "title": row[1],
+                "subtitle": row[2],
+                "abstract": row[3],
+                "start_time": row[4],
+                "duration_minutes": row[5],
+                "room": row[6],
+                "track": row[7],
+                "day": row[8],
+            }
+            for row in result
+        ]
+
     def get_speakers_for_event(self, event_id: str) -> list[dict[str, str]]:
         conn = self._db.get()
         result = conn.execute(
