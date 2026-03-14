@@ -1,6 +1,6 @@
 [project]
 name = "fosdem-explorer"
-version = "0.1.0"
+version = "0.1.1"
 description = "A DuckDB-powered web application for exploring and analyzing the FOSDEM schedule"
 readme = "README.md"
 license = "MIT"

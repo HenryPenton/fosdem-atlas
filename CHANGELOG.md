@@ -1,3 +1,19 @@
+## v0.1.1 (2026-03-14)
+
+### Feat
+
+- enhance bump command to support version increment levels
+- add speaker management features with detail and listing pages
+
+## v0.0.9 (2026-03-14)
+
+### Feat
+
+- implement tracks browser and track detail pages with event listing
+- add grid view for schedule with day selection and event display
+
+## v0.0.8 (2026-03-14)
+
 ## v0.0.7 (2026-03-14)
 
 ### Feat
