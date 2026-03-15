@@ -1,3 +1,11 @@
+## v0.2.0 (2026-03-15)
+
+### Feat
+
+- implement topic statistics retrieval and display in analytics + wordcloud
+- add speaker statistics retrieval and display in analytics
+- add room statistics and heatmap to analytics page
+
 ## v0.1.2 (2026-03-15)
 
 ### Feat
