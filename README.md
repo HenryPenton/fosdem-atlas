@@ -23,7 +23,7 @@ open http://localhost:8000
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/fosdem-explorer.git
+git clone https://github.com/HenryPenton/fosdem-explorer.git
 cd fosdem-explorer
 
 # Install dev dependencies (creates venv automatically)
