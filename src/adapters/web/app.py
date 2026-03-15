@@ -308,6 +308,7 @@ def create_app(
         stats = event_repository.get_stats()
         room_stats = event_repository.get_room_stats()
         speaker_stats = event_repository.get_speaker_stats()
+        topic_stats = event_repository.get_topic_stats()
         heatmap_raw = room_stats["heatmap"]
         heatmap_days = sorted({str(item["day"]) for item in heatmap_raw})
         heatmap_hours = sorted({int(item["hour"]) for item in heatmap_raw})
@@ -325,6 +326,7 @@ def create_app(
                 "stats": stats,
                 "events_per_room": room_stats["events_per_room"],
                 "speaker_stats": speaker_stats,
+                "topic_stats": topic_stats,
                 "heatmap_days": heatmap_days,
                 "heatmap_hours": heatmap_hours,
                 "heatmap_grid": heatmap_grid,

@@ -137,10 +137,10 @@ Build an open-source tool that scrapes the FOSDEM schedule, stores it in DuckDB 
 - [x] Top speakers by talk count
 - [x] Speakers appearing in multiple tracks
 
-### 4.4 Topic Trends
+### 4.4 Topic Trends ✓
 
-- [ ] Word cloud from titles/abstracts
-- [ ] Most mentioned technologies
+- [x] Word cloud from titles/abstracts
+- [x] Most mentioned technologies
 
 ### 4.5 Export
 

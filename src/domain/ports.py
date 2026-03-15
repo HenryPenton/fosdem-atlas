@@ -55,6 +55,8 @@ class EventRepository(Protocol):
 
     def get_speaker_stats(self) -> dict[str, list[dict[str, str | int | list[str]]]]: ...
 
+    def get_topic_stats(self) -> dict[str, list[dict[str, str | int]]]: ...
+
 
 class ScheduleFetcher(Protocol):
     """Port for fetching the conference schedule."""

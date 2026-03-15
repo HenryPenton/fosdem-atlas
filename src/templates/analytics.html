@@ -37,6 +37,7 @@
             <button class="sort-btn" role="tab" data-tab="panel-tracks" aria-selected="false">By Track</button>
             <button class="sort-btn" role="tab" data-tab="panel-rooms" aria-selected="false">By Room</button>
             <button class="sort-btn" role="tab" data-tab="panel-speakers" aria-selected="false">Speakers</button>
+            <button class="sort-btn" role="tab" data-tab="panel-topics" aria-selected="false">Topics</button>
             <button class="sort-btn" role="tab" data-tab="panel-heatmap" aria-selected="false">Heatmap</button>
         </div>
     </div>
@@ -140,6 +141,35 @@
                 {% endfor %}
             </tbody>
         </table>
+        {% endif %}
+    </section>
+
+    <section class="tab-panel" id="panel-topics" role="tabpanel" hidden>
+        <h2>Most Mentioned Topics</h2>
+        <div class="bar-chart">
+            {% set max_topic = topic_stats.keywords | map(attribute='count') | max | default(1) %}
+            {% for item in topic_stats.keywords[:15] %}
+            <div class="bar-row">
+                <div class="bar-label">{{ item.term }}</div>
+                <div class="bar-track">
+                    <div class="bar-fill" style="width: {{ (item.count / max_topic * 100) | round(1) }}%">
+                        <span class="bar-count">{{ item.count }} events</span>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <p class="empty-state">No topic data available.</p>
+            {% endfor %}
+        </div>
+
+        {% if topic_stats.keywords %}
+        <h2 style="margin-top: 2rem;">Word Cloud</h2>
+        <div class="word-cloud">
+            {% for item in topic_stats.keywords %}
+            {% set weight = (item.count / max_topic * 100) | round | int %}
+            <span class="word-cloud-term" style="--weight: {{ weight }}">{{ item.term }}</span>
+            {% endfor %}
+        </div>
         {% endif %}
     </section>
 

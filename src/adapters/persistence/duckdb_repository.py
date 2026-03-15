@@ -2,8 +2,55 @@
 
 from datetime import datetime
 
+import yake
+
 from src.adapters.persistence.duckdb_connection import DuckDBConnection
 from src.domain.models import Event
+
+_TOPIC_STOPWORDS = {
+    # Conference-specific
+    "open source",
+    "fosdem",
+    "lightning talk",
+    "bof",
+    "devroom",
+    # Presentation terms
+    "talk",
+    "session",
+    "presentation",
+    "overview",
+    "introduction",
+    "update",
+    "status update",
+    "case study",
+    # Too generic for a tech conference
+    "software",
+    "free software",
+    "development",
+    "developer",
+    "developers",
+    "community",
+    "application",
+    "applications",
+    "project",
+    "projects",
+    "tool",
+    "tools",
+    "approach",
+    "system",
+    "systems",
+    "user",
+    "users",
+    "code",
+    "data",
+    "feature",
+    "features",
+    "real world",
+    "open",
+    "source",
+    "based",
+    "world",
+}
 
 
 class DuckDBEventRepository:
@@ -460,3 +507,34 @@ class DuckDBEventRepository:
                 for row in multi_track
             ],
         }
+
+    def get_topic_stats(self) -> dict[str, list[dict[str, str | int]]]:
+        conn = self._db.get()
+        rows = conn.execute("SELECT title, abstract FROM events").fetchall()
+        if not rows:
+            return {"keywords": []}
+
+        full_text = ". ".join(f"{row[0]}. {row[1]}" for row in rows)
+        extractor = yake.KeywordExtractor(lan="en", n=2, top=60, dedupLim=0.5)
+        raw_keywords = extractor.extract_keywords(full_text)
+
+        candidates = [
+            kw for kw, _ in raw_keywords if kw.lower() not in _TOPIC_STOPWORDS and len(kw) > 2
+        ]
+
+        docs = [f"{row[0]} {row[1]}".lower() for row in rows]
+        results: list[dict[str, str | int]] = []
+        for term in candidates:
+            count = sum(1 for doc in docs if term.lower() in doc)
+            if count >= 2:
+                results.append({"term": term, "count": count})
+
+        seen_lower: set[str] = set()
+        deduped: list[dict[str, str | int]] = []
+        for item in sorted(results, key=lambda x: (-int(x["count"]), str(x["term"]))):
+            low = str(item["term"]).lower()
+            if low not in seen_lower:
+                seen_lower.add(low)
+                deduped.append(item)
+
+        return {"keywords": deduped[:30]}

@@ -21,6 +21,7 @@ dependencies = [
     "apscheduler",
     "pydantic",
     "pydantic-settings",
+    "yake",
 ]
 
 [project.optional-dependencies]

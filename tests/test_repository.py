@@ -433,3 +433,109 @@ class TestGetSpeakerStats:
         stats = repository.get_speaker_stats()
         assert stats["top_speakers"] == []
         assert stats["multi_track_speakers"] == []
+
+
+class TestGetTopicStats:
+    def test_returns_keywords_from_events(self, repository: DuckDBEventRepository) -> None:
+        from datetime import datetime
+
+        from src.domain.models import Event
+
+        events = [
+            Event(
+                id="t1",
+                title="Rust and WebAssembly",
+                abstract="Building WebAssembly modules with Rust for the browser",
+                start_time=datetime(2026, 2, 7, 10, 0),
+                duration_minutes=30,
+                room="Room A",
+                track="Rust",
+                day="2026-02-07",
+            ),
+            Event(
+                id="t2",
+                title="Advanced WebAssembly",
+                abstract="Deep dive into WebAssembly runtime internals",
+                start_time=datetime(2026, 2, 7, 11, 0),
+                duration_minutes=30,
+                room="Room B",
+                track="Web",
+                day="2026-02-07",
+            ),
+        ]
+        repository.insert_events(events)
+        stats = repository.get_topic_stats()
+        assert len(stats["keywords"]) > 0
+        terms = [str(kw["term"]).lower() for kw in stats["keywords"]]
+        assert any("webassembly" in t for t in terms)
+
+    def test_keywords_have_term_and_count(self, repository: DuckDBEventRepository) -> None:
+        from datetime import datetime
+
+        from src.domain.models import Event
+
+        events = [
+            Event(
+                id="t1",
+                title="Linux kernel hacking",
+                abstract="Kernel development with Linux",
+                start_time=datetime(2026, 2, 7, 10, 0),
+                duration_minutes=30,
+                room="Room A",
+                track="Kernel",
+                day="2026-02-07",
+            ),
+            Event(
+                id="t2",
+                title="Linux networking",
+                abstract="Linux kernel networking stack",
+                start_time=datetime(2026, 2, 7, 11, 0),
+                duration_minutes=30,
+                room="Room B",
+                track="Kernel",
+                day="2026-02-07",
+            ),
+        ]
+        repository.insert_events(events)
+        stats = repository.get_topic_stats()
+        for kw in stats["keywords"]:
+            assert "term" in kw
+            assert "count" in kw
+            assert isinstance(kw["count"], int)
+            assert kw["count"] >= 2
+
+    def test_empty_when_no_events(self, repository: DuckDBEventRepository) -> None:
+        stats = repository.get_topic_stats()
+        assert stats["keywords"] == []
+
+    def test_filters_conference_stopwords(self, repository: DuckDBEventRepository) -> None:
+        from datetime import datetime
+
+        from src.domain.models import Event
+
+        events = [
+            Event(
+                id="t1",
+                title="Open source Kubernetes",
+                abstract="Open source container orchestration with Kubernetes",
+                start_time=datetime(2026, 2, 7, 10, 0),
+                duration_minutes=30,
+                room="Room A",
+                track="Cloud",
+                day="2026-02-07",
+            ),
+            Event(
+                id="t2",
+                title="Kubernetes operators",
+                abstract="Building Kubernetes operators for cloud infrastructure",
+                start_time=datetime(2026, 2, 7, 11, 0),
+                duration_minutes=30,
+                room="Room B",
+                track="Cloud",
+                day="2026-02-07",
+            ),
+        ]
+        repository.insert_events(events)
+        stats = repository.get_topic_stats()
+        terms_lower = [str(kw["term"]).lower() for kw in stats["keywords"]]
+        assert "open source" not in terms_lower
