@@ -5,17 +5,20 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any
 
-from fastapi import FastAPI, Query, Request
+from fastapi import FastAPI, Query, Request, Response
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
+from src.api.routes import create_api_router
 from src.config import Settings
 from src.domain.ports import EventRepository
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 TEMPLATES_DIR = BASE_DIR / "templates"
 STATIC_DIR = BASE_DIR / "static"
+
+CACHE_MAX_AGE = 20
 
 
 def create_app(
@@ -31,8 +34,17 @@ def create_app(
         lifespan=lifespan,
     )
 
+    @app.middleware("http")
+    async def add_cache_control(request: Request, call_next: Any) -> Response:
+        response: Response = await call_next(request)
+        if request.url.path != "/health" and request.method == "GET":
+            response.headers["Cache-Control"] = f"public, max-age={CACHE_MAX_AGE}"
+        return response
+
     app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
     templates = Jinja2Templates(directory=TEMPLATES_DIR)
+
+    app.include_router(create_api_router(event_repository))
 
     @app.get("/", response_class=HTMLResponse)
     async def index(request: Request) -> HTMLResponse:

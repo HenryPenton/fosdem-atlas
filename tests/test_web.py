@@ -403,3 +403,124 @@ class TestAnalyticsPage:
         assert "By Track" in response.text
         assert "By Room" in response.text
         assert "Heatmap" in response.text
+
+
+class TestCacheControl:
+    def test_page_has_cache_header(self, client: TestClient) -> None:
+        response = client.get("/")
+        assert response.headers["Cache-Control"] == "public, max-age=20"
+
+    def test_api_has_cache_header(self, client: TestClient) -> None:
+        response = client.get("/api/v1/events")
+        assert response.headers["Cache-Control"] == "public, max-age=20"
+
+    def test_health_has_no_cache_header(self, client: TestClient) -> None:
+        response = client.get("/health")
+        assert "Cache-Control" not in response.headers
+
+
+class TestApiV1Events:
+    def test_returns_json(self, client: TestClient) -> None:
+        response = client.get("/api/v1/events")
+        assert response.status_code == 200
+        data = response.json()
+        assert isinstance(data, list)
+        assert len(data) == 3
+
+    def test_event_has_expected_fields(self, client: TestClient) -> None:
+        data = client.get("/api/v1/events").json()
+        event = data[0]
+        for field in ("id", "title", "start_time", "duration_minutes", "room", "track", "day"):
+            assert field in event
+
+    def test_sort_by_track(self, client: TestClient) -> None:
+        data = client.get("/api/v1/events?sort=track").json()
+        assert len(data) == 3
+
+
+class TestApiV1EventsSearch:
+    def test_search_returns_results(self, client: TestClient) -> None:
+        data = client.get("/api/v1/events/search?q=Rust").json()
+        assert len(data) == 1
+        assert data[0]["title"] == "Intro to Rust"
+
+    def test_filter_by_track(self, client: TestClient) -> None:
+        data = client.get("/api/v1/events/search?track=Python").json()
+        assert len(data) == 1
+        assert data[0]["title"] == "Python Packaging"
+
+    def test_empty_query_returns_empty(self, client: TestClient) -> None:
+        data = client.get("/api/v1/events/search").json()
+        assert data == []
+
+
+class TestApiV1EventDetail:
+    def test_returns_event(self, client: TestClient) -> None:
+        data = client.get("/api/v1/events/1").json()
+        assert data["title"] == "Intro to Rust"
+
+    def test_includes_speakers(self, client: TestClient) -> None:
+        data = client.get("/api/v1/events/3").json()
+        assert "speakers" in data
+        assert data["speakers"][0]["name"] == "Mark"
+
+    def test_404_for_unknown(self, client: TestClient) -> None:
+        response = client.get("/api/v1/events/nonexistent")
+        assert response.status_code == 404
+
+
+class TestApiV1Days:
+    def test_returns_days(self, client: TestClient) -> None:
+        data = client.get("/api/v1/days").json()
+        assert data == ["2026-02-07", "2026-02-08"]
+
+    def test_day_detail_returns_tracks(self, client: TestClient) -> None:
+        data = client.get("/api/v1/days/2026-02-07").json()
+        assert data["day"] == "2026-02-07"
+        assert set(data["tracks"]) == {"Python", "Rust"}
+        assert "track_event_counts" in data
+
+
+class TestApiV1Tracks:
+    def test_returns_tracks_with_counts(self, client: TestClient) -> None:
+        data = client.get("/api/v1/tracks").json()
+        assert len(data) == 3
+        names = {t["name"] for t in data}
+        assert names == {"Databases", "Python", "Rust"}
+        assert all("event_count" in t for t in data)
+
+    def test_track_detail(self, client: TestClient) -> None:
+        data = client.get("/api/v1/tracks/Rust").json()
+        assert data["track"] == "Rust"
+        assert len(data["events"]) == 1
+
+
+class TestApiV1Speakers:
+    def test_returns_speakers(self, client: TestClient) -> None:
+        data = client.get("/api/v1/speakers").json()
+        assert len(data) == 1
+        assert data[0]["name"] == "Mark"
+
+    def test_speaker_detail(self, client: TestClient) -> None:
+        data = client.get("/api/v1/speakers/s1").json()
+        assert data["name"] == "Mark"
+        assert len(data["events"]) == 1
+
+    def test_speaker_404(self, client: TestClient) -> None:
+        response = client.get("/api/v1/speakers/nonexistent")
+        assert response.status_code == 404
+
+
+class TestApiV1Rooms:
+    def test_returns_rooms(self, client: TestClient) -> None:
+        data = client.get("/api/v1/rooms").json()
+        assert set(data) == {"Room A", "Room B", "Room C"}
+
+
+class TestApiV1Analytics:
+    def test_returns_analytics(self, client: TestClient) -> None:
+        data = client.get("/api/v1/analytics").json()
+        assert data["stats"]["total_events"] == 3
+        assert "room_stats" in data
+        assert "speaker_stats" in data
+        assert "topic_stats" in data
