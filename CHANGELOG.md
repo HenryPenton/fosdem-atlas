@@ -1,3 +1,10 @@
+## v0.1.2 (2026-03-15)
+
+### Feat
+
+- add contributing guidelines and open-source readiness audit
+- add analytics page with event statistics and corresponding styles
+
 ## v0.1.1 (2026-03-14)
 
 ### Feat
