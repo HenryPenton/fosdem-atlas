@@ -1080,3 +1080,55 @@ footer p {
     padding: 0 0.5rem;
     white-space: nowrap;
 }
+
+/* Room Usage Heatmap */
+.heatmap-wrapper {
+    overflow-x: auto;
+}
+
+.heatmap {
+    border-collapse: separate;
+    border-spacing: 4px;
+    font-size: 0.8rem;
+    margin-top: 0.5rem;
+}
+
+.heatmap th {
+    font-weight: 600;
+    color: var(--text-muted);
+    padding: 0.25rem 0.4rem;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.heatmap-hour {
+    min-width: 52px;
+}
+
+.heatmap-label {
+    padding-right: 0.75rem;
+    color: var(--text-color);
+    font-weight: 500;
+    white-space: nowrap;
+    text-align: left;
+}
+
+.heatmap-cell {
+    width: 52px;
+    min-width: 52px;
+    height: 36px;
+    background-color: var(--border-color);
+    border-radius: 4px;
+    cursor: default;
+}
+
+.heatmap-cell--active {
+    background-color: hsl(220, 70%, calc(80% - var(--intensity, 0) * 0.45%));
+}
+
+.tab-panel h2 {
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin-bottom: 1.25rem;
+    color: var(--text-color);
+}

@@ -376,3 +376,30 @@ class TestAnalyticsPage:
         assert "Rust" in response.text
         assert "Python" in response.text
         assert "Databases" in response.text
+
+    def test_shows_events_per_room(self, client: TestClient) -> None:
+        response = client.get("/analytics")
+        assert "Room A" in response.text
+        assert "Room B" in response.text
+        assert "Room C" in response.text
+
+    def test_shows_heatmap_section(self, client: TestClient) -> None:
+        response = client.get("/analytics")
+        assert "Room Usage Heatmap" in response.text
+
+    def test_heatmap_contains_day_labels(self, client: TestClient) -> None:
+        response = client.get("/analytics")
+        assert "2026-02-07" in response.text
+        assert "2026-02-08" in response.text
+
+    def test_heatmap_contains_hour_labels(self, client: TestClient) -> None:
+        response = client.get("/analytics")
+        assert "10:00" in response.text
+        assert "09:00" in response.text
+
+    def test_shows_tab_navigation(self, client: TestClient) -> None:
+        response = client.get("/analytics")
+        assert "By Day" in response.text
+        assert "By Track" in response.text
+        assert "By Room" in response.text
+        assert "Heatmap" in response.text

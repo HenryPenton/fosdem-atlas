@@ -367,6 +367,29 @@ class DuckDBEventRepository:
             for row in result
         ]
 
+    def get_room_stats(self) -> dict[str, list[dict[str, str | int]]]:
+        conn = self._db.get()
+        events_per_room = conn.execute(
+            "SELECT room, COUNT(*) FROM events GROUP BY room ORDER BY COUNT(*) DESC"
+        ).fetchall()
+        heatmap_rows = conn.execute(
+            """
+            SELECT day, EXTRACT(hour FROM start_time) AS hour, COUNT(*) AS count
+            FROM events
+            GROUP BY day, hour
+            ORDER BY day, hour
+            """
+        ).fetchall()
+        return {
+            "events_per_room": [
+                {"room": str(row[0]), "count": int(row[1])} for row in events_per_room
+            ],
+            "heatmap": [
+                {"day": str(row[0]), "hour": int(row[1]), "count": int(row[2])}
+                for row in heatmap_rows
+            ],
+        }
+
     def get_stats(self) -> dict[str, int | list[dict[str, str | int]]]:
         conn = self._db.get()
         total_events = int((conn.execute("SELECT COUNT(*) FROM events").fetchone() or (0,))[0])

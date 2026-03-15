@@ -321,3 +321,42 @@ class TestGetStats:
         assert stats["total_speakers"] == 0
         assert stats["events_per_day"] == []
         assert stats["events_per_track"] == []
+
+
+class TestGetRoomStats:
+    def test_events_per_room_counts(self, seeded_repository: DuckDBEventRepository) -> None:
+        room_stats = seeded_repository.get_room_stats()
+        per_room = {item["room"]: item["count"] for item in room_stats["events_per_room"]}
+        assert per_room["Room A"] == 1
+        assert per_room["Room B"] == 1
+        assert per_room["Room C"] == 1
+
+    def test_events_per_room_ordered_by_count_desc(
+        self, seeded_repository: DuckDBEventRepository
+    ) -> None:
+        room_stats = seeded_repository.get_room_stats()
+        counts = [item["count"] for item in room_stats["events_per_room"]]
+        assert counts == sorted(counts, reverse=True)
+
+    def test_heatmap_contains_day_and_hour(self, seeded_repository: DuckDBEventRepository) -> None:
+        room_stats = seeded_repository.get_room_stats()
+        heatmap = room_stats["heatmap"]
+        assert len(heatmap) > 0
+        days = {item["day"] for item in heatmap}
+        assert "2026-02-07" in days
+        assert "2026-02-08" in days
+
+    def test_heatmap_hours_match_event_start_times(
+        self, seeded_repository: DuckDBEventRepository
+    ) -> None:
+        room_stats = seeded_repository.get_room_stats()
+        hours = {item["hour"] for item in room_stats["heatmap"]}
+        # SAMPLE_EVENTS start at 10:00, 11:00 on day1 and 09:00 on day2
+        assert 10 in hours
+        assert 11 in hours
+        assert 9 in hours
+
+    def test_empty_repository_returns_empty_lists(self, repository: DuckDBEventRepository) -> None:
+        room_stats = repository.get_room_stats()
+        assert room_stats["events_per_room"] == []
+        assert room_stats["heatmap"] == []

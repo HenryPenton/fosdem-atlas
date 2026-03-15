@@ -31,7 +31,16 @@
         </div>
     </section>
 
-    <section class="analytics-section">
+    <div class="sort-controls">
+        <div class="sort-buttons" role="tablist">
+            <button class="sort-btn sort-btn--active" role="tab" data-tab="panel-days" aria-selected="true">By Day</button>
+            <button class="sort-btn" role="tab" data-tab="panel-tracks" aria-selected="false">By Track</button>
+            <button class="sort-btn" role="tab" data-tab="panel-rooms" aria-selected="false">By Room</button>
+            <button class="sort-btn" role="tab" data-tab="panel-heatmap" aria-selected="false">Heatmap</button>
+        </div>
+    </div>
+
+    <section class="tab-panel" id="panel-days" role="tabpanel">
         <h2>Events per Day</h2>
         <div class="bar-chart">
             {% set max_day = stats.events_per_day | map(attribute='count') | max | default(1) %}
@@ -50,7 +59,7 @@
         </div>
     </section>
 
-    <section class="analytics-section">
+    <section class="tab-panel" id="panel-tracks" role="tabpanel" hidden>
         <h2>Events per Track</h2>
         <div class="bar-chart">
             {% set max_track = stats.events_per_track | map(attribute='count') | max | default(1) %}
@@ -70,5 +79,82 @@
             {% endfor %}
         </div>
     </section>
+
+    <section class="tab-panel" id="panel-rooms" role="tabpanel" hidden>
+        <h2>Events per Room</h2>
+        <div class="bar-chart">
+            {% set max_room = events_per_room | map(attribute='count') | max | default(1) %}
+            {% for item in events_per_room %}
+            <div class="bar-row">
+                <div class="bar-label">{{ item.room }}</div>
+                <div class="bar-track">
+                    <div class="bar-fill" style="width: {{ (item.count / max_room * 100) | round(1) }}%">
+                        <span class="bar-count">{{ item.count }}</span>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <p class="empty-state">No data available.</p>
+            {% endfor %}
+        </div>
+    </section>
+
+    <section class="tab-panel" id="panel-heatmap" role="tabpanel" hidden>
+        <h2>Room Usage Heatmap</h2>
+        {% if heatmap_days %}
+        <div class="heatmap-wrapper">
+            <table class="heatmap">
+                <thead>
+                    <tr>
+                        <th class="heatmap-label"></th>
+                        {% for hour in heatmap_hours %}
+                        <th class="heatmap-hour">{{ "%02d:00" | format(hour) }}</th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for day in heatmap_days %}
+                    <tr>
+                        <td class="heatmap-label">{{ day }}</td>
+                        {% for hour in heatmap_hours %}
+                        {% set count = heatmap_grid[day][hour] %}
+                        {% if count > 0 %}
+                        {% set intensity = (count / max_heatmap_count * 100) | round | int %}
+                        <td class="heatmap-cell heatmap-cell--active" style="--intensity: {{ intensity }}" title="{{ count }} event(s)"></td>
+                        {% else %}
+                        <td class="heatmap-cell" title="0 events"></td>
+                        {% endif %}
+                        {% endfor %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p class="empty-state">No data available.</p>
+        {% endif %}
+    </section>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    (function () {
+        const buttons = document.querySelectorAll('[role="tab"]');
+        buttons.forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                buttons.forEach(function (b) {
+                    b.classList.remove('sort-btn--active');
+                    b.setAttribute('aria-selected', 'false');
+                });
+                document.querySelectorAll('.tab-panel').forEach(function (p) {
+                    p.hidden = true;
+                });
+                btn.classList.add('sort-btn--active');
+                btn.setAttribute('aria-selected', 'true');
+                document.getElementById(btn.dataset.tab).hidden = false;
+            });
+        });
+    })();
+</script>
 {% endblock %}
