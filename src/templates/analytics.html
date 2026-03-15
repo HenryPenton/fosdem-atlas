@@ -36,6 +36,7 @@
             <button class="sort-btn sort-btn--active" role="tab" data-tab="panel-days" aria-selected="true">By Day</button>
             <button class="sort-btn" role="tab" data-tab="panel-tracks" aria-selected="false">By Track</button>
             <button class="sort-btn" role="tab" data-tab="panel-rooms" aria-selected="false">By Room</button>
+            <button class="sort-btn" role="tab" data-tab="panel-speakers" aria-selected="false">Speakers</button>
             <button class="sort-btn" role="tab" data-tab="panel-heatmap" aria-selected="false">Heatmap</button>
         </div>
     </div>
@@ -97,6 +98,49 @@
             <p class="empty-state">No data available.</p>
             {% endfor %}
         </div>
+    </section>
+
+    <section class="tab-panel" id="panel-speakers" role="tabpanel" hidden>
+        <h2>Top Speakers by Talk Count</h2>
+        <div class="bar-chart">
+            {% set max_talks = speaker_stats.top_speakers | map(attribute='talk_count') | max | default(1) %}
+            {% for item in speaker_stats.top_speakers %}
+            <div class="bar-row">
+                <div class="bar-label">
+                    <a href="/speaker/{{ item.id }}">{{ item.name }}</a>
+                </div>
+                <div class="bar-track">
+                    <div class="bar-fill" style="width: {{ (item.talk_count / max_talks * 100) | round(1) }}%">
+                        <span class="bar-count">{{ item.talk_count }}</span>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <p class="empty-state">No speaker data available.</p>
+            {% endfor %}
+        </div>
+
+        {% if speaker_stats.multi_track_speakers %}
+        <h2 style="margin-top: 2rem;">Speakers Across Multiple Tracks</h2>
+        <table class="speakers-table">
+            <thead>
+                <tr>
+                    <th>Speaker</th>
+                    <th>Tracks</th>
+                    <th class="speakers-table-count">#</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in speaker_stats.multi_track_speakers %}
+                <tr>
+                    <td><a href="/speaker/{{ item.id }}">{{ item.name }}</a></td>
+                    <td>{{ item.tracks | join(', ') }}</td>
+                    <td class="speakers-table-count">{{ item.track_count }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% endif %}
     </section>
 
     <section class="tab-panel" id="panel-heatmap" role="tabpanel" hidden>

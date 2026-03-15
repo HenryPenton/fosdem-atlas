@@ -360,3 +360,76 @@ class TestGetRoomStats:
         room_stats = repository.get_room_stats()
         assert room_stats["events_per_room"] == []
         assert room_stats["heatmap"] == []
+
+
+class TestGetSpeakerStats:
+    def _events_with_speakers(self, repository: DuckDBEventRepository) -> DuckDBEventRepository:
+        from datetime import datetime
+
+        from src.domain.models import Event, Speaker
+
+        events = [
+            Event(
+                id="a",
+                title="Talk 1",
+                start_time=datetime(2026, 2, 7, 10, 0),
+                duration_minutes=30,
+                room="Room A",
+                track="Rust",
+                day="2026-02-07",
+                speakers=[Speaker(id="sp1", name="Alice")],
+            ),
+            Event(
+                id="b",
+                title="Talk 2",
+                start_time=datetime(2026, 2, 7, 11, 0),
+                duration_minutes=30,
+                room="Room B",
+                track="Python",
+                day="2026-02-07",
+                speakers=[Speaker(id="sp1", name="Alice")],
+            ),
+            Event(
+                id="c",
+                title="Talk 3",
+                start_time=datetime(2026, 2, 7, 12, 0),
+                duration_minutes=30,
+                room="Room C",
+                track="Go",
+                day="2026-02-07",
+                speakers=[Speaker(id="sp2", name="Bob")],
+            ),
+        ]
+        repository.insert_events(events)
+        return repository
+
+    def test_top_speakers_ordered_by_talk_count(self, repository: DuckDBEventRepository) -> None:
+        repo = self._events_with_speakers(repository)
+        stats = repo.get_speaker_stats()
+        top = stats["top_speakers"]
+        assert len(top) == 2
+        assert top[0]["name"] == "Alice"
+        assert top[0]["talk_count"] == 2
+        assert top[1]["name"] == "Bob"
+        assert top[1]["talk_count"] == 1
+
+    def test_multi_track_speakers(self, repository: DuckDBEventRepository) -> None:
+        repo = self._events_with_speakers(repository)
+        stats = repo.get_speaker_stats()
+        multi = stats["multi_track_speakers"]
+        assert len(multi) == 1
+        assert multi[0]["name"] == "Alice"
+        assert multi[0]["track_count"] == 2
+        assert set(multi[0]["tracks"]) == {"Python", "Rust"}  # type: ignore[arg-type]
+
+    def test_single_track_speaker_not_in_multi_track(
+        self, seeded_repository: DuckDBEventRepository
+    ) -> None:
+        stats = seeded_repository.get_speaker_stats()
+        assert stats["multi_track_speakers"] == []
+        assert len(stats["top_speakers"]) == 1
+
+    def test_empty_when_no_speakers(self, repository: DuckDBEventRepository) -> None:
+        stats = repository.get_speaker_stats()
+        assert stats["top_speakers"] == []
+        assert stats["multi_track_speakers"] == []

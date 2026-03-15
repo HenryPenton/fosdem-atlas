@@ -1132,3 +1132,40 @@ footer p {
     margin-bottom: 1.25rem;
     color: var(--text-color);
 }
+
+/* Speakers Table */
+.speakers-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+.speakers-table th,
+.speakers-table td {
+    padding: 0.6rem 0.75rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.speakers-table th {
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    letter-spacing: 0.05em;
+    background: var(--background-color);
+}
+
+.speakers-table td a {
+    color: var(--primary-color);
+    text-decoration: none;
+}
+
+.speakers-table td a:hover {
+    text-decoration: underline;
+}
+
+.speakers-table-count {
+    text-align: center;
+    width: 3rem;
+}

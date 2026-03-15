@@ -132,10 +132,10 @@ Build an open-source tool that scrapes the FOSDEM schedule, stores it in DuckDB 
 - [x] Events per room
 - [x] Room usage heatmap (day × hour)
 
-### 4.3 Speaker Stats
+### 4.3 Speaker Stats ✓
 
-- [ ] Top speakers by talk count
-- [ ] Speakers appearing in multiple tracks
+- [x] Top speakers by talk count
+- [x] Speakers appearing in multiple tracks
 
 ### 4.4 Topic Trends
 

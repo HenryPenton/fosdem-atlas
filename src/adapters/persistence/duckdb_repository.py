@@ -420,3 +420,43 @@ class DuckDBEventRepository:
                 {"track": str(row[0]), "count": int(row[1])} for row in events_per_track
             ],
         }
+
+    def get_speaker_stats(self) -> dict[str, list[dict[str, str | int | list[str]]]]:
+        conn = self._db.get()
+        top_speakers = conn.execute(
+            """
+            SELECT s.id, s.name, COUNT(es.event_id) AS talk_count
+            FROM speakers s
+            JOIN event_speakers es ON es.speaker_id = s.id
+            GROUP BY s.id, s.name
+            ORDER BY talk_count DESC, s.name
+            LIMIT 20
+            """
+        ).fetchall()
+        multi_track = conn.execute(
+            """
+            SELECT s.id, s.name, COUNT(DISTINCT e.track) AS track_count,
+                   LIST(DISTINCT e.track ORDER BY e.track) AS tracks
+            FROM speakers s
+            JOIN event_speakers es ON es.speaker_id = s.id
+            JOIN events e ON e.id = es.event_id
+            GROUP BY s.id, s.name
+            HAVING COUNT(DISTINCT e.track) > 1
+            ORDER BY track_count DESC, s.name
+            """
+        ).fetchall()
+        return {
+            "top_speakers": [
+                {"id": str(row[0]), "name": str(row[1]), "talk_count": int(row[2])}
+                for row in top_speakers
+            ],
+            "multi_track_speakers": [
+                {
+                    "id": str(row[0]),
+                    "name": str(row[1]),
+                    "track_count": int(row[2]),
+                    "tracks": list(row[3]),
+                }
+                for row in multi_track
+            ],
+        }
