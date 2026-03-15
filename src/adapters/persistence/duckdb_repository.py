@@ -366,3 +366,34 @@ class DuckDBEventRepository:
             }
             for row in result
         ]
+
+    def get_stats(self) -> dict[str, int | list[dict[str, str | int]]]:
+        conn = self._db.get()
+        total_events = int((conn.execute("SELECT COUNT(*) FROM events").fetchone() or (0,))[0])
+        total_speakers = int((conn.execute("SELECT COUNT(*) FROM speakers").fetchone() or (0,))[0])
+        total_tracks = int(
+            (conn.execute("SELECT COUNT(DISTINCT track) FROM events").fetchone() or (0,))[0]
+        )
+        total_rooms = int(
+            (conn.execute("SELECT COUNT(DISTINCT room) FROM events").fetchone() or (0,))[0]
+        )
+
+        events_per_day = conn.execute(
+            "SELECT day, COUNT(*) FROM events GROUP BY day ORDER BY day"
+        ).fetchall()
+        events_per_track = conn.execute(
+            "SELECT track, COUNT(*) FROM events GROUP BY track ORDER BY COUNT(*) DESC"
+        ).fetchall()
+
+        return {
+            "total_events": total_events,
+            "total_speakers": total_speakers,
+            "total_tracks": total_tracks,
+            "total_rooms": total_rooms,
+            "events_per_day": [
+                {"day": str(row[0]), "count": int(row[1])} for row in events_per_day
+            ],
+            "events_per_track": [
+                {"track": str(row[0]), "count": int(row[1])} for row in events_per_track
+            ],
+        }

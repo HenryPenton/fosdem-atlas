@@ -350,3 +350,29 @@ class TestSpeakerDetailPage:
     def test_track_with_slash_in_name(self, client: TestClient) -> None:
         response = client.get("/track/BOF/Unconference")
         assert response.status_code == 200
+
+
+class TestAnalyticsPage:
+    def test_returns_200(self, client: TestClient) -> None:
+        response = client.get("/analytics")
+        assert response.status_code == 200
+
+    def test_contains_title(self, client: TestClient) -> None:
+        response = client.get("/analytics")
+        assert "Analytics" in response.text
+
+    def test_shows_total_events(self, client: TestClient) -> None:
+        response = client.get("/analytics")
+        # 3 sample events seeded
+        assert "3" in response.text
+
+    def test_shows_events_per_day(self, client: TestClient) -> None:
+        response = client.get("/analytics")
+        assert "2026-02-07" in response.text
+        assert "2026-02-08" in response.text
+
+    def test_shows_events_per_track(self, client: TestClient) -> None:
+        response = client.get("/analytics")
+        assert "Rust" in response.text
+        assert "Python" in response.text
+        assert "Databases" in response.text

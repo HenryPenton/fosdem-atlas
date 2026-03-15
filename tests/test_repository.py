@@ -283,3 +283,41 @@ class TestGetEventsBySpeaker:
         event = events[0]
         for field in ("id", "title", "start_time", "duration_minutes", "room", "track", "day"):
             assert field in event
+
+
+class TestGetStats:
+    def test_returns_total_events(self, seeded_repository: DuckDBEventRepository) -> None:
+        stats = seeded_repository.get_stats()
+        assert stats["total_events"] == 3
+
+    def test_returns_total_speakers(self, seeded_repository: DuckDBEventRepository) -> None:
+        stats = seeded_repository.get_stats()
+        assert stats["total_speakers"] == 1
+
+    def test_returns_total_tracks(self, seeded_repository: DuckDBEventRepository) -> None:
+        stats = seeded_repository.get_stats()
+        assert stats["total_tracks"] == 3
+
+    def test_returns_total_rooms(self, seeded_repository: DuckDBEventRepository) -> None:
+        stats = seeded_repository.get_stats()
+        assert stats["total_rooms"] == 3
+
+    def test_events_per_day(self, seeded_repository: DuckDBEventRepository) -> None:
+        stats = seeded_repository.get_stats()
+        per_day = {item["day"]: item["count"] for item in stats["events_per_day"]}  # type: ignore[union-attr]
+        assert per_day["2026-02-07"] == 2
+        assert per_day["2026-02-08"] == 1
+
+    def test_events_per_track(self, seeded_repository: DuckDBEventRepository) -> None:
+        stats = seeded_repository.get_stats()
+        per_track = {item["track"]: item["count"] for item in stats["events_per_track"]}  # type: ignore[union-attr]
+        assert per_track["Rust"] == 1
+        assert per_track["Python"] == 1
+        assert per_track["Databases"] == 1
+
+    def test_empty_repository_returns_zeros(self, repository: DuckDBEventRepository) -> None:
+        stats = repository.get_stats()
+        assert stats["total_events"] == 0
+        assert stats["total_speakers"] == 0
+        assert stats["events_per_day"] == []
+        assert stats["events_per_track"] == []

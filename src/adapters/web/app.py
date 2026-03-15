@@ -303,4 +303,16 @@ def create_app(
     async def health() -> dict[str, str]:
         return {"status": "healthy", "version": settings.version}
 
+    @app.get("/analytics", response_class=HTMLResponse)
+    async def analytics(request: Request) -> HTMLResponse:
+        stats = event_repository.get_stats()
+        return templates.TemplateResponse(
+            request=request,
+            name="analytics.html",
+            context={
+                "title": "FOSDEM Explorer — Analytics",
+                "stats": stats,
+            },
+        )
+
     return app

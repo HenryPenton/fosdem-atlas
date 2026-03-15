@@ -109,9 +109,9 @@ Build an open-source tool that scrapes the FOSDEM schedule, stores it in DuckDB 
 
 ### 3.4 Speaker Browser
 
-- [ ] List all speakers
-- [ ] Click speaker → see their talks
-- [ ] Speaker bio if available
+- [x] List all speakers
+- [x] Click speaker → see their talks
+- [x] Speaker bio if available
 
 **🎯 Deliverable:** Browse schedule by grid, track, or speaker.
 
@@ -121,11 +121,11 @@ Build an open-source tool that scrapes the FOSDEM schedule, stores it in DuckDB 
 
 **Goal:** Interesting stats powered by DuckDB.
 
-### 4.1 Basic Stats
+### 4.1 Basic Stats ✓
 
-- [ ] Total events, speakers, tracks, rooms
-- [ ] Events per day
-- [ ] Events per track (bar chart)
+- [x] Total events, speakers, tracks, rooms
+- [x] Events per day
+- [x] Events per track (bar chart)
 
 ### 4.2 Room Utilization
 
