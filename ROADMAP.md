@@ -142,10 +142,9 @@ Build an open-source tool that scrapes the FOSDEM schedule, stores it in DuckDB 
 - [x] Word cloud from titles/abstracts
 - [x] Most mentioned technologies
 
-### 4.5 Export
+### 4.5 Export ✓
 
-- [ ] Download stats as CSV
-- [ ] Raw SQL query interface (power users)
+- [x] Download stats as CSV
 
 **🎯 Deliverable:** Analytics page with charts and exportable data.
 
@@ -183,14 +182,26 @@ Build an open-source tool that scrapes the FOSDEM schedule, stores it in DuckDB 
 
 ---
 
-## Backlog (Nice-to-Have)
+## Phase 6: Extended Features
+
+**Goal:** Broader reach and accessibility.
+
+### 6.1 Offline & Notifications
 
 - [ ] PWA for offline access
 - [ ] Push notifications via NTFY
+
+### 6.2 Content & Discovery
+
 - [ ] Post-event video links
+- [ ] Public roadmap page
+
+### 6.3 Accessibility & i18n
+
 - [ ] Accessibility audit (WCAG)
 - [ ] i18n support
-- [ ] Public roadmap page
+
+**🎯 Deliverable:** Accessible, offline-capable app with notifications.
 
 ---
 
@@ -218,6 +229,7 @@ Build an open-source tool that scrapes the FOSDEM schedule, stores it in DuckDB 
 | **v0.3.0** | Phase 3 | Grid view, track/speaker browsers  |
 | **v0.4.0** | Phase 4 | Analytics dashboard                |
 | **v1.0.0** | Phase 5 | Personal schedule, polish, docs    |
+| **v1.1.0** | Phase 6 | PWA, notifications, a11y, i18n     |
 
 # Access the app
 

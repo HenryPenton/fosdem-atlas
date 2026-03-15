@@ -524,3 +524,42 @@ class TestApiV1Analytics:
         assert "room_stats" in data
         assert "speaker_stats" in data
         assert "topic_stats" in data
+
+
+class TestExportEventsCSV:
+    def test_html_route_returns_csv(self, client: TestClient) -> None:
+        resp = client.get("/export/events.csv")
+        assert resp.status_code == 200
+        assert "text/csv" in resp.headers["content-type"]
+        assert "attachment" in resp.headers["content-disposition"]
+        lines = resp.text.strip().splitlines()
+        assert len(lines) == 4  # header + 3 events
+
+    def test_api_route_returns_csv(self, client: TestClient) -> None:
+        resp = client.get("/api/v1/export/events.csv")
+        assert resp.status_code == 200
+        assert "text/csv" in resp.headers["content-type"]
+        lines = resp.text.strip().splitlines()
+        assert "id" in lines[0]
+        assert len(lines) == 4
+
+
+class TestExportSpeakersCSV:
+    def test_html_route_returns_csv(self, client: TestClient) -> None:
+        resp = client.get("/export/speakers.csv")
+        assert resp.status_code == 200
+        assert "text/csv" in resp.headers["content-type"]
+        lines = resp.text.strip().splitlines()
+        assert len(lines) >= 2  # header + at least 1 speaker
+
+    def test_api_route_returns_csv(self, client: TestClient) -> None:
+        resp = client.get("/api/v1/export/speakers.csv")
+        assert resp.status_code == 200
+        assert "text/csv" in resp.headers["content-type"]
+
+
+class TestAnalyticsExportTab:
+    def test_analytics_export_tab(self, client: TestClient) -> None:
+        resp = client.get("/analytics")
+        assert "Export" in resp.text
+        assert "/export/events.csv" in resp.text

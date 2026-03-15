@@ -1,8 +1,11 @@
 """JSON API v1 endpoints for FOSDEM Explorer."""
 
+import csv
+import io
 from typing import Any
 
 from fastapi import APIRouter, HTTPException, Query
+from fastapi.responses import StreamingResponse
 
 from src.domain.ports import EventRepository
 
@@ -100,4 +103,30 @@ def create_api_router(event_repository: EventRepository) -> APIRouter:
     async def api_rooms() -> list[str]:
         return event_repository.get_unique_rooms()
 
+    @router.get("/export/events.csv")
+    async def export_events_csv() -> StreamingResponse:
+        events = event_repository.get_all_events(sort="time")
+        return _csv_response(events, "events.csv")
+
+    @router.get("/export/speakers.csv")
+    async def export_speakers_csv() -> StreamingResponse:
+        speakers = event_repository.get_all_speakers()
+        return _csv_response(speakers, "speakers.csv")
+
     return router
+
+
+def _csv_response(rows: list[dict[str, Any]], filename: str) -> StreamingResponse:
+    if not rows:
+        buf = io.StringIO("")
+    else:
+        buf = io.StringIO()
+        writer = csv.DictWriter(buf, fieldnames=list(rows[0].keys()))
+        writer.writeheader()
+        writer.writerows(rows)
+        buf.seek(0)
+    return StreamingResponse(
+        buf,
+        media_type="text/csv",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+    )

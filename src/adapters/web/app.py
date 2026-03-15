@@ -1,5 +1,7 @@
 """FastAPI web adapter."""
 
+import csv
+import io
 from collections import defaultdict
 from datetime import datetime, timedelta
 from pathlib import Path
@@ -9,6 +11,7 @@ from fastapi import FastAPI, Query, Request, Response
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+from starlette.responses import StreamingResponse
 
 from src.api.routes import create_api_router
 from src.config import Settings
@@ -315,6 +318,16 @@ def create_app(
     async def health() -> dict[str, str]:
         return {"status": "healthy", "version": settings.version}
 
+    @app.get("/export/events.csv")
+    async def export_events_csv() -> StreamingResponse:
+        events = event_repository.get_all_events(sort="time")
+        return _csv_response(events, "events.csv")
+
+    @app.get("/export/speakers.csv")
+    async def export_speakers_csv() -> StreamingResponse:
+        speakers = event_repository.get_all_speakers()
+        return _csv_response(speakers, "speakers.csv")
+
     @app.get("/analytics", response_class=HTMLResponse)
     async def analytics(request: Request) -> HTMLResponse:
         stats = event_repository.get_stats()
@@ -347,3 +360,19 @@ def create_app(
         )
 
     return app
+
+
+def _csv_response(rows: list[dict[str, Any]], filename: str) -> StreamingResponse:
+    if not rows:
+        buf = io.StringIO("")
+    else:
+        buf = io.StringIO()
+        writer = csv.DictWriter(buf, fieldnames=list(rows[0].keys()))
+        writer.writeheader()
+        writer.writerows(rows)
+        buf.seek(0)
+    return StreamingResponse(
+        buf,
+        media_type="text/csv",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+    )
