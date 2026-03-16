@@ -26,7 +26,8 @@
               hx-get="/api/events/search"
               hx-trigger="input changed delay:300ms from:input[type=search], change from:select"
               hx-target="#search-results"
-              hx-swap="innerHTML">
+              hx-swap="innerHTML"
+              hx-indicator="#search-spinner">
             <div class="search-bar">
                 <input
                     type="search"
@@ -59,6 +60,7 @@
                 </select>
             </div>
         </form>
+        <div id="search-spinner" class="htmx-indicator search-spinner" aria-label="Loading results"></div>
         <div id="search-results"></div>
     </section>
 

@@ -162,9 +162,9 @@ Build an open-source tool that scrapes the FOSDEM schedule, stores it in DuckDB 
 
 ### 5.2 UX Polish
 
-- [ ] Dark mode toggle
-- [ ] Mobile-first responsive tweaks
-- [ ] Loading states and error handling
+- [x] Dark mode toggle
+- [x] Mobile-first responsive tweaks
+- [x] Loading states and error handling
 
 ### 5.3 Deployment Hardening
 

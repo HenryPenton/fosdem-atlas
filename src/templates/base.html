@@ -5,6 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}{{ title }}{% endblock %}</title>
 
+    <!-- Apply saved theme before first paint to avoid flash -->
+    <script>
+        (function () {
+            var t = localStorage.getItem('fosdem_theme');
+            if (t === 'dark' || (!t && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            }
+        })();
+    </script>
+
     <!-- HTMX -->
     <script src="https://unpkg.com/htmx.org@2.0.4"></script>
 
@@ -19,7 +29,11 @@
             <div class="nav-brand">
                 <a href="/">🎪 FOSDEM Explorer</a>
             </div>
-            <div class="nav-links">
+            <div class="nav-actions">
+                <button class="dark-mode-toggle" id="dark-mode-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">🌙</button>
+                <button class="nav-toggle" id="nav-toggle" aria-label="Toggle navigation" aria-expanded="false">☰</button>
+            </div>
+            <div class="nav-links" id="nav-links">
                 <a href="/speakers">Speakers</a>
                 <a href="/tracks">Tracks</a>
                 <a href="/analytics">Analytics</a>
@@ -43,7 +57,69 @@
         </p>
     </footer>
 
+    <div class="toast-container" id="toast-container" aria-live="polite"></div>
+
     <script src="/static/js/my-schedule.js"></script>
+    <script>
+        // Dark mode toggle
+        (function () {
+            var btn = document.getElementById('dark-mode-toggle');
+            function applyTheme(dark) {
+                if (dark) {
+                    document.documentElement.setAttribute('data-theme', 'dark');
+                    btn.textContent = '☀️';
+                    btn.title = 'Switch to light mode';
+                } else {
+                    document.documentElement.removeAttribute('data-theme');
+                    btn.textContent = '🌙';
+                    btn.title = 'Switch to dark mode';
+                }
+            }
+            var saved = localStorage.getItem('fosdem_theme');
+            var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            applyTheme(saved === 'dark' || (!saved && prefersDark));
+            btn.addEventListener('click', function () {
+                var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+                localStorage.setItem('fosdem_theme', isDark ? 'light' : 'dark');
+                applyTheme(!isDark);
+            });
+        })();
+
+        // Mobile nav toggle
+        (function () {
+            var toggle = document.getElementById('nav-toggle');
+            var links = document.getElementById('nav-links');
+            toggle.addEventListener('click', function () {
+                var open = links.classList.toggle('nav-open');
+                toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+                toggle.textContent = open ? '✕' : '☰';
+            });
+        })();
+
+        // Toast notification helper
+        function showToast(message, type) {
+            var container = document.getElementById('toast-container');
+            var toast = document.createElement('div');
+            toast.className = 'toast' + (type === 'success' ? ' toast--success' : '');
+            toast.textContent = message;
+            container.appendChild(toast);
+            requestAnimationFrame(function () {
+                requestAnimationFrame(function () { toast.classList.add('toast--visible'); });
+            });
+            setTimeout(function () {
+                toast.classList.remove('toast--visible');
+                setTimeout(function () { toast.remove(); }, 300);
+            }, 4000);
+        }
+
+        // HTMX error handling
+        document.addEventListener('htmx:responseError', function (e) {
+            showToast('Request failed (' + e.detail.xhr.status + '). Please try again.', 'error');
+        });
+        document.addEventListener('htmx:sendError', function () {
+            showToast('Network error. Check your connection and try again.', 'error');
+        });
+    </script>
     {% block scripts %}{% endblock %}
 </body>
 </html>
