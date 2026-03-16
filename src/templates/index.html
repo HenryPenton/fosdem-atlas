@@ -62,19 +62,58 @@
         <div id="search-results"></div>
     </section>
 
-    <section class="day-picker">
-        <h2>Choose a day</h2>
-        <div class="day-grid">
-            {% for day in days %}
-            <a href="/day/{{ day }}" class="day-card">
-                <span class="day-icon">📅</span>
-                <span class="day-label">{{ day }}</span>
-                <span class="day-count">{{ day_events[day] }} events</span>
-                <span class="day-arrow">&rarr;</span>
-            </a>
+    <div class="grid-controls">
+        <span class="sort-label">Day:</span>
+        <div class="sort-buttons">
+            {% for d in days %}
+            <a href="/?day={{ d }}"
+               class="sort-btn{% if d == selected_day %} sort-btn--active{% endif %}"
+               hx-boost="false">📅 {{ d }}</a>
             {% endfor %}
         </div>
-    </section>
+    </div>
+
+    {% if rooms and time_slots %}
+    <div class="grid-wrapper">
+        <table class="schedule-grid" role="grid" aria-label="Schedule grid for {{ selected_day }}">
+            <thead>
+                <tr>
+                    <th class="grid-corner" scope="col">Time</th>
+                    {% for room in rooms %}
+                    <th class="grid-room-header" scope="col">{{ room }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for slot in time_slots %}
+                {% set slot_key = slot.strftime('%H:%M') %}
+                <tr>
+                    <th class="grid-time" scope="row">{{ slot_key }}</th>
+                    {% for room in rooms %}
+                    <td class="grid-cell{% if grid.get(slot_key, {}).get(room) %} grid-cell--filled{% endif %}">
+                        {% for ev in grid.get(slot_key, {}).get(room, []) %}
+                        <div class="grid-event-wrapper">
+                            <a href="/event/{{ ev.id }}" class="grid-event" title="{{ ev.title }} ({{ ev.duration_minutes }} min)">
+                                <span class="grid-event-title">{{ ev.title | truncate(40) }}</span>
+                                <span class="grid-event-meta">⏱️ {{ ev.duration_minutes }}m</span>
+                            </a>
+                            <button class="bookmark-btn bookmark-btn--grid" data-bookmark-id="{{ ev.id }}" title="Add to My Schedule">☆</button>
+                        </div>
+                        {% endfor %}
+                    </td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="no-events">
+        <div class="no-events-icon">📭</div>
+        <p>No events scheduled on {{ selected_day }}.</p>
+    </div>
+    {% endif %}
+
     {% else %}
     <div class="no-events">
         <div class="no-events-icon">📡</div>

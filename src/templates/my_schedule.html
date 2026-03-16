@@ -74,24 +74,83 @@
 
             var html = '';
             Object.keys(byDay).sort().forEach(function (day) {
+                var dayEvents = byDay[day];
                 html += '<h2 class="schedule-day-heading">' + esc(day) + '</h2>';
-                html += '<div class="event-list">';
-                byDay[day].forEach(function (ev) {
-                    var start = ev.start_time ? new Date(ev.start_time) : null;
-                    var timeStr = start ? start.toTimeString().slice(0, 5) : '';
-                    html += '<div class="event-card" data-event-id="' + esc(ev.id) + '">';
-                    html += '<div class="event-card-body">';
-                    html += '<a href="/event/' + esc(ev.id) + '" class="event-card-title">' + esc(ev.title) + '</a>';
-                    html += '<div class="event-card-meta">';
-                    if (timeStr) html += '<span class="event-badge">🕐 ' + timeStr + '</span>';
-                    html += '<span class="event-badge">⏱️ ' + ev.duration_minutes + ' min</span>';
-                    html += '<span class="event-badge">📍 ' + esc(ev.room) + '</span>';
-                    html += '<span class="event-badge track-badge">' + esc(ev.track) + '</span>';
-                    html += '</div></div>';
-                    html += '<button class="bookmark-btn bookmark-btn--active" onclick="removeAndRefresh(\'' + esc(ev.id) + '\')" title="Remove from My Schedule">⭐</button>';
-                    html += '</div>';
+
+                // Collect rooms
+                var roomSet = {};
+                dayEvents.forEach(function (ev) { roomSet[ev.room] = true; });
+                var rooms = Object.keys(roomSet).sort();
+
+                // Build 30-min time slots
+                var starts = [], ends = [];
+                dayEvents.forEach(function (ev) {
+                    if (ev.start_time) {
+                        var s = new Date(ev.start_time);
+                        starts.push(s);
+                        ends.push(new Date(s.getTime() + (ev.duration_minutes || 30) * 60000));
+                    }
                 });
-                html += '</div>';
+
+                if (starts.length === 0) return;
+
+                starts.sort(function (a, b) { return a - b; });
+                ends.sort(function (a, b) { return a - b; });
+
+                var minTime = new Date(starts[0]);
+                minTime.setMinutes(Math.floor(minTime.getMinutes() / 30) * 30, 0, 0);
+                var maxTime = ends[ends.length - 1];
+
+                var slots = [];
+                var curr = new Date(minTime);
+                while (curr < maxTime) {
+                    slots.push(new Date(curr));
+                    curr = new Date(curr.getTime() + 30 * 60000);
+                }
+
+                // Build grid: slotKey -> room -> [events]
+                var grid = {};
+                dayEvents.forEach(function (ev) {
+                    if (!ev.start_time) return;
+                    var s = new Date(ev.start_time);
+                    var slotKey = pad(s.getHours()) + ':' + pad(Math.floor(s.getMinutes() / 30) * 30);
+                    if (!grid[slotKey]) grid[slotKey] = {};
+                    if (!grid[slotKey][ev.room]) grid[slotKey][ev.room] = [];
+                    grid[slotKey][ev.room].push(ev);
+                });
+
+                // Render grid table
+                html += '<div class="grid-wrapper">';
+                html += '<table class="schedule-grid" role="grid">';
+                html += '<thead><tr><th class="grid-corner">Time</th>';
+                rooms.forEach(function (room) {
+                    html += '<th class="grid-room-header">' + esc(room) + '</th>';
+                });
+                html += '</tr></thead><tbody>';
+
+                slots.forEach(function (slot) {
+                    var slotKey = pad(slot.getHours()) + ':' + pad(slot.getMinutes());
+                    html += '<tr><th class="grid-time">' + slotKey + '</th>';
+                    rooms.forEach(function (room) {
+                        var cellEvents = (grid[slotKey] && grid[slotKey][room]) ? grid[slotKey][room] : [];
+                        var filledClass = cellEvents.length > 0 ? ' grid-cell--filled' : '';
+                        html += '<td class="grid-cell' + filledClass + '">';
+                        cellEvents.forEach(function (ev) {
+                            var title = ev.title.length > 40 ? ev.title.substring(0, 40) + '\u2026' : ev.title;
+                            html += '<div class="grid-event-wrapper">';
+                            html += '<a href="/event/' + esc(ev.id) + '" class="grid-event" title="' + esc(ev.title) + ' (' + ev.duration_minutes + ' min)">';
+                            html += '<span class="grid-event-title">' + esc(title) + '</span>';
+                            html += '<span class="grid-event-meta">\u23F1\uFE0F ' + ev.duration_minutes + 'm</span>';
+                            html += '</a>';
+                            html += '<button class="bookmark-btn bookmark-btn--grid bookmark-btn--active" onclick="removeAndRefresh(\'' + esc(ev.id) + '\')" title="Remove from My Schedule">\u2B50</button>';
+                            html += '</div>';
+                        });
+                        html += '</td>';
+                    });
+                    html += '</tr>';
+                });
+
+                html += '</tbody></table></div>';
             });
             eventsDiv.innerHTML = html;
 
@@ -121,6 +180,10 @@
         var d = document.createElement('div');
         d.appendChild(document.createTextNode(String(s)));
         return d.innerHTML;
+    }
+
+    function pad(n) {
+        return n < 10 ? '0' + n : '' + n;
     }
 })();
 

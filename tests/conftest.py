@@ -11,6 +11,7 @@ from fastapi.testclient import TestClient
 from src.adapters.persistence.duckdb_connection import DuckDBConnection
 from src.adapters.persistence.duckdb_repository import DuckDBEventRepository
 from src.adapters.web.app import create_app
+from src.application.services import AnalyticsService, ScheduleService, SpeakerService
 from src.config import Settings
 from src.domain.models import Event, Speaker
 
@@ -91,12 +92,37 @@ def seeded_repository(repository: DuckDBEventRepository) -> DuckDBEventRepositor
 
 
 @pytest.fixture
+def schedule_service(seeded_repository: DuckDBEventRepository) -> ScheduleService:
+    return ScheduleService(seeded_repository)
+
+
+@pytest.fixture
+def analytics_service(seeded_repository: DuckDBEventRepository) -> AnalyticsService:
+    return AnalyticsService(seeded_repository)
+
+
+@pytest.fixture
+def speaker_service(seeded_repository: DuckDBEventRepository) -> SpeakerService:
+    return SpeakerService(seeded_repository)
+
+
+@pytest.fixture
 def settings() -> Settings:
     return Settings(database_path=":memory:")
 
 
 @pytest.fixture
-def client(seeded_repository: DuckDBEventRepository, settings: Settings) -> TestClient:
+def client(
+    schedule_service: ScheduleService,
+    analytics_service: AnalyticsService,
+    speaker_service: SpeakerService,
+    settings: Settings,
+) -> TestClient:
     """FastAPI TestClient wired to the seeded repository."""
-    app = create_app(event_repository=seeded_repository, settings=settings)
+    app = create_app(
+        schedule_service=schedule_service,
+        analytics_service=analytics_service,
+        speaker_service=speaker_service,
+        settings=settings,
+    )
     return TestClient(app)

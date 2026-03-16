@@ -14,7 +14,12 @@ from src.adapters.persistence.duckdb_connection import DuckDBConnection
 from src.adapters.persistence.duckdb_repository import DuckDBEventRepository
 from src.adapters.scraper.fosdem_scraper import FosdemScheduleFetcher
 from src.adapters.web.app import create_app
-from src.application.services import ScrapeService
+from src.application.services import (
+    AnalyticsService,
+    ScheduleService,
+    ScrapeService,
+    SpeakerService,
+)
 from src.config import settings
 
 # Wire adapters
@@ -22,6 +27,11 @@ _db = DuckDBConnection(settings.database_path)
 _event_repository = DuckDBEventRepository(_db)
 _schedule_fetcher = FosdemScheduleFetcher()
 _scrape_service = ScrapeService(_schedule_fetcher, _event_repository)
+
+# Wire application services
+_schedule_service = ScheduleService(_event_repository)
+_analytics_service = AnalyticsService(_event_repository)
+_speaker_service = SpeakerService(_event_repository)
 
 
 def _run_scrape() -> None:
@@ -62,7 +72,9 @@ async def _lifespan(_app: FastAPI) -> AsyncGenerator[None, None]:
 
 
 app = create_app(
-    event_repository=_event_repository,
+    schedule_service=_schedule_service,
+    analytics_service=_analytics_service,
+    speaker_service=_speaker_service,
     settings=settings,
     lifespan=_lifespan,
 )

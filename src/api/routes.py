@@ -7,10 +7,14 @@ from typing import Any
 from fastapi import APIRouter, HTTPException, Query
 from fastapi.responses import StreamingResponse
 
-from src.domain.ports import EventRepository
+from src.application.services import AnalyticsService, ScheduleService, SpeakerService
 
 
-def create_api_router(event_repository: EventRepository) -> APIRouter:
+def create_api_router(
+    schedule_service: ScheduleService,
+    analytics_service: AnalyticsService,
+    speaker_service: SpeakerService,
+) -> APIRouter:
     """Create the v1 JSON API router."""
     router = APIRouter(prefix="/api/v1", tags=["api"])
 
@@ -18,9 +22,7 @@ def create_api_router(event_repository: EventRepository) -> APIRouter:
     async def api_events(
         sort: str = Query(default="time", max_length=10),
     ) -> list[dict[str, Any]]:
-        valid_sorts = {"time", "track", "room"}
-        sort = sort if sort in valid_sorts else "time"
-        return event_repository.get_all_events(sort=sort)
+        return schedule_service.get_all_events(sort=sort)
 
     @router.get("/events/search")
     async def api_events_search(
@@ -29,95 +31,83 @@ def create_api_router(event_repository: EventRepository) -> APIRouter:
         room: str = Query(default="", max_length=200),
         day: str = Query(default="", max_length=20),
     ) -> list[dict[str, Any]]:
-        q, track, room, day = q.strip(), track.strip(), room.strip(), day.strip()
-        if q or track or room or day:
-            return event_repository.filter_events(q=q, track=track, room=room, day=day)
-        return []
+        return schedule_service.search_events(q=q, track=track, room=room, day=day)
 
     @router.get("/events/by-ids")
     async def api_events_by_ids(
         ids: str = Query(default="", max_length=10000),
     ) -> list[dict[str, Any]]:
         event_ids = [i.strip() for i in ids.split(",") if i.strip()][:200]
-        return event_repository.get_events_by_ids(event_ids)
+        return schedule_service.get_events_by_ids(event_ids)
 
     @router.get("/events/{event_id}")
     async def api_event_detail(event_id: str) -> dict[str, Any]:
-        event = event_repository.get_event_by_id(event_id)
-        if event is None:
+        result = schedule_service.get_event_detail(event_id)
+        if result is None:
             raise HTTPException(status_code=404, detail="Event not found")
-        speakers = event_repository.get_speakers_for_event(event_id)
-        return {**event, "speakers": speakers}
+        return result
 
     @router.get("/days")
     async def api_days() -> list[str]:
-        return event_repository.get_unique_days()
+        return schedule_service.get_unique_days()
 
     @router.get("/days/{day}")
     async def api_day_tracks(day: str) -> dict[str, Any]:
-        tracks = event_repository.get_tracks_by_day(day)
+        data = schedule_service.get_day_detail(day)
         return {
-            "day": day,
-            "tracks": tracks,
-            "track_event_counts": {
-                t: len(event_repository.get_events_by_day_and_track(day, t)) for t in tracks
-            },
+            "day": data["day"],
+            "tracks": data["tracks"],
+            "track_event_counts": data["track_events"],
         }
 
     @router.get("/days/{day}/tracks/{track:path}")
     async def api_day_track_events(day: str, track: str) -> dict[str, Any]:
-        events = event_repository.get_events_by_day_and_track(day, track)
+        events = schedule_service.get_events_for_day_and_track(day, track)
         return {"day": day, "track": track, "events": events}
 
     @router.get("/tracks")
     async def api_tracks() -> list[dict[str, Any]]:
-        tracks = event_repository.get_unique_tracks()
-        return [
-            {"name": t, "event_count": len(event_repository.get_events_by_track(t))} for t in tracks
-        ]
+        data = schedule_service.get_all_tracks_with_counts()
+        return [{"name": t, "event_count": data["track_events"][t]} for t in data["tracks"]]
 
     @router.get("/tracks/{track:path}")
     async def api_track_detail(track: str) -> dict[str, Any]:
-        events = event_repository.get_events_by_track(track)
+        events = schedule_service.get_events_for_track(track)
         return {"track": track, "events": events}
 
     @router.get("/speakers")
     async def api_speakers() -> list[dict[str, Any]]:
-        return event_repository.get_all_speakers()
+        return speaker_service.get_all_speakers()
 
     @router.get("/speakers/{speaker_id}")
     async def api_speaker_detail(speaker_id: str) -> dict[str, Any]:
-        speaker = event_repository.get_speaker_by_id(speaker_id)
-        if speaker is None:
+        result = speaker_service.get_speaker_detail(speaker_id)
+        if result is None:
             raise HTTPException(status_code=404, detail="Speaker not found")
-        events = event_repository.get_events_by_speaker(speaker_id)
-        return {**speaker, "events": events}
+        return result
 
     @router.get("/analytics")
     async def api_analytics() -> dict[str, Any]:
-        stats = event_repository.get_stats()
-        room_stats = event_repository.get_room_stats()
-        speaker_stats = event_repository.get_speaker_stats()
-        topic_stats = event_repository.get_topic_stats()
+        data = analytics_service.get_analytics()
         return {
-            "stats": stats,
-            "room_stats": room_stats,
-            "speaker_stats": speaker_stats,
-            "topic_stats": topic_stats,
+            "stats": data["stats"],
+            "room_stats": data["room_stats"],
+            "speaker_stats": data["speaker_stats"],
+            "topic_stats": data["topic_stats"],
         }
 
     @router.get("/rooms")
     async def api_rooms() -> list[str]:
-        return event_repository.get_unique_rooms()
+        return schedule_service.get_unique_rooms()
 
     @router.get("/export/events.csv")
     async def export_events_csv() -> StreamingResponse:
-        events = event_repository.get_all_events(sort="time")
+        events = schedule_service.get_all_events(sort="time")
         return _csv_response(events, "events.csv")
 
     @router.get("/export/speakers.csv")
     async def export_speakers_csv() -> StreamingResponse:
-        speakers = event_repository.get_all_speakers()
+        speakers = speaker_service.get_all_speakers()
         return _csv_response(speakers, "speakers.csv")
 
     return router

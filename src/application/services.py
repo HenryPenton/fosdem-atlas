@@ -1,16 +1,17 @@
-"""Application services (use cases)."""
+"""Application services (use cases) – barrel re-exports.
 
-from src.domain.ports import EventRepository, ScheduleFetcher
+Import individual services from their own modules; this file keeps
+existing ``from src.application.services import …`` imports working.
+"""
 
+from src.application.analytics_service import AnalyticsService
+from src.application.schedule_service import ScheduleService
+from src.application.scrape_service import ScrapeService
+from src.application.speaker_service import SpeakerService
 
-class ScrapeService:
-    """Orchestrates fetching and storing the FOSDEM schedule."""
-
-    def __init__(self, fetcher: ScheduleFetcher, repository: EventRepository) -> None:
-        self._fetcher = fetcher
-        self._repository = repository
-
-    def run(self, url: str) -> int:
-        """Fetch the schedule and store it. Returns the number of events stored."""
-        events = self._fetcher.fetch_and_parse(url)
-        return self._repository.insert_events(events)
+__all__ = [
+    "AnalyticsService",
+    "ScheduleService",
+    "ScrapeService",
+    "SpeakerService",
+]
