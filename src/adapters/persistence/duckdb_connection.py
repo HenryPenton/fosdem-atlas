@@ -71,3 +71,12 @@ class DuckDBConnection:
             )
         """
         )
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS keywords (
+                term VARCHAR NOT NULL,
+                count INTEGER NOT NULL,
+                PRIMARY KEY (term)
+            )
+        """
+        )

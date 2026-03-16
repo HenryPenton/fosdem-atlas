@@ -1,7 +1,10 @@
 """DuckDB implementation of the EventRepository port."""
 
+from __future__ import annotations
+
 from datetime import datetime
 
+import duckdb
 import yake
 
 from src.adapters.persistence.duckdb_connection import DuckDBConnection
@@ -64,6 +67,7 @@ class DuckDBEventRepository:
             conn = self._db.get()
 
             conn.execute("DELETE FROM event_speakers")
+            conn.execute("DELETE FROM keywords")
             conn.execute("DELETE FROM events")
             conn.execute("DELETE FROM speakers")
 
@@ -100,7 +104,40 @@ class DuckDBEventRepository:
                         [event.id, speaker.id],
                     )
 
+            self._extract_keywords(conn, events)
+
         return len(events)
+
+    def _extract_keywords(self, conn: duckdb.DuckDBPyConnection, events: list[Event]) -> None:
+        if not events:
+            return
+
+        full_text = ". ".join(f"{e.title}. {e.abstract}" for e in events)
+        extractor = yake.KeywordExtractor(lan="en", n=2, top=60, dedupLim=0.5)
+        raw_keywords = extractor.extract_keywords(full_text)
+
+        candidates = [
+            kw for kw, _ in raw_keywords if kw.lower() not in _TOPIC_STOPWORDS and len(kw) > 2
+        ]
+
+        docs = [f"{e.title} {e.abstract}".lower() for e in events]
+        results: list[tuple[str, int]] = []
+        for term in candidates:
+            count = sum(1 for doc in docs if term.lower() in doc)
+            if count >= 2:
+                results.append((term, count))
+
+        seen_lower: set[str] = set()
+        for term, count in sorted(results, key=lambda x: (-x[1], x[0])):
+            low = term.lower()
+            if low not in seen_lower:
+                seen_lower.add(low)
+                conn.execute(
+                    "INSERT INTO keywords (term, count) VALUES (?, ?)",
+                    [term, count],
+                )
+                if len(seen_lower) >= 30:
+                    break
 
     def get_all_events(self, sort: str = "time") -> list[dict[str, str | int | datetime]]:
         _order_map = {
@@ -541,31 +578,5 @@ class DuckDBEventRepository:
 
     def get_topic_stats(self) -> dict[str, list[dict[str, str | int]]]:
         conn = self._db.get()
-        rows = conn.execute("SELECT title, abstract FROM events").fetchall()
-        if not rows:
-            return {"keywords": []}
-
-        full_text = ". ".join(f"{row[0]}. {row[1]}" for row in rows)
-        extractor = yake.KeywordExtractor(lan="en", n=2, top=60, dedupLim=0.5)
-        raw_keywords = extractor.extract_keywords(full_text)
-
-        candidates = [
-            kw for kw, _ in raw_keywords if kw.lower() not in _TOPIC_STOPWORDS and len(kw) > 2
-        ]
-
-        docs = [f"{row[0]} {row[1]}".lower() for row in rows]
-        results: list[dict[str, str | int]] = []
-        for term in candidates:
-            count = sum(1 for doc in docs if term.lower() in doc)
-            if count >= 2:
-                results.append({"term": term, "count": count})
-
-        seen_lower: set[str] = set()
-        deduped: list[dict[str, str | int]] = []
-        for item in sorted(results, key=lambda x: (-int(x["count"]), str(x["term"]))):
-            low = str(item["term"]).lower()
-            if low not in seen_lower:
-                seen_lower.add(low)
-                deduped.append(item)
-
-        return {"keywords": deduped[:30]}
+        rows = conn.execute("SELECT term, count FROM keywords ORDER BY count DESC, term").fetchall()
+        return {"keywords": [{"term": row[0], "count": int(row[1])} for row in rows]}

@@ -28,6 +28,16 @@ repos:
           - fastapi
         args: [--ignore-missing-imports]
 
+  - repo: local
+    hooks:
+      - id: pytest
+        name: pytest
+        entry: pytest
+        language: system
+        pass_filenames: false
+        always_run: true
+        stages: [pre-commit]
+
   - repo: https://github.com/commitizen-tools/commitizen
     rev: v4.4.1
     hooks:

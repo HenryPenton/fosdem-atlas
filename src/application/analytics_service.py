@@ -10,9 +10,16 @@ class AnalyticsService:
 
     def __init__(self, repository: EventRepository) -> None:
         self._repo = repository
+        self._cache: dict[str, Any] | None = None
+
+    def invalidate_cache(self) -> None:
+        self._cache = None
 
     def get_analytics(self) -> dict[str, Any]:
-        """Full analytics data with computed heatmap."""
+        """Full analytics data with computed heatmap. Results are cached."""
+        if self._cache is not None:
+            return self._cache
+
         stats = self._repo.get_stats()
         room_stats = self._repo.get_room_stats()
         speaker_stats = self._repo.get_speaker_stats()
@@ -28,7 +35,7 @@ class AnalyticsService:
             heatmap_grid[str(item["day"])][int(item["hour"])] = int(item["count"])
         max_heatmap_count = max((int(item["count"]) for item in heatmap_raw), default=1)
 
-        return {
+        result = {
             "stats": stats,
             "room_stats": room_stats,
             "events_per_room": room_stats["events_per_room"],
@@ -39,3 +46,5 @@ class AnalyticsService:
             "heatmap_grid": heatmap_grid,
             "max_heatmap_count": max_heatmap_count,
         }
+        self._cache = result
+        return result
