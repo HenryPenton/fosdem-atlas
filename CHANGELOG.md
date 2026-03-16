@@ -1,3 +1,15 @@
+## v0.3.0 (2026-03-16)
+
+### Feat
+
+- tests in parallel
+- fix linting issue
+- enhance analytics caching, add keyword extraction, and update breadcrumb styles
+- add analytics, schedule, scrape, and speaker services
+- basic storage of events
+- add CSV export functionality for events and speakers with corresponding tests
+- add cache control middleware and tests for caching behavior + api
+
 ## v0.2.0 (2026-03-15)
 
 ### Feat
