@@ -76,6 +76,10 @@ module = ["apscheduler", "apscheduler.*"]
 ignore_missing_imports = true
 
 [[tool.mypy.overrides]]
+module = ["yake", "yake.*"]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
 module = ["tests.*"]
 disallow_untyped_decorators = false
 
