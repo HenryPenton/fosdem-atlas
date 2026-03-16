@@ -607,10 +607,36 @@ main {
     background: var(--primary-light);
 }
 
+.grid-event-wrapper {
+    position: relative;
+    margin-bottom: 0.25rem;
+}
+
+.grid-event-wrapper:last-child {
+    margin-bottom: 0;
+}
+
+.bookmark-btn--grid {
+    position: absolute;
+    top: 0.2rem;
+    right: 0.2rem;
+    font-size: 0.75rem;
+    padding: 0;
+    width: 1.2rem;
+    height: 1.2rem;
+    line-height: 1.2rem;
+    opacity: 0;
+    transition: opacity 0.15s;
+}
+
+.bookmark-btn--grid.bookmark-btn--active {
+    opacity: 1;
+}
+
 .grid-event {
     display: block;
-    padding: 0.35rem 0.5rem;
-    margin-bottom: 0.25rem;
+    padding: 0.35rem 1.4rem 0.35rem 0.5rem;
+    margin-bottom: 0;
     border-radius: 6px;
     background: var(--card-background);
     border-left: 3px solid var(--primary-color);
@@ -626,6 +652,10 @@ main {
 
 .grid-event:last-child {
     margin-bottom: 0;
+}
+
+.grid-event-wrapper:hover .bookmark-btn--grid {
+    opacity: 1;
 }
 
 .grid-event-title {
@@ -1207,4 +1237,139 @@ footer p {
 }
 .export-links a {
     text-decoration: none;
+}
+
+/* Bookmark button */
+.bookmark-btn {
+    background: none;
+    border: none;
+    font-size: 1.4rem;
+    cursor: pointer;
+    padding: 0.25rem;
+    line-height: 1;
+    opacity: 0.4;
+    transition: opacity 0.15s, transform 0.15s;
+    flex-shrink: 0;
+}
+.bookmark-btn:hover {
+    opacity: 0.8;
+    transform: scale(1.15);
+}
+.bookmark-btn--active {
+    opacity: 1;
+}
+
+/* Event card with bookmark */
+.event-card {
+    position: relative;
+}
+.event-card > .bookmark-btn {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+}
+
+/* Event detail title row */
+.event-detail-title-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+}
+.event-detail-title-row .bookmark-btn {
+    font-size: 1.6rem;
+    margin-top: 0.15rem;
+}
+
+/* Nav schedule badge */
+.nav-schedule {
+    position: relative;
+}
+.schedule-badge {
+    background: var(--accent-color, #4f6df5);
+    color: #fff;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 0.1rem 0.4rem;
+    border-radius: 999px;
+    margin-left: 0.2rem;
+    vertical-align: super;
+}
+
+/* My Schedule page */
+.schedule-controls {
+    margin-bottom: 1.5rem;
+}
+.schedule-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+.schedule-count {
+    font-weight: 600;
+    color: var(--text-muted, #666);
+}
+.sort-btn--danger {
+    border-color: #c00;
+    color: #c00;
+}
+.sort-btn--danger:hover {
+    background: #fff0f0;
+}
+.schedule-day-heading {
+    margin-top: 1.5rem;
+}
+
+/* Conflict detection */
+.schedule-conflicts {
+    background: #fffbe6;
+    border: 1px solid #f5c518;
+    border-radius: 0.5rem;
+    padding: 1rem 1.25rem;
+    margin-bottom: 1.5rem;
+}
+.schedule-conflicts h2 {
+    margin-top: 0;
+    font-size: 1.1rem;
+}
+.conflict-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.conflict-item {
+    padding: 0.4rem 0;
+    border-bottom: 1px solid #f0e6b8;
+}
+.conflict-item:last-child {
+    border-bottom: none;
+}
+.conflict-detail {
+    font-size: 0.85rem;
+    color: var(--text-muted, #666);
+}
+
+/* My Schedule event cards */
+.schedule-events .event-card {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+.schedule-events .event-card-body {
+    flex: 1;
+    min-width: 0;
+}
+.schedule-events .event-card-title {
+    font-weight: 600;
+    text-decoration: none;
+    color: inherit;
+}
+.schedule-events .event-card-title:hover {
+    text-decoration: underline;
+}
+.schedule-events .event-card-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-top: 0.3rem;
 }

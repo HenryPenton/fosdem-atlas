@@ -39,10 +39,13 @@
                     {% for room in rooms %}
                     <td class="grid-cell{% if grid.get(slot_key, {}).get(room) %} grid-cell--filled{% endif %}">
                         {% for ev in grid.get(slot_key, {}).get(room, []) %}
-                        <a href="/event/{{ ev.id }}" class="grid-event" title="{{ ev.title }} ({{ ev.duration_minutes }} min)">
-                            <span class="grid-event-title">{{ ev.title | truncate(40) }}</span>
-                            <span class="grid-event-meta">⏱️ {{ ev.duration_minutes }}m</span>
-                        </a>
+                        <div class="grid-event-wrapper">
+                            <a href="/event/{{ ev.id }}" class="grid-event" title="{{ ev.title }} ({{ ev.duration_minutes }} min)">
+                                <span class="grid-event-title">{{ ev.title | truncate(40) }}</span>
+                                <span class="grid-event-meta">⏱️ {{ ev.duration_minutes }}m</span>
+                            </a>
+                            <button class="bookmark-btn bookmark-btn--grid" data-bookmark-id="{{ ev.id }}" title="Add to My Schedule">☆</button>
+                        </div>
                         {% endfor %}
                     </td>
                     {% endfor %}

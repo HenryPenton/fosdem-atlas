@@ -19,7 +19,10 @@
                 <span class="event-badge">📍 {{ event.room }}</span>
                 <span class="event-badge track-badge">{{ event.track }}</span>
             </div>
-            <h1 class="event-detail-title">{{ event.title }}</h1>
+            <div class="event-detail-title-row">
+                <h1 class="event-detail-title">{{ event.title }}</h1>
+                <button class="bookmark-btn" data-bookmark-id="{{ event.id }}" title="Add to My Schedule">☆</button>
+            </div>
             {% if event.subtitle %}
             <p class="event-detail-subtitle">{{ event.subtitle }}</p>
             {% endif %}

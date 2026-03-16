@@ -34,6 +34,13 @@ def create_api_router(event_repository: EventRepository) -> APIRouter:
             return event_repository.filter_events(q=q, track=track, room=room, day=day)
         return []
 
+    @router.get("/events/by-ids")
+    async def api_events_by_ids(
+        ids: str = Query(default="", max_length=10000),
+    ) -> list[dict[str, Any]]:
+        event_ids = [i.strip() for i in ids.split(",") if i.strip()][:200]
+        return event_repository.get_events_by_ids(event_ids)
+
     @router.get("/events/{event_id}")
     async def api_event_detail(event_id: str) -> dict[str, Any]:
         event = event_repository.get_event_by_id(event_id)

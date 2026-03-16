@@ -3,7 +3,7 @@
 import csv
 import io
 from collections import defaultdict
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
@@ -328,6 +328,27 @@ def create_app(
         speakers = event_repository.get_all_speakers()
         return _csv_response(speakers, "speakers.csv")
 
+    @app.get("/my-schedule", response_class=HTMLResponse)
+    async def my_schedule_page(request: Request) -> HTMLResponse:
+        return templates.TemplateResponse(
+            request=request,
+            name="my_schedule.html",
+            context={"title": "FOSDEM Explorer — My Schedule"},
+        )
+
+    @app.get("/my-schedule/export.ics")
+    async def my_schedule_ical(
+        ids: str = Query(default="", max_length=10000),
+    ) -> Response:
+        event_ids = [i.strip() for i in ids.split(",") if i.strip()][:200]
+        events = event_repository.get_events_by_ids(event_ids)
+        cal = _build_ical(events)
+        return Response(
+            content=cal,
+            media_type="text/calendar",
+            headers={"Content-Disposition": 'attachment; filename="fosdem-schedule.ics"'},
+        )
+
     @app.get("/analytics", response_class=HTMLResponse)
     async def analytics(request: Request) -> HTMLResponse:
         stats = event_repository.get_stats()
@@ -376,3 +397,40 @@ def _csv_response(rows: list[dict[str, Any]], filename: str) -> StreamingRespons
         media_type="text/csv",
         headers={"Content-Disposition": f'attachment; filename="{filename}"'},
     )
+
+
+def _ical_escape(text: str) -> str:
+    return text.replace("\\", "\\\\").replace(";", "\\;").replace(",", "\\,").replace("\n", "\\n")
+
+
+def _build_ical(events: list[dict[str, Any]]) -> str:
+    lines = [
+        "BEGIN:VCALENDAR",
+        "VERSION:2.0",
+        "PRODID:-//FOSDEM Explorer//EN",
+        "CALSCALE:GREGORIAN",
+        "METHOD:PUBLISH",
+    ]
+    for ev in events:
+        start = ev.get("start_time")
+        if not isinstance(start, datetime):
+            continue
+        duration = int(ev.get("duration_minutes", 30))
+        end = start + timedelta(minutes=duration)
+        uid = f"{ev['id']}@fosdem-explorer"
+        now = datetime.now(tz=timezone.utc).strftime("%Y%m%dT%H%M%SZ")  # noqa: UP017
+        lines.extend(
+            [
+                "BEGIN:VEVENT",
+                f"UID:{uid}",
+                f"DTSTAMP:{now}",
+                f"DTSTART:{start.strftime('%Y%m%dT%H%M%S')}",
+                f"DTEND:{end.strftime('%Y%m%dT%H%M%S')}",
+                f"SUMMARY:{_ical_escape(str(ev.get('title', '')))}",
+                f"LOCATION:{_ical_escape(str(ev.get('room', '')))}",
+                f"DESCRIPTION:{_ical_escape(str(ev.get('track', '')))}",
+                "END:VEVENT",
+            ]
+        )
+    lines.append("END:VCALENDAR")
+    return "\r\n".join(lines) + "\r\n"

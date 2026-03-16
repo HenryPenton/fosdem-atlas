@@ -288,6 +288,37 @@ class DuckDBEventRepository:
             "fosdem_url": row[9],
         }
 
+    def get_events_by_ids(self, event_ids: list[str]) -> list[dict[str, str | int | datetime]]:
+        if not event_ids:
+            return []
+        conn = self._db.get()
+        placeholders = ", ".join("?" for _ in event_ids)
+        result = conn.execute(
+            f"""
+            SELECT id, title, subtitle, abstract, start_time,
+                   duration_minutes, room, track, day, fosdem_url
+            FROM events
+            WHERE id IN ({placeholders})
+            ORDER BY day, start_time, room
+            """,
+            event_ids,
+        ).fetchall()
+        return [
+            {
+                "id": row[0],
+                "title": row[1],
+                "subtitle": row[2],
+                "abstract": row[3],
+                "start_time": row[4],
+                "duration_minutes": row[5],
+                "room": row[6],
+                "track": row[7],
+                "day": row[8],
+                "fosdem_url": row[9],
+            }
+            for row in result
+        ]
+
     def filter_events(
         self, q: str = "", track: str = "", room: str = "", day: str = ""
     ) -> list[dict[str, str | int | datetime]]:

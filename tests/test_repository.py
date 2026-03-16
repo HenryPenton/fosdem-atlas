@@ -539,3 +539,38 @@ class TestGetTopicStats:
         stats = repository.get_topic_stats()
         terms_lower = [str(kw["term"]).lower() for kw in stats["keywords"]]
         assert "open source" not in terms_lower
+
+
+class TestGetEventsByIds:
+    def test_returns_matching_events(self, seeded_repository: DuckDBEventRepository) -> None:
+        result = seeded_repository.get_events_by_ids(["1", "3"])
+        assert len(result) == 2
+        ids = {str(e["id"]) for e in result}
+        assert ids == {"1", "3"}
+
+    def test_ignores_unknown_ids(self, seeded_repository: DuckDBEventRepository) -> None:
+        result = seeded_repository.get_events_by_ids(["1", "nonexistent"])
+        assert len(result) == 1
+        assert str(result[0]["id"]) == "1"
+
+    def test_returns_empty_for_no_ids(self, seeded_repository: DuckDBEventRepository) -> None:
+        result = seeded_repository.get_events_by_ids([])
+        assert result == []
+
+    def test_returns_all_fields(self, seeded_repository: DuckDBEventRepository) -> None:
+        result = seeded_repository.get_events_by_ids(["1"])
+        assert len(result) == 1
+        ev = result[0]
+        assert "title" in ev
+        assert "start_time" in ev
+        assert "duration_minutes" in ev
+        assert "room" in ev
+        assert "track" in ev
+        assert "day" in ev
+
+    def test_ordered_by_day_and_time(self, seeded_repository: DuckDBEventRepository) -> None:
+        result = seeded_repository.get_events_by_ids(["3", "1", "2"])
+        assert len(result) == 3
+        ids = [str(e["id"]) for e in result]
+        # Event 1 and 2 are day 2026-02-07, event 3 is day 2026-02-08
+        assert ids == ["1", "2", "3"]

@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <nav class="breadcrumb">
+        <a href="/">Home</a> <span class="sep">&rsaquo;</span> <span>My Schedule</span>
+    </nav>
+
+    <section class="hero">
+        <div class="hero-icon">⭐</div>
+        <h1>My Schedule</h1>
+        <p class="hero-subtitle">Your saved events — stored in your browser</p>
+    </section>
+
+    <div id="schedule-controls" class="schedule-controls" hidden>
+        <div class="schedule-actions">
+            <span id="schedule-count" class="schedule-count"></span>
+            <a id="schedule-ical" href="#" class="sort-btn sort-btn--active" download="fosdem-schedule.ics">📅 Export iCal</a>
+            <button id="schedule-clear" class="sort-btn sort-btn--danger">🗑️ Clear All</button>
+        </div>
+    </div>
+
+    <div id="schedule-conflicts" class="schedule-conflicts" hidden>
+        <h2>⚠️ Time Conflicts</h2>
+        <ul id="conflict-list" class="conflict-list"></ul>
+    </div>
+
+    <div id="schedule-events" class="schedule-events">
+        <p id="schedule-empty" class="empty-state">
+            No events saved yet. Browse the <a href="/schedule">schedule</a> and click ⭐ to add events.
+        </p>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/my-schedule.js"></script>
+<script>
+(function () {
+    var saved = MySchedule.getIds();
+    if (saved.length === 0) return;
+
+    var controls = document.getElementById('schedule-controls');
+    var emptyMsg = document.getElementById('schedule-empty');
+    var eventsDiv = document.getElementById('schedule-events');
+    var countSpan = document.getElementById('schedule-count');
+    var icalLink = document.getElementById('schedule-ical');
+    var clearBtn = document.getElementById('schedule-clear');
+    var conflictsDiv = document.getElementById('schedule-conflicts');
+    var conflictList = document.getElementById('conflict-list');
+
+    controls.hidden = false;
+    emptyMsg.hidden = true;
+    countSpan.textContent = saved.length + ' event' + (saved.length !== 1 ? 's' : '');
+
+    icalLink.href = '/my-schedule/export.ics?ids=' + encodeURIComponent(saved.join(','));
+
+    fetch('/api/v1/events/by-ids?ids=' + encodeURIComponent(saved.join(',')))
+        .then(function (r) { return r.json(); })
+        .then(function (events) {
+            if (events.length === 0) {
+                emptyMsg.hidden = false;
+                controls.hidden = true;
+                return;
+            }
+
+            // Group by day
+            var byDay = {};
+            events.forEach(function (ev) {
+                var day = ev.day ? String(ev.day).split('T')[0] : 'Unknown';
+                if (!byDay[day]) byDay[day] = [];
+                byDay[day].push(ev);
+            });
+
+            var html = '';
+            Object.keys(byDay).sort().forEach(function (day) {
+                html += '<h2 class="schedule-day-heading">' + esc(day) + '</h2>';
+                html += '<div class="event-list">';
+                byDay[day].forEach(function (ev) {
+                    var start = ev.start_time ? new Date(ev.start_time) : null;
+                    var timeStr = start ? start.toTimeString().slice(0, 5) : '';
+                    html += '<div class="event-card" data-event-id="' + esc(ev.id) + '">';
+                    html += '<div class="event-card-body">';
+                    html += '<a href="/event/' + esc(ev.id) + '" class="event-card-title">' + esc(ev.title) + '</a>';
+                    html += '<div class="event-card-meta">';
+                    if (timeStr) html += '<span class="event-badge">🕐 ' + timeStr + '</span>';
+                    html += '<span class="event-badge">⏱️ ' + ev.duration_minutes + ' min</span>';
+                    html += '<span class="event-badge">📍 ' + esc(ev.room) + '</span>';
+                    html += '<span class="event-badge track-badge">' + esc(ev.track) + '</span>';
+                    html += '</div></div>';
+                    html += '<button class="bookmark-btn bookmark-btn--active" onclick="removeAndRefresh(\'' + esc(ev.id) + '\')" title="Remove from My Schedule">⭐</button>';
+                    html += '</div>';
+                });
+                html += '</div>';
+            });
+            eventsDiv.innerHTML = html;
+
+            // Conflict detection
+            var conflicts = MySchedule.detectConflicts(events);
+            if (conflicts.length > 0) {
+                conflictsDiv.hidden = false;
+                conflictList.innerHTML = conflicts.map(function (c) {
+                    return '<li class="conflict-item">' +
+                        '<a href="/event/' + esc(c.a.id) + '">' + esc(c.a.title) + '</a>' +
+                        ' conflicts with ' +
+                        '<a href="/event/' + esc(c.b.id) + '">' + esc(c.b.title) + '</a>' +
+                        ' <span class="conflict-detail">(' + esc(c.a.room) + ' / ' + esc(c.b.room) + ')</span>' +
+                        '</li>';
+                }).join('');
+            }
+        });
+
+    clearBtn.addEventListener('click', function () {
+        if (confirm('Remove all saved events?')) {
+            MySchedule.clear();
+            location.reload();
+        }
+    });
+
+    function esc(s) {
+        var d = document.createElement('div');
+        d.appendChild(document.createTextNode(String(s)));
+        return d.innerHTML;
+    }
+})();
+
+function removeAndRefresh(id) {
+    MySchedule.remove(id);
+    location.reload();
+}
+</script>
+{% endblock %}

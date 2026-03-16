@@ -154,11 +154,11 @@ Build an open-source tool that scrapes the FOSDEM schedule, stores it in DuckDB 
 
 **Goal:** Save favorites, export, polish UX.
 
-### 5.1 Personal Schedule
+### 5.1 Personal Schedule ✓
 
-- [ ] Add/remove events to "My Schedule" (localStorage)
-- [ ] Conflict detection (overlapping times)
-- [ ] Export to iCal (.ics)
+- [x] Add/remove events to "My Schedule" (localStorage)
+- [x] Conflict detection (overlapping times)
+- [x] Export to iCal (.ics)
 
 ### 5.2 UX Polish
 

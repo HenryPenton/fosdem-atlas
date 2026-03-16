@@ -563,3 +563,99 @@ class TestAnalyticsExportTab:
         resp = client.get("/analytics")
         assert "Export" in resp.text
         assert "/export/events.csv" in resp.text
+
+
+class TestMySchedulePage:
+    def test_renders(self, client: TestClient) -> None:
+        resp = client.get("/my-schedule")
+        assert resp.status_code == 200
+        assert "My Schedule" in resp.text
+
+    def test_contains_js_reference(self, client: TestClient) -> None:
+        resp = client.get("/my-schedule")
+        assert "my-schedule.js" in resp.text
+
+
+class TestMyScheduleIcalExport:
+    def test_returns_ical_with_events(self, client: TestClient) -> None:
+        resp = client.get("/my-schedule/export.ics?ids=1,3")
+        assert resp.status_code == 200
+        assert "text/calendar" in resp.headers["content-type"]
+        body = resp.text
+        assert "BEGIN:VCALENDAR" in body
+        assert "BEGIN:VEVENT" in body
+        assert "END:VCALENDAR" in body
+        assert "Intro to Rust" in body
+        assert "DuckDB Internals" in body
+
+    def test_returns_empty_calendar_no_ids(self, client: TestClient) -> None:
+        resp = client.get("/my-schedule/export.ics")
+        assert resp.status_code == 200
+        body = resp.text
+        assert "BEGIN:VCALENDAR" in body
+        assert "BEGIN:VEVENT" not in body
+
+    def test_returns_empty_calendar_invalid_ids(self, client: TestClient) -> None:
+        resp = client.get("/my-schedule/export.ics?ids=nope,fake")
+        assert resp.status_code == 200
+        body = resp.text
+        assert "BEGIN:VEVENT" not in body
+
+    def test_ical_has_required_fields(self, client: TestClient) -> None:
+        resp = client.get("/my-schedule/export.ics?ids=1")
+        body = resp.text
+        assert "DTSTART:" in body
+        assert "DTEND:" in body
+        assert "SUMMARY:" in body
+        assert "LOCATION:" in body
+        assert "UID:" in body
+
+
+class TestApiV1EventsByIds:
+    def test_returns_events(self, client: TestClient) -> None:
+        resp = client.get("/api/v1/events/by-ids?ids=1,3")
+        assert resp.status_code == 200
+        data = resp.json()
+        assert len(data) == 2
+        ids = {e["id"] for e in data}
+        assert "1" in ids
+        assert "3" in ids
+
+    def test_empty_ids(self, client: TestClient) -> None:
+        resp = client.get("/api/v1/events/by-ids")
+        assert resp.status_code == 200
+        assert resp.json() == []
+
+    def test_unknown_ids(self, client: TestClient) -> None:
+        resp = client.get("/api/v1/events/by-ids?ids=nonexistent")
+        assert resp.status_code == 200
+        assert resp.json() == []
+
+
+class TestEventDetailBookmark:
+    def test_event_page_has_bookmark_button(self, client: TestClient) -> None:
+        resp = client.get("/event/1")
+        assert resp.status_code == 200
+        assert 'data-bookmark-id="1"' in resp.text
+
+
+class TestSchedulePageBookmark:
+    def test_schedule_page_has_bookmark_buttons(self, client: TestClient) -> None:
+        resp = client.get("/schedule")
+        assert resp.status_code == 200
+        assert "data-bookmark-id" in resp.text
+
+
+class TestGridPageBookmark:
+    def test_grid_page_has_bookmark_buttons(self, client: TestClient) -> None:
+        resp = client.get("/grid")
+        assert resp.status_code == 200
+        assert "data-bookmark-id" in resp.text
+
+
+class TestNavMyScheduleLink:
+    def test_nav_has_my_schedule_link(self, client: TestClient) -> None:
+        resp = client.get("/")
+        assert resp.status_code == 200
+        assert "/my-schedule" in resp.text
+        assert "schedule-badge" in resp.text
