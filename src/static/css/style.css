@@ -1129,41 +1129,40 @@ footer p {
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
 }
 
-.event-detail-hero {
-    background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
-    padding: 1.25rem 1.5rem;
+.event-detail-body {
+    padding: 1.5rem;
+}
+
+.event-detail-title-row {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
+    align-items: flex-start;
+    gap: 0.75rem;
+    margin-bottom: 0.5rem;
 }
 
 .event-detail-track-badge {
-    background: rgba(255, 255, 255, 0.2);
-    color: white;
-    border: 1px solid rgba(255, 255, 255, 0.35);
+    background: var(--secondary-light);
+    color: var(--secondary-color);
     font-size: 0.9rem;
     font-weight: 600;
 }
 
 .event-detail-bookmark {
-    color: white;
-    opacity: 0.75;
+    flex-shrink: 0;
+    opacity: 0.45;
     font-size: 1.6rem;
     padding: 0.2rem 0.3rem;
+    margin-top: 0.1rem;
 }
 
 .event-detail-bookmark:hover {
-    opacity: 1;
-    background: rgba(255, 255, 255, 0.15);
+    opacity: 0.8;
+    background: var(--primary-light);
     border-radius: 6px;
 }
 
 .event-detail-bookmark.bookmark-btn--active {
     opacity: 1;
-}
-
-.event-detail-body {
-    padding: 1.5rem;
 }
 
 .event-detail-meta {

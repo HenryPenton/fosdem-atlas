@@ -13,16 +13,16 @@
 
     <article class="event-detail">
         <header class="event-detail-header">
-            <div class="event-detail-hero">
-                <span class="event-badge event-detail-track-badge">{{ event.track }}</span>
-                <button class="bookmark-btn event-detail-bookmark" data-bookmark-id="{{ event.id }}" title="Add to My Schedule">☆</button>
-            </div>
             <div class="event-detail-body">
-                <h1 class="event-detail-title">{{ event.title }}</h1>
+                <div class="event-detail-title-row">
+                    <h1 class="event-detail-title">{{ event.title }}</h1>
+                    <button class="bookmark-btn event-detail-bookmark" data-bookmark-id="{{ event.id }}" title="Add to My Schedule">☆</button>
+                </div>
                 {% if event.subtitle %}
                 <p class="event-detail-subtitle">{{ event.subtitle }}</p>
                 {% endif %}
                 <div class="event-detail-meta">
+                    <span class="event-badge event-detail-track-badge">{{ event.track }}</span>
                     <span class="event-badge">📅 {{ event.day }}</span>
                     <span class="event-badge">🕐 {{ event.start_time.strftime('%H:%M') }}</span>
                     <span class="event-badge">⏱️ {{ event.duration_minutes }} min</span>
