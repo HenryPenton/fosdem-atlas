@@ -82,7 +82,12 @@
                 <tr>
                     <th class="grid-corner" scope="col">Time</th>
                     {% for room in rooms %}
-                    <th class="grid-room-header" scope="col">{{ room }}</th>
+                    <th class="grid-room-header" scope="col">
+                        <span class="grid-room-name">{{ room }}</span>
+                        {% for track in room_tracks.get(room, []) %}
+                        <span class="grid-room-track">{{ track }}</span>
+                        {% endfor %}
+                    </th>
                     {% endfor %}
                 </tr>
             </thead>
@@ -95,6 +100,10 @@
                     {% set span = grid_rowspans.get(slot_key, {}).get(room, 1) %}
                     {% if span > 0 %}
                     <td class="grid-cell{% if grid.get(slot_key, {}).get(room) %} grid-cell--filled{% endif %}"{% if span > 1 %} rowspan="{{ span }}"{% endif %}>
+                        {% set track_change = room_track_changes.get(room, {}).get(slot_key) %}
+                        {% if track_change %}
+                        <div class="grid-track-change">{{ track_change }}</div>
+                        {% endif %}
                         {% for ev in grid.get(slot_key, {}).get(room, []) %}
                         <div class="grid-event-wrapper">
                             <a href="/event/{{ ev.id }}" class="grid-event" title="{{ ev.title }} ({{ ev.duration_minutes }} min)">

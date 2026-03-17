@@ -80,6 +80,18 @@ class TestScheduleService:
         assert data["grid"] == {}
         assert data["grid_rowspans"] == {}
         assert data["grid_covered"] == set()
+        assert data["room_tracks"] == {}
+        assert data["room_track_changes"] == {}
+
+    def test_get_grid_data_room_tracks_ordered(self, schedule_service: ScheduleService) -> None:
+        data = schedule_service.get_grid_data("2026-02-07")
+        # Room A has a single event on this day with track "Rust"
+        assert data["room_tracks"]["Room A"] == ["Rust"]
+        # Room B has a single event with track "Python"
+        assert data["room_tracks"]["Room B"] == ["Python"]
+        # No changes expected for single-track rooms
+        assert data["room_track_changes"]["Room A"] == {}
+        assert data["room_track_changes"]["Room B"] == {}
 
     def test_get_day_detail(self, schedule_service: ScheduleService) -> None:
         data = schedule_service.get_day_detail("2026-02-07")

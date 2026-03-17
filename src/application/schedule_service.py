@@ -49,6 +49,8 @@ class ScheduleService:
                 "grid": {},
                 "grid_rowspans": {},
                 "grid_covered": set(),
+                "room_tracks": {},
+                "room_track_changes": {},
             }
 
         selected_day = day if day in days else days[0]
@@ -105,6 +107,38 @@ class ScheduleService:
                 else:
                     grid_rowspans[slot_key][room] = 1
 
+        # Build per-room ordered track list and change-point markers by walking events
+        # chronologically per room. Each time the track name changes we record the slot_key
+        # of the first event in the new track so the template can render a divider.
+        room_events_by_room: dict[str, list[dict[str, Any]]] = defaultdict(list)
+        for ev in events:
+            if isinstance(ev["start_time"], datetime):
+                room_events_by_room[str(ev["room"])].append(ev)
+
+        room_tracks: dict[str, list[str]] = {}
+        room_track_changes: dict[str, dict[str, str]] = {}
+
+        for room in rooms:
+            sorted_evs = sorted(room_events_by_room.get(room, []), key=lambda e: e["start_time"])
+            seen: list[str] = []
+            current_track: str | None = None
+            changes: dict[str, str] = {}
+            for ev in sorted_evs:
+                track = str(ev["track"]) if ev.get("track") else ""
+                if not track or track == current_track:
+                    continue
+                st = ev["start_time"]
+                if not isinstance(st, datetime):
+                    continue
+                slot_key = st.replace(minute=(st.minute // 30) * 30, second=0).strftime("%H:%M")
+                if current_track is not None:
+                    changes[slot_key] = track
+                if track not in seen:
+                    seen.append(track)
+                current_track = track
+            room_tracks[room] = seen
+            room_track_changes[room] = changes
+
         return {
             "days": days,
             "selected_day": selected_day,
@@ -113,6 +147,8 @@ class ScheduleService:
             "grid": dict(grid),
             "grid_rowspans": grid_rowspans,
             "grid_covered": grid_covered,
+            "room_tracks": room_tracks,
+            "room_track_changes": room_track_changes,
         }
 
     def get_day_detail(self, day: str) -> dict[str, Any]:

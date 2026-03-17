@@ -646,6 +646,39 @@ main {
     text-align: center;
 }
 
+.grid-room-name {
+    display: block;
+}
+
+.grid-room-track {
+    display: block;
+    font-size: 0.7rem;
+    font-weight: 400;
+    opacity: 0.85;
+    margin-top: 0.15rem;
+    white-space: normal;
+    line-height: 1.2;
+}
+
+.grid-room-track + .grid-room-track {
+    margin-top: 0.1rem;
+    padding-top: 0.1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.25);
+}
+
+.grid-track-change {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--primary-color);
+    background: var(--primary-light);
+    border-left: 3px solid var(--primary-color);
+    border-radius: 0 0.25rem 0.25rem 0;
+    padding: 0.2rem 0.4rem;
+    margin-bottom: 0.35rem;
+    white-space: normal;
+    line-height: 1.3;
+}
+
 .grid-time {
     position: sticky;
     left: 0;
