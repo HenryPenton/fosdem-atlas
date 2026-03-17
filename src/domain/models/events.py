@@ -1,15 +1,9 @@
-"""Domain models for FOSDEM Explorer."""
+"""Event domain models."""
 
 from dataclasses import dataclass, field
 from datetime import datetime
 
-
-@dataclass
-class Speaker:
-    """A speaker at FOSDEM."""
-
-    id: str
-    name: str
+from src.domain.models.speakers import Speaker
 
 
 @dataclass
@@ -38,15 +32,6 @@ class Event:
 
 
 @dataclass(frozen=True)
-class SpeakerSummary:
-    """Read model: speaker with talk count for listings."""
-
-    id: str
-    name: str
-    talk_count: int
-
-
-@dataclass(frozen=True)
 class EventSummary:
     """Read model: event summary."""
 
@@ -58,12 +43,3 @@ class EventSummary:
     room: str
     track: str
     day: str
-
-
-@dataclass(frozen=True)
-class SpeakerDetail:
-    """Read model: speaker with their events."""
-
-    id: str
-    name: str
-    events: list[EventSummary]
