@@ -1,3 +1,18 @@
+## v0.5.1 (2026-03-17)
+
+### Feat
+
+- introduce view models for analytics and schedule results, update related services and tests
+- refactor repository methods to return typed domain models and update related code
+- implement EventSearchResult model and update repository methods to return structured data
+- define analytics models for speakers and topics, update repository methods to return structured data
+- introduce detailed event and analytics models, update repository methods, and enhance API responses
+- add domain models for events and speakers
+
+### Fix
+
+- use python 3 in makefile
+
 ## v0.5.0 (2026-03-17)
 
 ### Feat
