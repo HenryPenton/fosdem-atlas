@@ -1,7 +1,6 @@
 """Analytics service – conference analytics and statistics."""
 
-from typing import Any
-
+from src.domain.models import AnalyticsData
 from src.domain.ports import EventRepository
 
 
@@ -10,12 +9,12 @@ class AnalyticsService:
 
     def __init__(self, repository: EventRepository) -> None:
         self._repo = repository
-        self._cache: dict[str, Any] | None = None
+        self._cache: AnalyticsData | None = None
 
     def invalidate_cache(self) -> None:
         self._cache = None
 
-    def get_analytics(self) -> dict[str, Any]:
+    def get_analytics(self) -> AnalyticsData:
         """Full analytics data with computed heatmap. Results are cached."""
         if self._cache is not None:
             return self._cache
@@ -35,16 +34,16 @@ class AnalyticsService:
             heatmap_grid[item.day][item.hour] = item.count
         max_heatmap_count = max((item.count for item in heatmap_raw), default=1)
 
-        result = {
-            "stats": stats,
-            "room_stats": room_stats,
-            "events_per_room": room_stats.events_per_room,
-            "speaker_stats": speaker_stats,
-            "topic_stats": topic_stats,
-            "heatmap_days": heatmap_days,
-            "heatmap_hours": heatmap_hours,
-            "heatmap_grid": heatmap_grid,
-            "max_heatmap_count": max_heatmap_count,
-        }
+        result = AnalyticsData(
+            stats=stats,
+            room_stats=room_stats,
+            events_per_room=room_stats.events_per_room,
+            speaker_stats=speaker_stats,
+            topic_stats=topic_stats,
+            heatmap_days=heatmap_days,
+            heatmap_hours=heatmap_hours,
+            heatmap_grid=heatmap_grid,
+            max_heatmap_count=max_heatmap_count,
+        )
         self._cache = result
         return result

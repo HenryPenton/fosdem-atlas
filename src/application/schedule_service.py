@@ -4,9 +4,16 @@ import dataclasses
 import math
 from collections import defaultdict
 from datetime import datetime, timedelta, timezone
-from typing import Any
 
-from src.domain.models import EventDetail, EventSearchResult, EventSummary
+from src.domain.models import (
+    DayDetail,
+    EventDetail,
+    EventSearchResult,
+    EventSummary,
+    GridData,
+    OverviewData,
+    TracksOverview,
+)
 from src.domain.ports import EventRepository
 
 
@@ -28,32 +35,32 @@ class ScheduleService:
     def get_unique_rooms(self) -> list[str]:
         return self._repo.get_unique_rooms()
 
-    def get_overview(self) -> dict[str, Any]:
+    def get_overview(self) -> OverviewData:
         """Home page data."""
         days = self._repo.get_unique_days()
-        return {
-            "event_count": self._repo.get_event_count(),
-            "days": days,
-            "day_events": {d: len(self._repo.get_events_by_day(d)) for d in days},
-            "tracks": self._repo.get_unique_tracks(),
-            "rooms": self._repo.get_unique_rooms(),
-        }
+        return OverviewData(
+            event_count=self._repo.get_event_count(),
+            days=days,
+            day_events={d: len(self._repo.get_events_by_day(d)) for d in days},
+            tracks=self._repo.get_unique_tracks(),
+            rooms=self._repo.get_unique_rooms(),
+        )
 
-    def get_grid_data(self, day: str) -> dict[str, Any]:
+    def get_grid_data(self, day: str) -> GridData:
         """Build grid structure: rooms × time slots for a day."""
         days = self._repo.get_unique_days()
         if not days:
-            return {
-                "days": [],
-                "selected_day": "",
-                "rooms": [],
-                "time_slots": [],
-                "grid": {},
-                "grid_rowspans": {},
-                "grid_covered": set(),
-                "room_tracks": {},
-                "room_track_changes": {},
-            }
+            return GridData(
+                days=[],
+                selected_day="",
+                rooms=[],
+                time_slots=[],
+                grid={},
+                grid_rowspans={},
+                grid_covered=set(),
+                room_tracks={},
+                room_track_changes={},
+            )
 
         selected_day = day if day in days else days[0]
         rooms = self._repo.get_rooms_by_day(selected_day)
@@ -141,39 +148,37 @@ class ScheduleService:
             room_tracks[room] = seen
             room_track_changes[room] = changes
 
-        return {
-            "days": days,
-            "selected_day": selected_day,
-            "rooms": rooms,
-            "time_slots": time_slots,
-            "grid": dict(grid),
-            "grid_rowspans": grid_rowspans,
-            "grid_covered": grid_covered,
-            "room_tracks": room_tracks,
-            "room_track_changes": room_track_changes,
-        }
+        return GridData(
+            days=days,
+            selected_day=selected_day,
+            rooms=rooms,
+            time_slots=time_slots,
+            grid=dict(grid),
+            grid_rowspans=grid_rowspans,
+            grid_covered=grid_covered,
+            room_tracks=room_tracks,
+            room_track_changes=room_track_changes,
+        )
 
-    def get_day_detail(self, day: str) -> dict[str, Any]:
+    def get_day_detail(self, day: str) -> DayDetail:
         """Tracks for a day with event counts."""
         tracks = self._repo.get_tracks_by_day(day)
-        return {
-            "day": day,
-            "tracks": tracks,
-            "track_events": {
-                t: len(self._repo.get_events_by_day_and_track(day, t)) for t in tracks
-            },
-        }
+        return DayDetail(
+            day=day,
+            tracks=tracks,
+            track_events={t: len(self._repo.get_events_by_day_and_track(day, t)) for t in tracks},
+        )
 
     def get_events_for_day_and_track(self, day: str, track: str) -> list[EventSummary]:
         return self._repo.get_events_by_day_and_track(day, track)
 
-    def get_all_tracks_with_counts(self) -> dict[str, Any]:
+    def get_all_tracks_with_counts(self) -> TracksOverview:
         """All tracks with their event counts."""
         tracks = self._repo.get_unique_tracks()
-        return {
-            "tracks": tracks,
-            "track_events": {t: len(self._repo.get_events_by_track(t)) for t in tracks},
-        }
+        return TracksOverview(
+            tracks=tracks,
+            track_events={t: len(self._repo.get_events_by_track(t)) for t in tracks},
+        )
 
     def get_events_for_track(self, track: str) -> list[EventSummary]:
         return self._repo.get_events_by_track(track)

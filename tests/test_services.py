@@ -50,59 +50,59 @@ class TestScrapeService:
 class TestScheduleService:
     def test_get_overview(self, schedule_service: ScheduleService) -> None:
         overview = schedule_service.get_overview()
-        assert overview["event_count"] == 3
-        assert len(overview["days"]) == 2
-        assert len(overview["tracks"]) == 3
-        assert len(overview["rooms"]) == 3
+        assert overview.event_count == 3
+        assert len(overview.days) == 2
+        assert len(overview.tracks) == 3
+        assert len(overview.rooms) == 3
 
     def test_get_grid_data(self, schedule_service: ScheduleService) -> None:
         data = schedule_service.get_grid_data("2026-02-07")
-        assert data["selected_day"] == "2026-02-07"
-        assert "Room A" in data["rooms"]
-        assert "Room B" in data["rooms"]
-        assert len(data["time_slots"]) > 0
-        assert len(data["grid"]) > 0
-        assert "grid_rowspans" in data
-        assert "grid_covered" in data
+        assert data.selected_day == "2026-02-07"
+        assert "Room A" in data.rooms
+        assert "Room B" in data.rooms
+        assert len(data.time_slots) > 0
+        assert len(data.grid) > 0
+        assert data.grid_rowspans is not None
+        assert data.grid_covered is not None
 
     def test_get_grid_data_rowspan_reflects_duration(
         self, schedule_service: ScheduleService
     ) -> None:
         # "Intro to Rust" in Room A at 10:00 with duration=30 → rowspan 1
         data = schedule_service.get_grid_data("2026-02-07")
-        rowspans = data["grid_rowspans"]
+        rowspans = data.grid_rowspans
         assert rowspans["10:00"]["Room A"] == 1
 
     def test_get_grid_data_empty_days(self, repository: DuckDBEventRepository) -> None:
         service = ScheduleService(repository)
         data = service.get_grid_data("")
-        assert data["days"] == []
-        assert data["grid"] == {}
-        assert data["grid_rowspans"] == {}
-        assert data["grid_covered"] == set()
-        assert data["room_tracks"] == {}
-        assert data["room_track_changes"] == {}
+        assert data.days == []
+        assert data.grid == {}
+        assert data.grid_rowspans == {}
+        assert data.grid_covered == set()
+        assert data.room_tracks == {}
+        assert data.room_track_changes == {}
 
     def test_get_grid_data_room_tracks_ordered(self, schedule_service: ScheduleService) -> None:
         data = schedule_service.get_grid_data("2026-02-07")
         # Room A has a single event on this day with track "Rust"
-        assert data["room_tracks"]["Room A"] == ["Rust"]
+        assert data.room_tracks["Room A"] == ["Rust"]
         # Room B has a single event with track "Python"
-        assert data["room_tracks"]["Room B"] == ["Python"]
+        assert data.room_tracks["Room B"] == ["Python"]
         # No changes expected for single-track rooms
-        assert data["room_track_changes"]["Room A"] == {}
-        assert data["room_track_changes"]["Room B"] == {}
+        assert data.room_track_changes["Room A"] == {}
+        assert data.room_track_changes["Room B"] == {}
 
     def test_get_day_detail(self, schedule_service: ScheduleService) -> None:
         data = schedule_service.get_day_detail("2026-02-07")
-        assert data["day"] == "2026-02-07"
-        assert "Rust" in data["tracks"]
-        assert "Python" in data["tracks"]
+        assert data.day == "2026-02-07"
+        assert "Rust" in data.tracks
+        assert "Python" in data.tracks
 
     def test_get_all_tracks_with_counts(self, schedule_service: ScheduleService) -> None:
         data = schedule_service.get_all_tracks_with_counts()
-        assert len(data["tracks"]) == 3
-        assert data["track_events"]["Rust"] == 1
+        assert len(data.tracks) == 3
+        assert data.track_events["Rust"] == 1
 
     def test_get_event_detail(self, schedule_service: ScheduleService) -> None:
         result = schedule_service.get_event_detail("1")
@@ -138,14 +138,14 @@ class TestScheduleService:
 class TestAnalyticsService:
     def test_get_analytics(self, analytics_service: AnalyticsService) -> None:
         data = analytics_service.get_analytics()
-        assert data["stats"].total_events == 3
-        assert "events_per_room" in data
-        assert "speaker_stats" in data
-        assert "topic_stats" in data
-        assert "heatmap_days" in data
-        assert "heatmap_hours" in data
-        assert "heatmap_grid" in data
-        assert "max_heatmap_count" in data
+        assert data.stats.total_events == 3
+        assert data.events_per_room is not None
+        assert data.speaker_stats is not None
+        assert data.topic_stats is not None
+        assert data.heatmap_days is not None
+        assert data.heatmap_hours is not None
+        assert data.heatmap_grid is not None
+        assert data.max_heatmap_count is not None
 
 
 class TestSpeakerService:

@@ -1,15 +1,20 @@
 """FastAPI web adapter."""
 
+from __future__ import annotations
+
 import csv
 import dataclasses
 import io
+from collections.abc import Callable
+from contextlib import AbstractAsyncContextManager
+from datetime import datetime
 from pathlib import Path
-from typing import Any
 
 from fastapi import FastAPI, Query, Request, Response
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+from starlette.middleware.base import RequestResponseEndpoint
 from starlette.responses import StreamingResponse
 
 from src.api.routes import create_api_router
@@ -28,7 +33,7 @@ def create_app(
     analytics_service: AnalyticsService,
     speaker_service: SpeakerService,
     settings: Settings,
-    lifespan: Any = None,
+    lifespan: Callable[[FastAPI], AbstractAsyncContextManager[None]] | None = None,
 ) -> FastAPI:
     """Create and configure the FastAPI application."""
     app = FastAPI(
@@ -39,7 +44,7 @@ def create_app(
     )
 
     @app.middleware("http")
-    async def add_cache_control(request: Request, call_next: Any) -> Response:
+    async def add_cache_control(request: Request, call_next: RequestResponseEndpoint) -> Response:
         response: Response = await call_next(request)
         if request.url.path != "/health" and request.method == "GET":
             response.headers["Cache-Control"] = f"public, max-age={CACHE_MAX_AGE}"
@@ -62,8 +67,8 @@ def create_app(
             name="index.html",
             context={
                 "title": "FOSDEM Explorer",
-                **overview,
-                **grid_data,
+                **dataclasses.asdict(overview),
+                **dataclasses.asdict(grid_data),
             },
         )
 
@@ -75,7 +80,7 @@ def create_app(
             name="day.html",
             context={
                 "title": f"FOSDEM Explorer — {day}",
-                **data,
+                **dataclasses.asdict(data),
             },
         )
 
@@ -101,7 +106,7 @@ def create_app(
             name="tracks.html",
             context={
                 "title": "FOSDEM Explorer — Tracks",
-                **data,
+                **dataclasses.asdict(data),
             },
         )
 
@@ -238,14 +243,16 @@ def create_app(
             name="analytics.html",
             context={
                 "title": "FOSDEM Explorer — Analytics",
-                **data,
+                **dataclasses.asdict(data),
             },
         )
 
     return app
 
 
-def _csv_response(rows: list[dict[str, Any]], filename: str) -> StreamingResponse:
+def _csv_response(
+    rows: list[dict[str, str | int | float | datetime]], filename: str
+) -> StreamingResponse:
     if not rows:
         buf = io.StringIO("")
     else:
