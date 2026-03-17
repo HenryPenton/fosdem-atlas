@@ -55,7 +55,7 @@ class TestGetAllEvents:
 
     def test_ordered_by_start_time(self, seeded_repository: DuckDBEventRepository) -> None:
         events = seeded_repository.get_all_events()
-        times = [e["start_time"] for e in events]
+        times = [e.start_time for e in events]
         assert times == sorted(times)
 
     def test_empty_when_no_events(self, repository: DuckDBEventRepository) -> None:
@@ -110,7 +110,7 @@ class TestGetEventsByDayAndTrack:
     def test_filters_correctly(self, seeded_repository: DuckDBEventRepository) -> None:
         events = seeded_repository.get_events_by_day_and_track("2026-02-07", "Rust")
         assert len(events) == 1
-        assert events[0]["title"] == "Intro to Rust"
+        assert events[0].title == "Intro to Rust"
 
     def test_no_match_returns_empty(self, seeded_repository: DuckDBEventRepository) -> None:
         assert seeded_repository.get_events_by_day_and_track("2026-02-07", "Go") == []
@@ -545,13 +545,13 @@ class TestGetEventsByIds:
     def test_returns_matching_events(self, seeded_repository: DuckDBEventRepository) -> None:
         result = seeded_repository.get_events_by_ids(["1", "3"])
         assert len(result) == 2
-        ids = {str(e["id"]) for e in result}
+        ids = {e.id for e in result}
         assert ids == {"1", "3"}
 
     def test_ignores_unknown_ids(self, seeded_repository: DuckDBEventRepository) -> None:
         result = seeded_repository.get_events_by_ids(["1", "nonexistent"])
         assert len(result) == 1
-        assert str(result[0]["id"]) == "1"
+        assert result[0].id == "1"
 
     def test_returns_empty_for_no_ids(self, seeded_repository: DuckDBEventRepository) -> None:
         result = seeded_repository.get_events_by_ids([])
@@ -561,16 +561,16 @@ class TestGetEventsByIds:
         result = seeded_repository.get_events_by_ids(["1"])
         assert len(result) == 1
         ev = result[0]
-        assert "title" in ev
-        assert "start_time" in ev
-        assert "duration_minutes" in ev
-        assert "room" in ev
-        assert "track" in ev
-        assert "day" in ev
+        assert ev.title
+        assert ev.start_time
+        assert ev.duration_minutes
+        assert ev.room
+        assert ev.track
+        assert ev.day
 
     def test_ordered_by_day_and_time(self, seeded_repository: DuckDBEventRepository) -> None:
         result = seeded_repository.get_events_by_ids(["3", "1", "2"])
         assert len(result) == 3
-        ids = [str(e["id"]) for e in result]
+        ids = [e.id for e in result]
         # Event 1 and 2 are day 2026-02-07, event 3 is day 2026-02-08
         assert ids == ["1", "2", "3"]

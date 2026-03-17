@@ -203,7 +203,7 @@ def create_app(
     @app.get("/export/events.csv")
     async def export_events_csv() -> StreamingResponse:
         events = schedule_service.get_all_events(sort="time")
-        return _csv_response(events, "events.csv")
+        return _csv_response([dataclasses.asdict(e) for e in events], "events.csv")
 
     @app.get("/export/speakers.csv")
     async def export_speakers_csv() -> StreamingResponse:

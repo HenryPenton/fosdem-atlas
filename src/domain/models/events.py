@@ -43,6 +43,7 @@ class EventSummary:
     room: str
     track: str
     day: str
+    abstract: str = ""
 
 
 @dataclass(frozen=True)

@@ -6,7 +6,7 @@ from collections import defaultdict
 from datetime import datetime, timedelta, timezone
 from typing import Any
 
-from src.domain.models import EventDetail, EventSearchResult
+from src.domain.models import EventDetail, EventSearchResult, EventSummary
 from src.domain.ports import EventRepository
 
 
@@ -62,10 +62,10 @@ class ScheduleService:
         starts: list[datetime] = []
         ends: list[datetime] = []
         for ev in events:
-            st = ev["start_time"]
+            st = ev.start_time
             if isinstance(st, datetime):
                 starts.append(st)
-                ends.append(st + timedelta(minutes=int(ev["duration_minutes"])))  # type: ignore[arg-type]
+                ends.append(st + timedelta(minutes=ev.duration_minutes))
 
         time_slots: list[datetime] = []
         if starts:
@@ -76,13 +76,13 @@ class ScheduleService:
                 time_slots.append(current)
                 current += timedelta(minutes=30)
 
-        grid: dict[str, dict[str, list[dict[str, Any]]]] = defaultdict(lambda: defaultdict(list))
+        grid: dict[str, dict[str, list[EventSummary]]] = defaultdict(lambda: defaultdict(list))
         for ev in events:
-            st = ev["start_time"]
+            st = ev.start_time
             if not isinstance(st, datetime):
                 continue
             slot_key = st.replace(minute=(st.minute // 30) * 30, second=0).strftime("%H:%M")
-            grid[slot_key][str(ev["room"])].append(ev)
+            grid[slot_key][ev.room].append(ev)
 
         # Compute rowspans and covered cells so the template can render proper rowspan= attrs.
         # A cell is "covered" when a previous row's rowspan extends over it — it must be skipped.
@@ -100,7 +100,7 @@ class ScheduleService:
                 if events_here:
                     span = max(
                         1,
-                        max(math.ceil(int(ev["duration_minutes"]) / 30) for ev in events_here),
+                        max(math.ceil(ev.duration_minutes / 30) for ev in events_here),
                     )
                     for j in range(1, span):
                         if i + j < len(time_slot_keys):
@@ -112,24 +112,24 @@ class ScheduleService:
         # Build per-room ordered track list and change-point markers by walking events
         # chronologically per room. Each time the track name changes we record the slot_key
         # of the first event in the new track so the template can render a divider.
-        room_events_by_room: dict[str, list[dict[str, Any]]] = defaultdict(list)
+        room_events_by_room: dict[str, list[EventSummary]] = defaultdict(list)
         for ev in events:
-            if isinstance(ev["start_time"], datetime):
-                room_events_by_room[str(ev["room"])].append(ev)
+            if isinstance(ev.start_time, datetime):
+                room_events_by_room[ev.room].append(ev)
 
         room_tracks: dict[str, list[str]] = {}
         room_track_changes: dict[str, dict[str, str]] = {}
 
         for room in rooms:
-            sorted_evs = sorted(room_events_by_room.get(room, []), key=lambda e: e["start_time"])
+            sorted_evs = sorted(room_events_by_room.get(room, []), key=lambda e: e.start_time)
             seen: list[str] = []
             current_track: str | None = None
             changes: dict[str, str] = {}
             for ev in sorted_evs:
-                track = str(ev["track"]) if ev.get("track") else ""
+                track = ev.track
                 if not track or track == current_track:
                     continue
-                st = ev["start_time"]
+                st = ev.start_time
                 if not isinstance(st, datetime):
                     continue
                 slot_key = st.replace(minute=(st.minute // 30) * 30, second=0).strftime("%H:%M")
@@ -164,9 +164,7 @@ class ScheduleService:
             },
         }
 
-    def get_events_for_day_and_track(
-        self, day: str, track: str
-    ) -> list[dict[str, str | int | datetime]]:
+    def get_events_for_day_and_track(self, day: str, track: str) -> list[EventSummary]:
         return self._repo.get_events_by_day_and_track(day, track)
 
     def get_all_tracks_with_counts(self) -> dict[str, Any]:
@@ -177,7 +175,7 @@ class ScheduleService:
             "track_events": {t: len(self._repo.get_events_by_track(t)) for t in tracks},
         }
 
-    def get_events_for_track(self, track: str) -> list[dict[str, str | int | datetime]]:
+    def get_events_for_track(self, track: str) -> list[EventSummary]:
         return self._repo.get_events_by_track(track)
 
     def get_event_detail(self, event_id: str) -> EventDetail | None:
@@ -196,12 +194,12 @@ class ScheduleService:
             return self._repo.filter_events(q=q, track=track, room=room, day=day)
         return []
 
-    def get_all_events(self, sort: str = "time") -> list[dict[str, str | int | datetime]]:
+    def get_all_events(self, sort: str = "time") -> list[EventSummary]:
         valid_sorts = {"time", "track", "room"}
         sort = sort if sort in valid_sorts else "time"
         return self._repo.get_all_events(sort=sort)
 
-    def get_events_by_ids(self, event_ids: list[str]) -> list[dict[str, str | int | datetime]]:
+    def get_events_by_ids(self, event_ids: list[str]) -> list[EventDetail]:
         return self._repo.get_events_by_ids(event_ids)
 
     def build_ical(self, event_ids: list[str]) -> str:
@@ -215,12 +213,12 @@ class ScheduleService:
             "METHOD:PUBLISH",
         ]
         for ev in events:
-            start = ev.get("start_time")
+            start = ev.start_time
             if not isinstance(start, datetime):
                 continue
-            duration = int(ev.get("duration_minutes", 30))  # type: ignore[arg-type]
+            duration = ev.duration_minutes
             end = start + timedelta(minutes=duration)
-            uid = f"{ev['id']}@fosdem-explorer"
+            uid = f"{ev.id}@fosdem-explorer"
             now = datetime.now(tz=timezone.utc).strftime("%Y%m%dT%H%M%SZ")  # noqa: UP017
             lines.extend(
                 [
@@ -229,9 +227,9 @@ class ScheduleService:
                     f"DTSTAMP:{now}",
                     f"DTSTART:{start.strftime('%Y%m%dT%H%M%S')}",
                     f"DTEND:{end.strftime('%Y%m%dT%H%M%S')}",
-                    f"SUMMARY:{_ical_escape(str(ev.get('title', '')))}",
-                    f"LOCATION:{_ical_escape(str(ev.get('room', '')))}",
-                    f"DESCRIPTION:{_ical_escape(str(ev.get('track', '')))}",
+                    f"SUMMARY:{_ical_escape(ev.title)}",
+                    f"LOCATION:{_ical_escape(ev.room)}",
+                    f"DESCRIPTION:{_ical_escape(ev.track)}",
                     "END:VEVENT",
                 ]
             )

@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from datetime import datetime
-
 import duckdb
 import yake
 
@@ -157,7 +155,7 @@ class DuckDBEventRepository:
                 if len(seen_lower) >= 30:
                     break
 
-    def get_all_events(self, sort: str = "time") -> list[dict[str, str | int | datetime]]:
+    def get_all_events(self, sort: str = "time") -> list[EventSummary]:
         _order_map = {
             "time": "start_time, room",
             "track": "track, start_time",
@@ -167,22 +165,23 @@ class DuckDBEventRepository:
         conn = self._db.get()
         result = conn.execute(
             f"""
-            SELECT id, title, start_time, duration_minutes, room, track, day
+            SELECT id, title, subtitle, start_time, duration_minutes, room, track, day
             FROM events
             ORDER BY day, {order_by}
             """
         ).fetchall()
 
         return [
-            {
-                "id": row[0],
-                "title": row[1],
-                "start_time": row[2],
-                "duration_minutes": row[3],
-                "room": row[4],
-                "track": row[5],
-                "day": row[6],
-            }
+            EventSummary(
+                id=str(row[0]),
+                title=str(row[1]),
+                subtitle=str(row[2]),
+                start_time=row[3],
+                duration_minutes=int(row[4]),
+                room=str(row[5]),
+                track=str(row[6]),
+                day=str(row[7]),
+            )
             for row in result
         ]
 
@@ -191,11 +190,11 @@ class DuckDBEventRepository:
         result = conn.execute("SELECT COUNT(*) FROM events").fetchone()
         return int(result[0]) if result else 0
 
-    def get_events_by_day(self, day: str) -> list[dict[str, str | int | datetime]]:
+    def get_events_by_day(self, day: str) -> list[EventSummary]:
         conn = self._db.get()
         result = conn.execute(
             """
-            SELECT id, title, start_time, duration_minutes, room, track, day
+            SELECT id, title, subtitle, start_time, duration_minutes, room, track, day
             FROM events
             WHERE day = ?
             ORDER BY start_time, room
@@ -204,15 +203,16 @@ class DuckDBEventRepository:
         ).fetchall()
 
         return [
-            {
-                "id": row[0],
-                "title": row[1],
-                "start_time": row[2],
-                "duration_minutes": row[3],
-                "room": row[4],
-                "track": row[5],
-                "day": row[6],
-            }
+            EventSummary(
+                id=str(row[0]),
+                title=str(row[1]),
+                subtitle=str(row[2]),
+                start_time=row[3],
+                duration_minutes=int(row[4]),
+                room=str(row[5]),
+                track=str(row[6]),
+                day=str(row[7]),
+            )
             for row in result
         ]
 
@@ -247,9 +247,7 @@ class DuckDBEventRepository:
         ).fetchall()
         return [str(row[0]) for row in result]
 
-    def get_events_by_day_and_track(
-        self, day: str, track: str
-    ) -> list[dict[str, str | int | datetime]]:
+    def get_events_by_day_and_track(self, day: str, track: str) -> list[EventSummary]:
         conn = self._db.get()
         result = conn.execute(
             """
@@ -262,21 +260,21 @@ class DuckDBEventRepository:
             [day, track],
         ).fetchall()
         return [
-            {
-                "id": row[0],
-                "title": row[1],
-                "subtitle": row[2],
-                "abstract": row[3],
-                "start_time": row[4],
-                "duration_minutes": row[5],
-                "room": row[6],
-                "track": row[7],
-                "day": row[8],
-            }
+            EventSummary(
+                id=str(row[0]),
+                title=str(row[1]),
+                subtitle=str(row[2]),
+                abstract=str(row[3]),
+                start_time=row[4],
+                duration_minutes=int(row[5]),
+                room=str(row[6]),
+                track=str(row[7]),
+                day=str(row[8]),
+            )
             for row in result
         ]
 
-    def get_events_by_track(self, track: str) -> list[dict[str, str | int | datetime]]:
+    def get_events_by_track(self, track: str) -> list[EventSummary]:
         conn = self._db.get()
         result = conn.execute(
             """
@@ -289,17 +287,17 @@ class DuckDBEventRepository:
             [track],
         ).fetchall()
         return [
-            {
-                "id": row[0],
-                "title": row[1],
-                "subtitle": row[2],
-                "abstract": row[3],
-                "start_time": row[4],
-                "duration_minutes": row[5],
-                "room": row[6],
-                "track": row[7],
-                "day": row[8],
-            }
+            EventSummary(
+                id=str(row[0]),
+                title=str(row[1]),
+                subtitle=str(row[2]),
+                abstract=str(row[3]),
+                start_time=row[4],
+                duration_minutes=int(row[5]),
+                room=str(row[6]),
+                track=str(row[7]),
+                day=str(row[8]),
+            )
             for row in result
         ]
 
@@ -343,7 +341,7 @@ class DuckDBEventRepository:
             fosdem_url=str(row[9]),
         )
 
-    def get_events_by_ids(self, event_ids: list[str]) -> list[dict[str, str | int | datetime]]:
+    def get_events_by_ids(self, event_ids: list[str]) -> list[EventDetail]:
         if not event_ids:
             return []
         conn = self._db.get()
@@ -359,18 +357,18 @@ class DuckDBEventRepository:
             event_ids,
         ).fetchall()
         return [
-            {
-                "id": row[0],
-                "title": row[1],
-                "subtitle": row[2],
-                "abstract": row[3],
-                "start_time": row[4],
-                "duration_minutes": row[5],
-                "room": row[6],
-                "track": row[7],
-                "day": row[8],
-                "fosdem_url": row[9],
-            }
+            EventDetail(
+                id=str(row[0]),
+                title=str(row[1]),
+                subtitle=str(row[2]),
+                abstract=str(row[3]),
+                start_time=row[4],
+                duration_minutes=int(row[5]),
+                room=str(row[6]),
+                track=str(row[7]),
+                day=str(row[8]),
+                fosdem_url=str(row[9]),
+            )
             for row in result
         ]
 

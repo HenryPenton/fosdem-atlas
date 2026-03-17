@@ -24,7 +24,7 @@ def create_api_router(
     async def api_events(
         sort: str = Query(default="time", max_length=10),
     ) -> list[dict[str, Any]]:
-        return schedule_service.get_all_events(sort=sort)
+        return [dataclasses.asdict(e) for e in schedule_service.get_all_events(sort=sort)]
 
     @router.get("/events/search")
     async def api_events_search(
@@ -43,7 +43,7 @@ def create_api_router(
         ids: str = Query(default="", max_length=10000),
     ) -> list[dict[str, Any]]:
         event_ids = [i.strip() for i in ids.split(",") if i.strip()][:200]
-        return schedule_service.get_events_by_ids(event_ids)
+        return [dataclasses.asdict(e) for e in schedule_service.get_events_by_ids(event_ids)]
 
     @router.get("/events/{event_id}")
     async def api_event_detail(event_id: str) -> Any:
@@ -68,7 +68,11 @@ def create_api_router(
     @router.get("/days/{day}/tracks/{track:path}")
     async def api_day_track_events(day: str, track: str) -> dict[str, Any]:
         events = schedule_service.get_events_for_day_and_track(day, track)
-        return {"day": day, "track": track, "events": events}
+        return {
+            "day": day,
+            "track": track,
+            "events": [dataclasses.asdict(e) for e in events],
+        }
 
     @router.get("/tracks")
     async def api_tracks() -> list[dict[str, Any]]:
@@ -78,7 +82,10 @@ def create_api_router(
     @router.get("/tracks/{track:path}")
     async def api_track_detail(track: str) -> dict[str, Any]:
         events = schedule_service.get_events_for_track(track)
-        return {"track": track, "events": events}
+        return {
+            "track": track,
+            "events": [dataclasses.asdict(e) for e in events],
+        }
 
     @router.get("/speakers")
     async def api_speakers() -> list[SpeakerListItemDTO]:
@@ -125,7 +132,7 @@ def create_api_router(
     @router.get("/export/events.csv")
     async def export_events_csv() -> StreamingResponse:
         events = schedule_service.get_all_events(sort="time")
-        return _csv_response(events, "events.csv")
+        return _csv_response([dataclasses.asdict(e) for e in events], "events.csv")
 
     @router.get("/export/speakers.csv")
     async def export_speakers_csv() -> StreamingResponse:
