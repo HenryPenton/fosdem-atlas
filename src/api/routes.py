@@ -32,8 +32,11 @@ def create_api_router(
         track: str = Query(default="", max_length=200),
         room: str = Query(default="", max_length=200),
         day: str = Query(default="", max_length=20),
-    ) -> list[dict[str, Any]]:
-        return schedule_service.search_events(q=q, track=track, room=room, day=day)
+    ) -> list[Any]:
+        return [
+            dataclasses.asdict(e)
+            for e in schedule_service.search_events(q=q, track=track, room=room, day=day)
+        ]
 
     @router.get("/events/by-ids")
     async def api_events_by_ids(

@@ -13,7 +13,7 @@ from src.domain.models.analytics import (
     TopSpeaker,
     TrackCount,
 )
-from src.domain.models.events import Event, EventDetail, EventSummary, Link
+from src.domain.models.events import Event, EventDetail, EventSearchResult, EventSummary, Link
 from src.domain.models.speakers import Speaker, SpeakerDetail, SpeakerSummary
 
 __all__ = [
@@ -21,6 +21,7 @@ __all__ = [
     "DayCount",
     "Event",
     "EventDetail",
+    "EventSearchResult",
     "EventSummary",
     "HeatmapCell",
     "KeywordCount",

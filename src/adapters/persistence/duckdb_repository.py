@@ -13,6 +13,7 @@ from src.domain.models import (
     DayCount,
     Event,
     EventDetail,
+    EventSearchResult,
     EventSummary,
     HeatmapCell,
     KeywordCount,
@@ -375,7 +376,7 @@ class DuckDBEventRepository:
 
     def filter_events(
         self, q: str = "", track: str = "", room: str = "", day: str = ""
-    ) -> list[dict[str, str | int | datetime]]:
+    ) -> list[EventSearchResult]:
         conn = self._db.get()
         conditions: list[str] = []
         params: list[str] = []
@@ -409,20 +410,20 @@ class DuckDBEventRepository:
             params,
         ).fetchall()
         return [
-            {
-                "id": row[0],
-                "title": row[1],
-                "abstract": row[2],
-                "start_time": row[3],
-                "duration_minutes": row[4],
-                "room": row[5],
-                "track": row[6],
-                "day": row[7],
-            }
+            EventSearchResult(
+                id=str(row[0]),
+                title=str(row[1]),
+                abstract=str(row[2]),
+                start_time=row[3],
+                duration_minutes=int(row[4]),
+                room=str(row[5]),
+                track=str(row[6]),
+                day=str(row[7]),
+            )
             for row in result
         ]
 
-    def search_events(self, q: str) -> list[dict[str, str | int | datetime]]:
+    def search_events(self, q: str) -> list[EventSearchResult]:
         conn = self._db.get()
         pattern = f"%{q}%"
         result = conn.execute(
@@ -436,16 +437,16 @@ class DuckDBEventRepository:
             [pattern, pattern],
         ).fetchall()
         return [
-            {
-                "id": row[0],
-                "title": row[1],
-                "abstract": row[2],
-                "start_time": row[3],
-                "duration_minutes": row[4],
-                "room": row[5],
-                "track": row[6],
-                "day": row[7],
-            }
+            EventSearchResult(
+                id=str(row[0]),
+                title=str(row[1]),
+                abstract=str(row[2]),
+                start_time=row[3],
+                duration_minutes=int(row[4]),
+                room=str(row[5]),
+                track=str(row[6]),
+                day=str(row[7]),
+            )
             for row in result
         ]
 

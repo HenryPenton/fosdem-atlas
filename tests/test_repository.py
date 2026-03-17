@@ -136,12 +136,12 @@ class TestSearchEvents:
     def test_search_by_title(self, seeded_repository: DuckDBEventRepository) -> None:
         results = seeded_repository.search_events("Rust")
         assert len(results) == 1
-        assert results[0]["title"] == "Intro to Rust"
+        assert results[0].title == "Intro to Rust"
 
     def test_search_by_abstract(self, seeded_repository: DuckDBEventRepository) -> None:
         results = seeded_repository.search_events("under the hood")
         assert len(results) == 1
-        assert results[0]["title"] == "DuckDB Internals"
+        assert results[0].title == "DuckDB Internals"
 
     def test_search_case_insensitive(self, seeded_repository: DuckDBEventRepository) -> None:
         results = seeded_repository.search_events("rust")
@@ -153,29 +153,29 @@ class TestSearchEvents:
     def test_search_partial_match(self, seeded_repository: DuckDBEventRepository) -> None:
         results = seeded_repository.search_events("Pack")
         assert len(results) == 1
-        assert results[0]["title"] == "Python Packaging"
+        assert results[0].title == "Python Packaging"
 
 
 class TestFilterEvents:
     def test_filter_by_track(self, seeded_repository: DuckDBEventRepository) -> None:
         results = seeded_repository.filter_events(track="Rust")
         assert len(results) == 1
-        assert results[0]["title"] == "Intro to Rust"
+        assert results[0].title == "Intro to Rust"
 
     def test_filter_by_room(self, seeded_repository: DuckDBEventRepository) -> None:
         results = seeded_repository.filter_events(room="Room B")
         assert len(results) == 1
-        assert results[0]["title"] == "Python Packaging"
+        assert results[0].title == "Python Packaging"
 
     def test_filter_by_day(self, seeded_repository: DuckDBEventRepository) -> None:
         results = seeded_repository.filter_events(day="2026-02-08")
         assert len(results) == 1
-        assert results[0]["title"] == "DuckDB Internals"
+        assert results[0].title == "DuckDB Internals"
 
     def test_filter_combines_with_query(self, seeded_repository: DuckDBEventRepository) -> None:
         results = seeded_repository.filter_events(q="Rust", day="2026-02-07")
         assert len(results) == 1
-        assert results[0]["title"] == "Intro to Rust"
+        assert results[0].title == "Intro to Rust"
 
     def test_filter_no_params_returns_all(self, seeded_repository: DuckDBEventRepository) -> None:
         results = seeded_repository.filter_events()

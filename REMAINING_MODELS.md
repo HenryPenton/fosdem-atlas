@@ -14,11 +14,7 @@ Methods in `src/domain/ports.py` that still return raw dicts instead of domain m
 
 4. **`EventRepository.get_events_by_track()`** — same shape as `get_events_by_day_and_track()` above.
 
-5. **`EventRepository.get_events_by_ids()`** — returns `list[dict]` with keys: `id`, `title`, `subtitle`, `abstract`, `start_time`, `duration_minutes`, `room`, `track`, `day`, `fosdem_url`. Same shape as `EventDetail` (minus `speakers`). Could reuse `EventDetail`.
-
-6. **`EventRepository.filter_events()`** — returns `list[dict]` with keys: `id`, `title`, `abstract`, `start_time`, `duration_minutes`, `room`, `track`, `day`. Same shape as items 3–4 but without `subtitle`.
-
-7. **`EventRepository.search_events()`** — same shape as `filter_events()` above.
+6. **`EventRepository.get_events_by_ids()`** — returns `list[dict]` with keys: `id`, `title`, `subtitle`, `abstract`, `start_time`, `duration_minutes`, `room`, `track`, `day`, `fosdem_url`. Same shape as `EventDetail` (minus `speakers`). Could reuse `EventDetail`.
 
 ## Analytics-related
 

@@ -117,7 +117,7 @@ class TestScheduleService:
     def test_search_events(self, schedule_service: ScheduleService) -> None:
         results = schedule_service.search_events(q="Rust")
         assert len(results) == 1
-        assert results[0]["title"] == "Intro to Rust"
+        assert results[0].title == "Intro to Rust"
 
     def test_search_events_empty(self, schedule_service: ScheduleService) -> None:
         results = schedule_service.search_events()

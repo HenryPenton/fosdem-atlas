@@ -46,6 +46,20 @@ class EventSummary:
 
 
 @dataclass(frozen=True)
+class EventSearchResult:
+    """Read model: event returned from search or filter queries."""
+
+    id: str
+    title: str
+    abstract: str
+    start_time: datetime
+    duration_minutes: int
+    room: str
+    track: str
+    day: str
+
+
+@dataclass(frozen=True)
 class EventDetail:
     """Read model: full event detail including speakers."""
 

@@ -6,7 +6,7 @@ from collections import defaultdict
 from datetime import datetime, timedelta, timezone
 from typing import Any
 
-from src.domain.models import EventDetail
+from src.domain.models import EventDetail, EventSearchResult
 from src.domain.ports import EventRepository
 
 
@@ -190,7 +190,7 @@ class ScheduleService:
 
     def search_events(
         self, q: str = "", track: str = "", room: str = "", day: str = ""
-    ) -> list[dict[str, str | int | datetime]]:
+    ) -> list[EventSearchResult]:
         q, track, room, day = q.strip(), track.strip(), room.strip(), day.strip()
         if q or track or room or day:
             return self._repo.filter_events(q=q, track=track, room=room, day=day)
