@@ -15,10 +15,15 @@ from src.domain.models import (
     EventDetail,
     EventSummary,
     HeatmapCell,
+    KeywordCount,
+    MultiTrackSpeaker,
     RoomCount,
     RoomStats,
     Speaker,
+    SpeakerStats,
     SpeakerSummary,
+    TopicStats,
+    TopSpeaker,
     TrackCount,
 )
 
@@ -549,7 +554,7 @@ class DuckDBEventRepository:
             ],
         )
 
-    def get_speaker_stats(self) -> dict[str, list[dict[str, str | int | list[str]]]]:
+    def get_speaker_stats(self) -> SpeakerStats:
         conn = self._db.get()
         top_speakers = conn.execute(
             """
@@ -573,23 +578,25 @@ class DuckDBEventRepository:
             ORDER BY track_count DESC, s.name
             """
         ).fetchall()
-        return {
-            "top_speakers": [
-                {"id": str(row[0]), "name": str(row[1]), "talk_count": int(row[2])}
+        return SpeakerStats(
+            top_speakers=[
+                TopSpeaker(id=str(row[0]), name=str(row[1]), talk_count=int(row[2]))
                 for row in top_speakers
             ],
-            "multi_track_speakers": [
-                {
-                    "id": str(row[0]),
-                    "name": str(row[1]),
-                    "track_count": int(row[2]),
-                    "tracks": list(row[3]),
-                }
+            multi_track_speakers=[
+                MultiTrackSpeaker(
+                    id=str(row[0]),
+                    name=str(row[1]),
+                    track_count=int(row[2]),
+                    tracks=list(row[3]),
+                )
                 for row in multi_track
             ],
-        }
+        )
 
-    def get_topic_stats(self) -> dict[str, list[dict[str, str | int]]]:
+    def get_topic_stats(self) -> TopicStats:
         conn = self._db.get()
         rows = conn.execute("SELECT term, count FROM keywords ORDER BY count DESC, term").fetchall()
-        return {"keywords": [{"term": row[0], "count": int(row[1])} for row in rows]}
+        return TopicStats(
+            keywords=[KeywordCount(term=str(row[0]), count=int(row[1])) for row in rows]
+        )

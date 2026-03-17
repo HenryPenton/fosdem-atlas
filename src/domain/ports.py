@@ -10,7 +10,9 @@ from src.domain.models import (
     EventSummary,
     RoomStats,
     Speaker,
+    SpeakerStats,
     SpeakerSummary,
+    TopicStats,
 )
 
 
@@ -63,9 +65,9 @@ class EventRepository(Protocol):
 
     def get_room_stats(self) -> RoomStats: ...
 
-    def get_speaker_stats(self) -> dict[str, list[dict[str, str | int | list[str]]]]: ...
+    def get_speaker_stats(self) -> SpeakerStats: ...
 
-    def get_topic_stats(self) -> dict[str, list[dict[str, str | int]]]: ...
+    def get_topic_stats(self) -> TopicStats: ...
 
 
 class ScheduleFetcher(Protocol):

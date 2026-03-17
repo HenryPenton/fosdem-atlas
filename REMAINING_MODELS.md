@@ -22,6 +22,4 @@ Methods in `src/domain/ports.py` that still return raw dicts instead of domain m
 
 ## Analytics-related
 
-8. **`EventRepository.get_speaker_stats()`** — returns `dict` with two keys: `top_speakers` (list of `{id, name, talk_count}`) and `multi_track_speakers` (list of `{id, name, track_count, tracks}`). Needs a `SpeakerStats` model with `TopSpeaker` and `MultiTrackSpeaker` sub-models.
-
-9. **`EventRepository.get_topic_stats()`** — returns `dict` with one key: `keywords` (list of `{term, count}`). Needs a `TopicStats` model with a `KeywordCount` sub-model.
+All analytics models are now defined.

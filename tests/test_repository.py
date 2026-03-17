@@ -406,33 +406,33 @@ class TestGetSpeakerStats:
     def test_top_speakers_ordered_by_talk_count(self, repository: DuckDBEventRepository) -> None:
         repo = self._events_with_speakers(repository)
         stats = repo.get_speaker_stats()
-        top = stats["top_speakers"]
+        top = stats.top_speakers
         assert len(top) == 2
-        assert top[0]["name"] == "Alice"
-        assert top[0]["talk_count"] == 2
-        assert top[1]["name"] == "Bob"
-        assert top[1]["talk_count"] == 1
+        assert top[0].name == "Alice"
+        assert top[0].talk_count == 2
+        assert top[1].name == "Bob"
+        assert top[1].talk_count == 1
 
     def test_multi_track_speakers(self, repository: DuckDBEventRepository) -> None:
         repo = self._events_with_speakers(repository)
         stats = repo.get_speaker_stats()
-        multi = stats["multi_track_speakers"]
+        multi = stats.multi_track_speakers
         assert len(multi) == 1
-        assert multi[0]["name"] == "Alice"
-        assert multi[0]["track_count"] == 2
-        assert set(multi[0]["tracks"]) == {"Python", "Rust"}  # type: ignore[arg-type]
+        assert multi[0].name == "Alice"
+        assert multi[0].track_count == 2
+        assert set(multi[0].tracks) == {"Python", "Rust"}
 
     def test_single_track_speaker_not_in_multi_track(
         self, seeded_repository: DuckDBEventRepository
     ) -> None:
         stats = seeded_repository.get_speaker_stats()
-        assert stats["multi_track_speakers"] == []
-        assert len(stats["top_speakers"]) == 1
+        assert stats.multi_track_speakers == []
+        assert len(stats.top_speakers) == 1
 
     def test_empty_when_no_speakers(self, repository: DuckDBEventRepository) -> None:
         stats = repository.get_speaker_stats()
-        assert stats["top_speakers"] == []
-        assert stats["multi_track_speakers"] == []
+        assert stats.top_speakers == []
+        assert stats.multi_track_speakers == []
 
 
 class TestGetTopicStats:
@@ -465,8 +465,8 @@ class TestGetTopicStats:
         ]
         repository.insert_events(events)
         stats = repository.get_topic_stats()
-        assert len(stats["keywords"]) > 0
-        terms = [str(kw["term"]).lower() for kw in stats["keywords"]]
+        assert len(stats.keywords) > 0
+        terms = [kw.term.lower() for kw in stats.keywords]
         assert any("webassembly" in t for t in terms)
 
     def test_keywords_have_term_and_count(self, repository: DuckDBEventRepository) -> None:
@@ -498,15 +498,15 @@ class TestGetTopicStats:
         ]
         repository.insert_events(events)
         stats = repository.get_topic_stats()
-        for kw in stats["keywords"]:
-            assert "term" in kw
-            assert "count" in kw
-            assert isinstance(kw["count"], int)
-            assert kw["count"] >= 2
+        for kw in stats.keywords:
+            assert hasattr(kw, "term")
+            assert hasattr(kw, "count")
+            assert isinstance(kw.count, int)
+            assert kw.count >= 2
 
     def test_empty_when_no_events(self, repository: DuckDBEventRepository) -> None:
         stats = repository.get_topic_stats()
-        assert stats["keywords"] == []
+        assert stats.keywords == []
 
     def test_filters_conference_stopwords(self, repository: DuckDBEventRepository) -> None:
         from datetime import datetime
@@ -537,7 +537,7 @@ class TestGetTopicStats:
         ]
         repository.insert_events(events)
         stats = repository.get_topic_stats()
-        terms_lower = [str(kw["term"]).lower() for kw in stats["keywords"]]
+        terms_lower = [kw.term.lower() for kw in stats.keywords]
         assert "open source" not in terms_lower
 
 
