@@ -7,7 +7,6 @@ import dataclasses
 import io
 from collections.abc import Callable
 from contextlib import AbstractAsyncContextManager
-from datetime import datetime
 from pathlib import Path
 
 from fastapi import FastAPI, Query, Request, Response
@@ -17,6 +16,7 @@ from fastapi.templating import Jinja2Templates
 from starlette.middleware.base import RequestResponseEndpoint
 from starlette.responses import StreamingResponse
 
+from src.api.dtos import HealthDTO
 from src.api.routes import create_api_router
 from src.application.services import AnalyticsService, ScheduleService, SpeakerService
 from src.config import Settings
@@ -197,13 +197,13 @@ def create_app(
         )
 
     @app.get("/health")
-    async def health(response: Response) -> dict[str, str | int]:
+    async def health(response: Response) -> HealthDTO:
         try:
             event_count = schedule_service.get_event_count()
         except Exception:
             response.status_code = 503
-            return {"status": "unhealthy", "version": settings.version, "events": -1}
-        return {"status": "healthy", "version": settings.version, "events": event_count}
+            return HealthDTO(status="unhealthy", version=settings.version, events=-1)
+        return HealthDTO(status="healthy", version=settings.version, events=event_count)
 
     @app.get("/export/events.csv")
     async def export_events_csv() -> StreamingResponse:
@@ -250,9 +250,7 @@ def create_app(
     return app
 
 
-def _csv_response(
-    rows: list[dict[str, str | int | float | datetime]], filename: str
-) -> StreamingResponse:
+def _csv_response(rows: list[dict[str, str | int | float]], filename: str) -> StreamingResponse:
     if not rows:
         buf = io.StringIO("")
     else:
