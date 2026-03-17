@@ -1,3 +1,9 @@
+## v0.3.1 (2026-03-17)
+
+### Feat
+
+- implement dark mode toggle and loading spinner in search
+
 ## v0.3.0 (2026-03-16)
 
 ### Feat
