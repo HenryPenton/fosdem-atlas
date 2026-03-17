@@ -1,12 +1,14 @@
 """JSON API v1 endpoints for FOSDEM Explorer."""
 
 import csv
+import dataclasses
 import io
 from typing import Any
 
 from fastapi import APIRouter, HTTPException, Query
 from fastapi.responses import StreamingResponse
 
+from src.api.dtos import EventSummaryDTO, SpeakerDetailDTO, SpeakerListItemDTO
 from src.application.services import AnalyticsService, ScheduleService, SpeakerService
 
 
@@ -76,15 +78,32 @@ def create_api_router(
         return {"track": track, "events": events}
 
     @router.get("/speakers")
-    async def api_speakers() -> list[dict[str, Any]]:
-        return speaker_service.get_all_speakers()
+    async def api_speakers() -> list[SpeakerListItemDTO]:
+        speakers = speaker_service.get_all_speakers()
+        return [SpeakerListItemDTO(id=s.id, name=s.name, talk_count=s.talk_count) for s in speakers]
 
     @router.get("/speakers/{speaker_id}")
-    async def api_speaker_detail(speaker_id: str) -> dict[str, Any]:
+    async def api_speaker_detail(speaker_id: str) -> SpeakerDetailDTO:
         result = speaker_service.get_speaker_detail(speaker_id)
         if result is None:
             raise HTTPException(status_code=404, detail="Speaker not found")
-        return result
+        return SpeakerDetailDTO(
+            id=result.id,
+            name=result.name,
+            events=[
+                EventSummaryDTO(
+                    id=e.id,
+                    title=e.title,
+                    subtitle=e.subtitle,
+                    start_time=e.start_time,
+                    duration_minutes=e.duration_minutes,
+                    room=e.room,
+                    track=e.track,
+                    day=e.day,
+                )
+                for e in result.events
+            ],
+        )
 
     @router.get("/analytics")
     async def api_analytics() -> dict[str, Any]:
@@ -108,7 +127,7 @@ def create_api_router(
     @router.get("/export/speakers.csv")
     async def export_speakers_csv() -> StreamingResponse:
         speakers = speaker_service.get_all_speakers()
-        return _csv_response(speakers, "speakers.csv")
+        return _csv_response([dataclasses.asdict(s) for s in speakers], "speakers.csv")
 
     return router
 

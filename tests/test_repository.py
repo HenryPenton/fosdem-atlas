@@ -226,8 +226,8 @@ class TestGetAllSpeakers:
     ) -> None:
         speakers = seeded_repository.get_all_speakers()
         assert len(speakers) == 1
-        assert speakers[0]["name"] == "Mark"
-        assert speakers[0]["talk_count"] == 1
+        assert speakers[0].name == "Mark"
+        assert speakers[0].talk_count == 1
 
     def test_empty_when_no_speakers(self, repository: DuckDBEventRepository) -> None:
         assert repository.get_all_speakers() == []
@@ -251,7 +251,7 @@ class TestGetAllSpeakers:
         ]
         repository.insert_events(events)
         speakers = repository.get_all_speakers()
-        names = [s["name"] for s in speakers]
+        names = [s.name for s in speakers]
         assert names == sorted(names)
 
 
@@ -259,8 +259,8 @@ class TestGetSpeakerById:
     def test_returns_speaker(self, seeded_repository: DuckDBEventRepository) -> None:
         speaker = seeded_repository.get_speaker_by_id("s1")
         assert speaker is not None
-        assert speaker["name"] == "Mark"
-        assert speaker["id"] == "s1"
+        assert speaker.name == "Mark"
+        assert speaker.id == "s1"
 
     def test_returns_none_for_missing_id(self, seeded_repository: DuckDBEventRepository) -> None:
         assert seeded_repository.get_speaker_by_id("nonexistent") is None
@@ -270,7 +270,7 @@ class TestGetEventsBySpeaker:
     def test_returns_speakers_events(self, seeded_repository: DuckDBEventRepository) -> None:
         events = seeded_repository.get_events_by_speaker("s1")
         assert len(events) == 1
-        assert events[0]["title"] == "DuckDB Internals"
+        assert events[0].title == "DuckDB Internals"
 
     def test_returns_empty_for_unknown_speaker(
         self, seeded_repository: DuckDBEventRepository
@@ -282,7 +282,7 @@ class TestGetEventsBySpeaker:
         assert len(events) == 1
         event = events[0]
         for field in ("id", "title", "start_time", "duration_minutes", "room", "track", "day"):
-            assert field in event
+            assert hasattr(event, field)
 
 
 class TestGetStats:

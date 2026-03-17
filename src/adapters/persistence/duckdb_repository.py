@@ -8,7 +8,7 @@ import duckdb
 import yake
 
 from src.adapters.persistence.duckdb_connection import DuckDBConnection
-from src.domain.models import Event
+from src.domain.models import Event, EventSummary, Speaker, SpeakerSummary
 
 _TOPIC_STOPWORDS = {
     # Conference-specific
@@ -432,7 +432,7 @@ class DuckDBEventRepository:
             for row in result
         ]
 
-    def get_all_speakers(self) -> list[dict[str, str | int]]:
+    def get_all_speakers(self) -> list[SpeakerSummary]:
         conn = self._db.get()
         result = conn.execute(
             """
@@ -443,9 +443,12 @@ class DuckDBEventRepository:
             ORDER BY s.name
             """
         ).fetchall()
-        return [{"id": row[0], "name": row[1], "talk_count": row[2]} for row in result]
+        return [
+            SpeakerSummary(id=str(row[0]), name=str(row[1]), talk_count=int(row[2]))
+            for row in result
+        ]
 
-    def get_speaker_by_id(self, speaker_id: str) -> dict[str, str] | None:
+    def get_speaker_by_id(self, speaker_id: str) -> Speaker | None:
         conn = self._db.get()
         row = conn.execute(
             "SELECT id, name FROM speakers WHERE id = ?",
@@ -453,9 +456,9 @@ class DuckDBEventRepository:
         ).fetchone()
         if row is None:
             return None
-        return {"id": row[0], "name": row[1]}
+        return Speaker(id=str(row[0]), name=str(row[1]))
 
-    def get_events_by_speaker(self, speaker_id: str) -> list[dict[str, str | int | datetime]]:
+    def get_events_by_speaker(self, speaker_id: str) -> list[EventSummary]:
         conn = self._db.get()
         result = conn.execute(
             """
@@ -469,16 +472,16 @@ class DuckDBEventRepository:
             [speaker_id],
         ).fetchall()
         return [
-            {
-                "id": row[0],
-                "title": row[1],
-                "subtitle": row[2],
-                "start_time": row[3],
-                "duration_minutes": row[4],
-                "room": row[5],
-                "track": row[6],
-                "day": row[7],
-            }
+            EventSummary(
+                id=str(row[0]),
+                title=str(row[1]),
+                subtitle=str(row[2]),
+                start_time=row[3],
+                duration_minutes=int(row[4]),
+                room=str(row[5]),
+                track=str(row[6]),
+                day=str(row[7]),
+            )
             for row in result
         ]
 

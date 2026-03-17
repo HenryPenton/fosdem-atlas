@@ -1,6 +1,7 @@
 """FastAPI web adapter."""
 
 import csv
+import dataclasses
 import io
 from pathlib import Path
 from typing import Any
@@ -125,9 +126,9 @@ def create_app(
             request=request,
             name="speaker.html",
             context={
-                "title": f"FOSDEM Explorer — {result['name']}",
+                "title": f"FOSDEM Explorer — {result.name}",
                 "speaker": result,
-                "events": result["events"],
+                "events": result.events,
             },
         )
 
@@ -207,7 +208,7 @@ def create_app(
     @app.get("/export/speakers.csv")
     async def export_speakers_csv() -> StreamingResponse:
         speakers = speaker_service.get_all_speakers()
-        return _csv_response(speakers, "speakers.csv")
+        return _csv_response([dataclasses.asdict(s) for s in speakers], "speakers.csv")
 
     @app.get("/my-schedule", response_class=HTMLResponse)
     async def my_schedule_page(request: Request) -> HTMLResponse:
