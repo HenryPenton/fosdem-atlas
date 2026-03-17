@@ -124,6 +124,7 @@
 
         {% if speaker_stats.multi_track_speakers %}
         <h2 style="margin-top: 2rem;">Speakers Across Multiple Tracks</h2>
+        <div class="table-scroll-wrapper">
         <table class="speakers-table">
             <thead>
                 <tr>
@@ -142,6 +143,7 @@
                 {% endfor %}
             </tbody>
         </table>
+        </div>
         {% endif %}
     </section>
 
