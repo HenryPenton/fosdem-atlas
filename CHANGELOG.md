@@ -1,3 +1,12 @@
+## v0.5.0 (2026-03-17)
+
+### Feat
+
+- enhance data models and services for speakers and events with DTOs and summaries
+- add room tracks and track change markers to schedule data for improved event organization
+- update color variables for improved theme consistency and styling
+- update event detail layout for improved structure and styling
+
 ## v0.4.0 (2026-03-17)
 
 ### Feat
