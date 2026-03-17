@@ -176,29 +176,61 @@ main {
     margin-bottom: 1.5rem;
     font-size: 0.85rem;
     color: var(--text-muted);
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    list-style: none;
     padding: 0.6rem 1rem;
     background: var(--card-background);
     border: 1px solid var(--border-color);
     border-radius: 8px;
 }
 
-.breadcrumb a {
-    color: var(--primary-color);
-    text-decoration: none;
+.breadcrumb-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.1rem;
 }
 
-.breadcrumb a:hover {
+.breadcrumb-list li {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+}
+
+.breadcrumb-list li + li::before {
+    content: "";
+    display: inline-block;
+    width: 0.38em;
+    height: 0.38em;
+    border-right: 1.75px solid var(--text-muted);
+    border-top: 1.75px solid var(--text-muted);
+    transform: rotate(45deg);
+    margin: 0 0.55rem;
+    flex-shrink: 0;
+    opacity: 0.6;
+}
+
+.breadcrumb-list a {
+    color: var(--primary-color);
+    text-decoration: none;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 200px;
+}
+
+.breadcrumb-list a:hover {
     text-decoration: underline;
 }
 
-.breadcrumb .sep {
-    color: var(--text-muted);
-    font-size: 0.75rem;
-    user-select: none;
+.breadcrumb-list li:last-child span {
+    color: var(--text-color);
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 300px;
 }
 
 /* No Events */
@@ -1089,14 +1121,56 @@ footer p {
 }
 
 .event-detail-header {
+    background: var(--card-background);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    overflow: hidden;
     margin-bottom: 2rem;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+}
+
+.event-detail-hero {
+    background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+    padding: 1.25rem 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.event-detail-track-badge {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.event-detail-bookmark {
+    color: white;
+    opacity: 0.75;
+    font-size: 1.6rem;
+    padding: 0.2rem 0.3rem;
+}
+
+.event-detail-bookmark:hover {
+    opacity: 1;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 6px;
+}
+
+.event-detail-bookmark.bookmark-btn--active {
+    opacity: 1;
+}
+
+.event-detail-body {
+    padding: 1.5rem;
 }
 
 .event-detail-meta {
     display: flex;
     flex-wrap: wrap;
     gap: 0.5rem;
-    margin-bottom: 1rem;
+    margin-top: 1rem;
 }
 
 .event-badge {
@@ -1459,15 +1533,11 @@ footer p {
     right: 0.5rem;
 }
 
-/* Event detail title row */
+/* Event detail title row — kept for backwards compat but hero now holds bookmark */
 .event-detail-title-row {
     display: flex;
     align-items: flex-start;
     gap: 0.75rem;
-}
-.event-detail-title-row .bookmark-btn {
-    font-size: 1.6rem;
-    margin-top: 0.15rem;
 }
 
 /* Nav schedule badge */

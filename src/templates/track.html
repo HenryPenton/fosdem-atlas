@@ -2,14 +2,16 @@
 
 {% block content %}
 <div class="container">
-    <nav class="breadcrumb">
-        <a href="/">Schedule</a> <span class="sep">&rsaquo;</span>
-        {% if day %}
-        <a href="/day/{{ day }}">{{ day }}</a> <span class="sep">&rsaquo;</span>
-        {% else %}
-        <a href="/tracks">Tracks</a> <span class="sep">&rsaquo;</span>
-        {% endif %}
-        <span>{{ track }}</span>
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+        <ol class="breadcrumb-list">
+            <li><a href="/">Schedule</a></li>
+            {% if day %}
+            <li><a href="/day/{{ day }}">{{ day }}</a></li>
+            {% else %}
+            <li><a href="/tracks">Tracks</a></li>
+            {% endif %}
+            <li><span>{{ track }}</span></li>
+        </ol>
     </nav>
 
     <section class="hero">

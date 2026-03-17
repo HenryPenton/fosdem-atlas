@@ -2,10 +2,12 @@
 
 {% block content %}
 <div class="container">
-    <nav class="breadcrumb">
-        <a href="/">Schedule</a> <span class="sep">&rsaquo;</span>
-        <a href="/speakers">Speakers</a> <span class="sep">&rsaquo;</span>
-        <span>{{ speaker.name }}</span>
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+        <ol class="breadcrumb-list">
+            <li><a href="/">Schedule</a></li>
+            <li><a href="/speakers">Speakers</a></li>
+            <li><span>{{ speaker.name }}</span></li>
+        </ol>
     </nav>
 
     <section class="hero">
