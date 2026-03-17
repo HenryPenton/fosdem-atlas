@@ -1,6 +1,6 @@
 .PHONY: help venv dev install run test lint format clean commit bump patch minor major
 
-PYTHON := python3.13
+PYTHON := python3
 VENV := venv
 BIN := $(VENV)/bin
 
