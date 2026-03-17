@@ -1,3 +1,12 @@
+## v0.4.0 (2026-03-17)
+
+### Feat
+
+- refactor breadcrumb navigation for improved accessibility and styling
+- add grid rowspans and covered cells to schedule data for improved rendering
+- improve layout for speakers table with scrollable wrapper and adjust styles for better readability
+- enhance health endpoint to include event count and update Dockerfile for graceful shutdown
+
 ## v0.3.1 (2026-03-17)
 
 ### Feat
