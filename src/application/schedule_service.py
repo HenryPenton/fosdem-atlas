@@ -1,5 +1,6 @@
 """Schedule service – browsing and querying the conference schedule."""
 
+import math
 from collections import defaultdict
 from datetime import datetime, timedelta, timezone
 from typing import Any
@@ -46,6 +47,8 @@ class ScheduleService:
                 "rooms": [],
                 "time_slots": [],
                 "grid": {},
+                "grid_rowspans": {},
+                "grid_covered": set(),
             }
 
         selected_day = day if day in days else days[0]
@@ -77,12 +80,39 @@ class ScheduleService:
             slot_key = st.replace(minute=(st.minute // 30) * 30, second=0).strftime("%H:%M")
             grid[slot_key][str(ev["room"])].append(ev)
 
+        # Compute rowspans and covered cells so the template can render proper rowspan= attrs.
+        # A cell is "covered" when a previous row's rowspan extends over it — it must be skipped.
+        time_slot_keys = [s.strftime("%H:%M") for s in time_slots]
+        grid_rowspans: dict[str, dict[str, int]] = {}
+        grid_covered: set[tuple[str, str]] = set()
+
+        for i, slot_key in enumerate(time_slot_keys):
+            grid_rowspans[slot_key] = {}
+            for room in rooms:
+                if (slot_key, room) in grid_covered:
+                    grid_rowspans[slot_key][room] = 0  # skip this cell
+                    continue
+                events_here = grid.get(slot_key, {}).get(room, [])
+                if events_here:
+                    span = max(
+                        1,
+                        max(math.ceil(int(ev["duration_minutes"]) / 30) for ev in events_here),
+                    )
+                    for j in range(1, span):
+                        if i + j < len(time_slot_keys):
+                            grid_covered.add((time_slot_keys[i + j], room))
+                    grid_rowspans[slot_key][room] = span
+                else:
+                    grid_rowspans[slot_key][room] = 1
+
         return {
             "days": days,
             "selected_day": selected_day,
             "rooms": rooms,
             "time_slots": time_slots,
             "grid": dict(grid),
+            "grid_rowspans": grid_rowspans,
+            "grid_covered": grid_covered,
         }
 
     def get_day_detail(self, day: str) -> dict[str, Any]:

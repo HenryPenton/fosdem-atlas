@@ -92,7 +92,9 @@
                 <tr>
                     <th class="grid-time" scope="row">{{ slot_key }}</th>
                     {% for room in rooms %}
-                    <td class="grid-cell{% if grid.get(slot_key, {}).get(room) %} grid-cell--filled{% endif %}">
+                    {% set span = grid_rowspans.get(slot_key, {}).get(room, 1) %}
+                    {% if span > 0 %}
+                    <td class="grid-cell{% if grid.get(slot_key, {}).get(room) %} grid-cell--filled{% endif %}"{% if span > 1 %} rowspan="{{ span }}"{% endif %}>
                         {% for ev in grid.get(slot_key, {}).get(room, []) %}
                         <div class="grid-event-wrapper">
                             <a href="/event/{{ ev.id }}" class="grid-event" title="{{ ev.title }} ({{ ev.duration_minutes }} min)">
@@ -103,6 +105,7 @@
                         </div>
                         {% endfor %}
                     </td>
+                    {% endif %}
                     {% endfor %}
                 </tr>
                 {% endfor %}
