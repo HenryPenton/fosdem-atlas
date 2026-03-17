@@ -15,7 +15,20 @@ from src.domain.models.analytics import (
 )
 from src.domain.models.events import Event, EventDetail, EventSearchResult, EventSummary, Link
 from src.domain.models.speakers import Speaker, SpeakerDetail, SpeakerSummary
-from src.domain.models.views import AnalyticsData, DayDetail, GridData, OverviewData, TracksOverview
+from src.domain.models.views import (
+    AnalyticsData,
+    DayDetail,
+    GridData,
+    HeatmapGrid,
+    OverviewData,
+    RoomEventMap,
+    RoomTrackChanges,
+    RoomTracks,
+    RowspanGrid,
+    ScheduleGrid,
+    TrackChanges,
+    TracksOverview,
+)
 
 __all__ = [
     "AnalyticsData",
@@ -27,19 +40,26 @@ __all__ = [
     "EventSearchResult",
     "EventSummary",
     "GridData",
+    "HeatmapGrid",
     "HeatmapCell",
     "KeywordCount",
     "Link",
     "MultiTrackSpeaker",
     "OverviewData",
     "RoomCount",
+    "RoomEventMap",
     "RoomStats",
+    "RoomTrackChanges",
+    "RoomTracks",
+    "RowspanGrid",
+    "ScheduleGrid",
     "Speaker",
     "SpeakerDetail",
     "SpeakerStats",
     "SpeakerSummary",
     "TopSpeaker",
     "TopicStats",
+    "TrackChanges",
     "TrackCount",
     "TracksOverview",
 ]

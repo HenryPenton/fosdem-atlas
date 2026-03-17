@@ -12,6 +12,12 @@ from src.domain.models import (
     EventSummary,
     GridData,
     OverviewData,
+    RoomEventMap,
+    RoomTrackChanges,
+    RoomTracks,
+    RowspanGrid,
+    ScheduleGrid,
+    TrackChanges,
     TracksOverview,
 )
 from src.domain.ports import EventRepository
@@ -83,7 +89,7 @@ class ScheduleService:
                 time_slots.append(current)
                 current += timedelta(minutes=30)
 
-        grid: dict[str, dict[str, list[EventSummary]]] = defaultdict(lambda: defaultdict(list))
+        grid: ScheduleGrid = defaultdict(lambda: defaultdict(list))
         for ev in events:
             st = ev.start_time
             if not isinstance(st, datetime):
@@ -94,7 +100,7 @@ class ScheduleService:
         # Compute rowspans and covered cells so the template can render proper rowspan= attrs.
         # A cell is "covered" when a previous row's rowspan extends over it — it must be skipped.
         time_slot_keys = [s.strftime("%H:%M") for s in time_slots]
-        grid_rowspans: dict[str, dict[str, int]] = {}
+        grid_rowspans: RowspanGrid = {}
         grid_covered: set[tuple[str, str]] = set()
 
         for i, slot_key in enumerate(time_slot_keys):
@@ -119,19 +125,19 @@ class ScheduleService:
         # Build per-room ordered track list and change-point markers by walking events
         # chronologically per room. Each time the track name changes we record the slot_key
         # of the first event in the new track so the template can render a divider.
-        room_events_by_room: dict[str, list[EventSummary]] = defaultdict(list)
+        room_events_by_room: RoomEventMap = defaultdict(list)
         for ev in events:
             if isinstance(ev.start_time, datetime):
                 room_events_by_room[ev.room].append(ev)
 
-        room_tracks: dict[str, list[str]] = {}
-        room_track_changes: dict[str, dict[str, str]] = {}
+        room_tracks: RoomTracks = {}
+        room_track_changes: RoomTrackChanges = {}
 
         for room in rooms:
             sorted_evs = sorted(room_events_by_room.get(room, []), key=lambda e: e.start_time)
             seen: list[str] = []
             current_track: str | None = None
-            changes: dict[str, str] = {}
+            changes: TrackChanges = {}
             for ev in sorted_evs:
                 track = ev.track
                 if not track or track == current_track:
