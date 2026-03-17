@@ -107,8 +107,8 @@ class TestScheduleService:
     def test_get_event_detail(self, schedule_service: ScheduleService) -> None:
         result = schedule_service.get_event_detail("1")
         assert result is not None
-        assert result["title"] == "Intro to Rust"
-        assert "speakers" in result
+        assert result.title == "Intro to Rust"
+        assert hasattr(result, "speakers")
 
     def test_get_event_detail_not_found(self, schedule_service: ScheduleService) -> None:
         result = schedule_service.get_event_detail("nonexistent")
@@ -138,7 +138,7 @@ class TestScheduleService:
 class TestAnalyticsService:
     def test_get_analytics(self, analytics_service: AnalyticsService) -> None:
         data = analytics_service.get_analytics()
-        assert data["stats"]["total_events"] == 3
+        assert data["stats"].total_events == 3
         assert "events_per_room" in data
         assert "speaker_stats" in data
         assert "topic_stats" in data

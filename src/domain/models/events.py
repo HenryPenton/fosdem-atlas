@@ -43,3 +43,20 @@ class EventSummary:
     room: str
     track: str
     day: str
+
+
+@dataclass(frozen=True)
+class EventDetail:
+    """Read model: full event detail including speakers."""
+
+    id: str
+    title: str
+    subtitle: str
+    abstract: str
+    start_time: datetime
+    duration_minutes: int
+    room: str
+    track: str
+    day: str
+    fosdem_url: str
+    speakers: list[Speaker] = field(default_factory=list)

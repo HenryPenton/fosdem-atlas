@@ -1,10 +1,12 @@
 """Schedule service – browsing and querying the conference schedule."""
 
+import dataclasses
 import math
 from collections import defaultdict
 from datetime import datetime, timedelta, timezone
 from typing import Any
 
+from src.domain.models import EventDetail
 from src.domain.ports import EventRepository
 
 
@@ -178,13 +180,13 @@ class ScheduleService:
     def get_events_for_track(self, track: str) -> list[dict[str, str | int | datetime]]:
         return self._repo.get_events_by_track(track)
 
-    def get_event_detail(self, event_id: str) -> dict[str, Any] | None:
+    def get_event_detail(self, event_id: str) -> EventDetail | None:
         """Event with its speakers, or None if not found."""
         event = self._repo.get_event_by_id(event_id)
         if event is None:
             return None
         speakers = self._repo.get_speakers_for_event(event_id)
-        return {**event, "speakers": speakers}
+        return dataclasses.replace(event, speakers=speakers)
 
     def search_events(
         self, q: str = "", track: str = "", room: str = "", day: str = ""

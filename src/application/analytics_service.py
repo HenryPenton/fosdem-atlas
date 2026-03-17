@@ -25,20 +25,20 @@ class AnalyticsService:
         speaker_stats = self._repo.get_speaker_stats()
         topic_stats = self._repo.get_topic_stats()
 
-        heatmap_raw = room_stats["heatmap"]
-        heatmap_days = sorted({str(item["day"]) for item in heatmap_raw})
-        heatmap_hours = sorted({int(item["hour"]) for item in heatmap_raw})
+        heatmap_raw = room_stats.heatmap
+        heatmap_days = sorted({item.day for item in heatmap_raw})
+        heatmap_hours = sorted({item.hour for item in heatmap_raw})
         heatmap_grid: dict[str, dict[int, int]] = {
             day: dict.fromkeys(heatmap_hours, 0) for day in heatmap_days
         }
         for item in heatmap_raw:
-            heatmap_grid[str(item["day"])][int(item["hour"])] = int(item["count"])
-        max_heatmap_count = max((int(item["count"]) for item in heatmap_raw), default=1)
+            heatmap_grid[item.day][item.hour] = item.count
+        max_heatmap_count = max((item.count for item in heatmap_raw), default=1)
 
         result = {
             "stats": stats,
             "room_stats": room_stats,
-            "events_per_room": room_stats["events_per_room"],
+            "events_per_room": room_stats.events_per_room,
             "speaker_stats": speaker_stats,
             "topic_stats": topic_stats,
             "heatmap_days": heatmap_days,

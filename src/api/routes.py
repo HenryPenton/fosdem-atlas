@@ -43,11 +43,11 @@ def create_api_router(
         return schedule_service.get_events_by_ids(event_ids)
 
     @router.get("/events/{event_id}")
-    async def api_event_detail(event_id: str) -> dict[str, Any]:
+    async def api_event_detail(event_id: str) -> Any:
         result = schedule_service.get_event_detail(event_id)
         if result is None:
             raise HTTPException(status_code=404, detail="Event not found")
-        return result
+        return dataclasses.asdict(result)
 
     @router.get("/days")
     async def api_days() -> list[str]:

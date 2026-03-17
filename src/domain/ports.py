@@ -3,7 +3,15 @@
 from datetime import datetime
 from typing import Protocol
 
-from src.domain.models import Event, EventSummary, Speaker, SpeakerSummary
+from src.domain.models import (
+    ConferenceStats,
+    Event,
+    EventDetail,
+    EventSummary,
+    RoomStats,
+    Speaker,
+    SpeakerSummary,
+)
 
 
 class EventRepository(Protocol):
@@ -33,11 +41,11 @@ class EventRepository(Protocol):
 
     def get_events_by_track(self, track: str) -> list[dict[str, str | int | datetime]]: ...
 
-    def get_event_by_id(self, event_id: str) -> dict[str, str | int | datetime] | None: ...
+    def get_event_by_id(self, event_id: str) -> EventDetail | None: ...
 
     def get_events_by_ids(self, event_ids: list[str]) -> list[dict[str, str | int | datetime]]: ...
 
-    def get_speakers_for_event(self, event_id: str) -> list[dict[str, str]]: ...
+    def get_speakers_for_event(self, event_id: str) -> list[Speaker]: ...
 
     def filter_events(
         self, q: str = "", track: str = "", room: str = "", day: str = ""
@@ -51,9 +59,9 @@ class EventRepository(Protocol):
 
     def get_events_by_speaker(self, speaker_id: str) -> list[EventSummary]: ...
 
-    def get_stats(self) -> dict[str, int | list[dict[str, str | int]]]: ...
+    def get_stats(self) -> ConferenceStats: ...
 
-    def get_room_stats(self) -> dict[str, list[dict[str, str | int]]]: ...
+    def get_room_stats(self) -> RoomStats: ...
 
     def get_speaker_stats(self) -> dict[str, list[dict[str, str | int | list[str]]]]: ...
 

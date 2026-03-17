@@ -8,7 +8,19 @@ import duckdb
 import yake
 
 from src.adapters.persistence.duckdb_connection import DuckDBConnection
-from src.domain.models import Event, EventSummary, Speaker, SpeakerSummary
+from src.domain.models import (
+    ConferenceStats,
+    DayCount,
+    Event,
+    EventDetail,
+    EventSummary,
+    HeatmapCell,
+    RoomCount,
+    RoomStats,
+    Speaker,
+    SpeakerSummary,
+    TrackCount,
+)
 
 _TOPIC_STOPWORDS = {
     # Conference-specific
@@ -285,7 +297,7 @@ class DuckDBEventRepository:
             for row in result
         ]
 
-    def get_speakers_for_event(self, event_id: str) -> list[dict[str, str]]:
+    def get_speakers_for_event(self, event_id: str) -> list[Speaker]:
         conn = self._db.get()
         result = conn.execute(
             """
@@ -297,9 +309,9 @@ class DuckDBEventRepository:
             """,
             [event_id],
         ).fetchall()
-        return [{"id": row[0], "name": row[1]} for row in result]
+        return [Speaker(id=str(row[0]), name=str(row[1])) for row in result]
 
-    def get_event_by_id(self, event_id: str) -> dict[str, str | int | datetime] | None:
+    def get_event_by_id(self, event_id: str) -> EventDetail | None:
         conn = self._db.get()
         row = conn.execute(
             """
@@ -312,18 +324,18 @@ class DuckDBEventRepository:
         ).fetchone()
         if row is None:
             return None
-        return {
-            "id": row[0],
-            "title": row[1],
-            "subtitle": row[2],
-            "abstract": row[3],
-            "start_time": row[4],
-            "duration_minutes": row[5],
-            "room": row[6],
-            "track": row[7],
-            "day": row[8],
-            "fosdem_url": row[9],
-        }
+        return EventDetail(
+            id=str(row[0]),
+            title=str(row[1]),
+            subtitle=str(row[2]),
+            abstract=str(row[3]),
+            start_time=row[4],
+            duration_minutes=int(row[5]),
+            room=str(row[6]),
+            track=str(row[7]),
+            day=str(row[8]),
+            fosdem_url=str(row[9]),
+        )
 
     def get_events_by_ids(self, event_ids: list[str]) -> list[dict[str, str | int | datetime]]:
         if not event_ids:
@@ -485,7 +497,7 @@ class DuckDBEventRepository:
             for row in result
         ]
 
-    def get_room_stats(self) -> dict[str, list[dict[str, str | int]]]:
+    def get_room_stats(self) -> RoomStats:
         conn = self._db.get()
         events_per_room = conn.execute(
             "SELECT room, COUNT(*) FROM events GROUP BY room ORDER BY COUNT(*) DESC"
@@ -498,17 +510,17 @@ class DuckDBEventRepository:
             ORDER BY day, hour
             """
         ).fetchall()
-        return {
-            "events_per_room": [
-                {"room": str(row[0]), "count": int(row[1])} for row in events_per_room
+        return RoomStats(
+            events_per_room=[
+                RoomCount(room=str(row[0]), count=int(row[1])) for row in events_per_room
             ],
-            "heatmap": [
-                {"day": str(row[0]), "hour": int(row[1]), "count": int(row[2])}
+            heatmap=[
+                HeatmapCell(day=str(row[0]), hour=int(row[1]), count=int(row[2]))
                 for row in heatmap_rows
             ],
-        }
+        )
 
-    def get_stats(self) -> dict[str, int | list[dict[str, str | int]]]:
+    def get_stats(self) -> ConferenceStats:
         conn = self._db.get()
         total_events = int((conn.execute("SELECT COUNT(*) FROM events").fetchone() or (0,))[0])
         total_speakers = int((conn.execute("SELECT COUNT(*) FROM speakers").fetchone() or (0,))[0])
@@ -526,18 +538,16 @@ class DuckDBEventRepository:
             "SELECT track, COUNT(*) FROM events GROUP BY track ORDER BY COUNT(*) DESC"
         ).fetchall()
 
-        return {
-            "total_events": total_events,
-            "total_speakers": total_speakers,
-            "total_tracks": total_tracks,
-            "total_rooms": total_rooms,
-            "events_per_day": [
-                {"day": str(row[0]), "count": int(row[1])} for row in events_per_day
+        return ConferenceStats(
+            total_events=total_events,
+            total_speakers=total_speakers,
+            total_tracks=total_tracks,
+            total_rooms=total_rooms,
+            events_per_day=[DayCount(day=str(row[0]), count=int(row[1])) for row in events_per_day],
+            events_per_track=[
+                TrackCount(track=str(row[0]), count=int(row[1])) for row in events_per_track
             ],
-            "events_per_track": [
-                {"track": str(row[0]), "count": int(row[1])} for row in events_per_track
-            ],
-        }
+        )
 
     def get_speaker_stats(self) -> dict[str, list[dict[str, str | int | list[str]]]]:
         conn = self._db.get()

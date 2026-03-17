@@ -155,9 +155,9 @@ def create_app(
             request=request,
             name="event.html",
             context={
-                "title": f"FOSDEM Explorer — {result['title']}",
+                "title": f"FOSDEM Explorer — {result.title}",
                 "event": result,
-                "speakers": result["speakers"],
+                "speakers": result.speakers,
             },
         )
 

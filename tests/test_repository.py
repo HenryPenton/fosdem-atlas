@@ -44,7 +44,7 @@ class TestInsertEvents:
         repository.insert_events(events)
         speakers = repository.get_speakers_for_event("10")
         assert len(speakers) == 2
-        names = {s["name"] for s in speakers}
+        names = {s.name for s in speakers}
         assert names == {"Alice", "Bob"}
 
 
@@ -120,7 +120,7 @@ class TestGetSpeakersForEvent:
     def test_returns_speakers(self, seeded_repository: DuckDBEventRepository) -> None:
         speakers = seeded_repository.get_speakers_for_event("3")
         assert len(speakers) == 1
-        assert speakers[0]["name"] == "Mark"
+        assert speakers[0].name == "Mark"
 
     def test_no_speakers_returns_empty(self, seeded_repository: DuckDBEventRepository) -> None:
         speakers = seeded_repository.get_speakers_for_event("1")
@@ -197,7 +197,7 @@ class TestGetEventById:
     def test_returns_event(self, seeded_repository: DuckDBEventRepository) -> None:
         event = seeded_repository.get_event_by_id("1")
         assert event is not None
-        assert event["title"] == "Intro to Rust"
+        assert event.title == "Intro to Rust"
 
     def test_returns_none_for_missing_id(self, seeded_repository: DuckDBEventRepository) -> None:
         assert seeded_repository.get_event_by_id("nonexistent") is None
@@ -217,7 +217,7 @@ class TestGetEventById:
             "day",
             "fosdem_url",
         ):
-            assert field in event
+            assert hasattr(event, field)
 
 
 class TestGetAllSpeakers:
@@ -288,45 +288,45 @@ class TestGetEventsBySpeaker:
 class TestGetStats:
     def test_returns_total_events(self, seeded_repository: DuckDBEventRepository) -> None:
         stats = seeded_repository.get_stats()
-        assert stats["total_events"] == 3
+        assert stats.total_events == 3
 
     def test_returns_total_speakers(self, seeded_repository: DuckDBEventRepository) -> None:
         stats = seeded_repository.get_stats()
-        assert stats["total_speakers"] == 1
+        assert stats.total_speakers == 1
 
     def test_returns_total_tracks(self, seeded_repository: DuckDBEventRepository) -> None:
         stats = seeded_repository.get_stats()
-        assert stats["total_tracks"] == 3
+        assert stats.total_tracks == 3
 
     def test_returns_total_rooms(self, seeded_repository: DuckDBEventRepository) -> None:
         stats = seeded_repository.get_stats()
-        assert stats["total_rooms"] == 3
+        assert stats.total_rooms == 3
 
     def test_events_per_day(self, seeded_repository: DuckDBEventRepository) -> None:
         stats = seeded_repository.get_stats()
-        per_day = {item["day"]: item["count"] for item in stats["events_per_day"]}  # type: ignore[union-attr]
+        per_day = {item.day: item.count for item in stats.events_per_day}
         assert per_day["2026-02-07"] == 2
         assert per_day["2026-02-08"] == 1
 
     def test_events_per_track(self, seeded_repository: DuckDBEventRepository) -> None:
         stats = seeded_repository.get_stats()
-        per_track = {item["track"]: item["count"] for item in stats["events_per_track"]}  # type: ignore[union-attr]
+        per_track = {item.track: item.count for item in stats.events_per_track}
         assert per_track["Rust"] == 1
         assert per_track["Python"] == 1
         assert per_track["Databases"] == 1
 
     def test_empty_repository_returns_zeros(self, repository: DuckDBEventRepository) -> None:
         stats = repository.get_stats()
-        assert stats["total_events"] == 0
-        assert stats["total_speakers"] == 0
-        assert stats["events_per_day"] == []
-        assert stats["events_per_track"] == []
+        assert stats.total_events == 0
+        assert stats.total_speakers == 0
+        assert stats.events_per_day == []
+        assert stats.events_per_track == []
 
 
 class TestGetRoomStats:
     def test_events_per_room_counts(self, seeded_repository: DuckDBEventRepository) -> None:
         room_stats = seeded_repository.get_room_stats()
-        per_room = {item["room"]: item["count"] for item in room_stats["events_per_room"]}
+        per_room = {item.room: item.count for item in room_stats.events_per_room}
         assert per_room["Room A"] == 1
         assert per_room["Room B"] == 1
         assert per_room["Room C"] == 1
@@ -335,14 +335,14 @@ class TestGetRoomStats:
         self, seeded_repository: DuckDBEventRepository
     ) -> None:
         room_stats = seeded_repository.get_room_stats()
-        counts = [item["count"] for item in room_stats["events_per_room"]]
+        counts = [item.count for item in room_stats.events_per_room]
         assert counts == sorted(counts, reverse=True)
 
     def test_heatmap_contains_day_and_hour(self, seeded_repository: DuckDBEventRepository) -> None:
         room_stats = seeded_repository.get_room_stats()
-        heatmap = room_stats["heatmap"]
+        heatmap = room_stats.heatmap
         assert len(heatmap) > 0
-        days = {item["day"] for item in heatmap}
+        days = {item.day for item in heatmap}
         assert "2026-02-07" in days
         assert "2026-02-08" in days
 
@@ -350,7 +350,7 @@ class TestGetRoomStats:
         self, seeded_repository: DuckDBEventRepository
     ) -> None:
         room_stats = seeded_repository.get_room_stats()
-        hours = {item["hour"] for item in room_stats["heatmap"]}
+        hours = {item.hour for item in room_stats.heatmap}
         # SAMPLE_EVENTS start at 10:00, 11:00 on day1 and 09:00 on day2
         assert 10 in hours
         assert 11 in hours
@@ -358,8 +358,8 @@ class TestGetRoomStats:
 
     def test_empty_repository_returns_empty_lists(self, repository: DuckDBEventRepository) -> None:
         room_stats = repository.get_room_stats()
-        assert room_stats["events_per_room"] == []
-        assert room_stats["heatmap"] == []
+        assert room_stats.events_per_room == []
+        assert room_stats.heatmap == []
 
 
 class TestGetSpeakerStats:
