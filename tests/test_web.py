@@ -16,6 +16,12 @@ class TestHealthEndpoint:
         data = client.get("/health").json()
         assert "version" in data
 
+    def test_includes_event_count(self, client: TestClient) -> None:
+        data = client.get("/health").json()
+        assert "events" in data
+        assert isinstance(data["events"], int)
+        assert data["events"] >= 0
+
 
 class TestIndexPage:
     def test_returns_200(self, client: TestClient) -> None:

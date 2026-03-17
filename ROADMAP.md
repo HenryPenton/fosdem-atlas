@@ -168,9 +168,9 @@ Build an open-source tool that scrapes the FOSDEM schedule, stores it in DuckDB 
 
 ### 5.3 Deployment Hardening
 
-- [ ] Health check endpoints
-- [ ] Graceful shutdown
-- [ ] Production Docker optimizations
+- [x] Health check endpoints
+- [x] Graceful shutdown
+- [x] Production Docker optimizations
 
 ### 5.4 Documentation
 

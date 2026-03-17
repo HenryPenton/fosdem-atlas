@@ -191,8 +191,13 @@ def create_app(
         )
 
     @app.get("/health")
-    async def health() -> dict[str, str]:
-        return {"status": "healthy", "version": settings.version}
+    async def health(response: Response) -> dict[str, str | int]:
+        try:
+            event_count = schedule_service.get_event_count()
+        except Exception:
+            response.status_code = 503
+            return {"status": "unhealthy", "version": settings.version, "events": -1}
+        return {"status": "healthy", "version": settings.version, "events": event_count}
 
     @app.get("/export/events.csv")
     async def export_events_csv() -> StreamingResponse:
