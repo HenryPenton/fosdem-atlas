@@ -1,3 +1,10 @@
+## v0.7.0 (2026-03-18)
+
+### Feat
+
+- split repository out into appropriate domains grouped by query type (e.g. speaker/event/analytics)
+- add comprehensive tests for web analytics, events, health, my schedule, speakers, and tracks
+
 ## v0.6.0 (2026-03-18)
 
 ### Feat
