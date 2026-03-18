@@ -33,6 +33,37 @@
             No events saved yet. Browse the <a href="/schedule">schedule</a> and click ⭐ to add events.
         </p>
     </div>
+
+    <div class="schedule-transfer">
+        <details class="transfer-details">
+            <summary class="transfer-summary">🔗 Transfer Schedule</summary>
+            <div class="transfer-body">
+                <div class="transfer-export">
+                    <h3>Export</h3>
+                    <p>Generate a code representing your current schedule. Copy it and paste it on another device.</p>
+                    <div class="transfer-row">
+                        <textarea id="transfer-export-text" class="transfer-textarea" readonly placeholder="Click 'Generate Code' to create your export code…" aria-label="Exported schedule code"></textarea>
+                    </div>
+                    <div class="transfer-actions">
+                        <button id="transfer-generate-btn" class="sort-btn sort-btn--active">📤 Generate Code</button>
+                        <button id="transfer-copy-btn" class="sort-btn" hidden>📋 Copy to Clipboard</button>
+                    </div>
+                </div>
+                <hr class="transfer-divider">
+                <div class="transfer-import">
+                    <h3>Import</h3>
+                    <p>Paste a schedule code below. <strong>Merge</strong> adds to your existing events (duplicates removed). <strong>Overwrite</strong> replaces your schedule entirely.</p>
+                    <div class="transfer-row">
+                        <textarea id="transfer-import-text" class="transfer-textarea" placeholder="Paste schedule code here…" aria-label="Schedule code to import"></textarea>
+                    </div>
+                    <div class="transfer-actions">
+                        <button id="transfer-merge-btn" class="sort-btn sort-btn--active">🔀 Merge</button>
+                        <button id="transfer-overwrite-btn" class="sort-btn sort-btn--danger">⬇️ Overwrite</button>
+                    </div>
+                </div>
+            </div>
+        </details>
+    </div>
 </div>
 {% endblock %}
 
@@ -194,5 +225,76 @@ function removeAndRefresh(id) {
     MySchedule.remove(id);
     location.reload();
 }
+
+// Schedule transfer (export / import)
+(function () {
+    var generateBtn = document.getElementById('transfer-generate-btn');
+    var copyBtn = document.getElementById('transfer-copy-btn');
+    var exportText = document.getElementById('transfer-export-text');
+    var importText = document.getElementById('transfer-import-text');
+    var mergeBtn = document.getElementById('transfer-merge-btn');
+    var overwriteBtn = document.getElementById('transfer-overwrite-btn');
+
+    generateBtn.addEventListener('click', function () {
+        var ids = MySchedule.getIds();
+        if (ids.length === 0) {
+            showToast('No events in your schedule to export.', 'error');
+            return;
+        }
+        var code = btoa(JSON.stringify(ids));
+        exportText.value = code;
+        copyBtn.hidden = false;
+        exportText.select();
+    });
+
+    copyBtn.addEventListener('click', function () {
+        if (!exportText.value) return;
+        navigator.clipboard.writeText(exportText.value).then(function () {
+            showToast('Schedule code copied to clipboard!', 'success');
+        }).catch(function () {
+            exportText.select();
+            showToast('Could not access clipboard — select the code above and copy manually.', 'error');
+        });
+    });
+
+    function decodeSchedule(raw) {
+        try {
+            var decoded = JSON.parse(atob(raw.trim()));
+            if (!Array.isArray(decoded)) return null;
+            // Accept only string/number IDs to avoid injection of arbitrary data
+            return decoded.filter(function (x) { return typeof x === 'string' || typeof x === 'number'; });
+        } catch (_) {
+            return null;
+        }
+    }
+
+    mergeBtn.addEventListener('click', function () {
+        var ids = decodeSchedule(importText.value);
+        if (!ids) {
+            showToast('Invalid schedule code — please check it and try again.', 'error');
+            return;
+        }
+        var before = MySchedule.count();
+        ids.forEach(function (id) { MySchedule.add(String(id)); });
+        var added = MySchedule.count() - before;
+        showToast('Merged: ' + added + ' new event(s) added.', 'success');
+        importText.value = '';
+        location.reload();
+    });
+
+    overwriteBtn.addEventListener('click', function () {
+        var ids = decodeSchedule(importText.value);
+        if (!ids) {
+            showToast('Invalid schedule code — please check it and try again.', 'error');
+            return;
+        }
+        if (!confirm('This will replace your entire schedule with ' + ids.length + ' event(s). Continue?')) return;
+        MySchedule.clear();
+        ids.forEach(function (id) { MySchedule.add(String(id)); });
+        showToast('Schedule replaced with ' + ids.length + ' event(s).', 'success');
+        importText.value = '';
+        location.reload();
+    });
+})();
 </script>
 {% endblock %}

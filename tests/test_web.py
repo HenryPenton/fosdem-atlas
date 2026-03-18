@@ -534,6 +534,31 @@ class TestMySchedulePage:
         resp = client.get("/my-schedule")
         assert "my-schedule.js" in resp.text
 
+    def test_transfer_section_present(self, client: TestClient) -> None:
+        resp = client.get("/my-schedule")
+        assert "transfer-details" in resp.text
+        assert "Transfer Schedule" in resp.text
+
+    def test_export_generate_button_present(self, client: TestClient) -> None:
+        resp = client.get("/my-schedule")
+        assert "transfer-generate-btn" in resp.text
+        assert "Generate Code" in resp.text
+
+    def test_import_merge_and_overwrite_buttons_present(self, client: TestClient) -> None:
+        resp = client.get("/my-schedule")
+        assert "transfer-merge-btn" in resp.text
+        assert "transfer-overwrite-btn" in resp.text
+        assert "Merge" in resp.text
+        assert "Overwrite" in resp.text
+
+    def test_import_textarea_present(self, client: TestClient) -> None:
+        resp = client.get("/my-schedule")
+        assert "transfer-import-text" in resp.text
+
+    def test_export_textarea_present(self, client: TestClient) -> None:
+        resp = client.get("/my-schedule")
+        assert "transfer-export-text" in resp.text
+
 
 class TestMyScheduleIcalExport:
     def test_returns_ical_with_events(self, client: TestClient) -> None:

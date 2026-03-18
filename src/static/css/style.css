@@ -1748,6 +1748,85 @@ footer p {
     color: var(--text-muted, #666);
 }
 
+/* My Schedule transfer section */
+.schedule-transfer {
+    margin-top: 2.5rem;
+}
+.transfer-details {
+    border: 1.5px solid var(--border-color);
+    border-radius: 0.75rem;
+    background: var(--card-background);
+    overflow: hidden;
+}
+.transfer-summary {
+    padding: 0.85rem 1.25rem;
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+    user-select: none;
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: var(--text-color);
+}
+.transfer-summary::-webkit-details-marker { display: none; }
+.transfer-summary::after {
+    content: '▾';
+    margin-left: auto;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    transition: transform 0.2s;
+}
+.transfer-details[open] .transfer-summary::after {
+    transform: rotate(180deg);
+}
+.transfer-body {
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+.transfer-export h3,
+.transfer-import h3 {
+    font-size: 1rem;
+    margin-bottom: 0.35rem;
+}
+.transfer-export p,
+.transfer-import p {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    margin-bottom: 0.65rem;
+}
+.transfer-textarea {
+    width: 100%;
+    min-height: 5rem;
+    padding: 0.6rem 0.75rem;
+    border: 1.5px solid var(--border-color);
+    border-radius: 0.5rem;
+    background: var(--background-color);
+    color: var(--text-color);
+    font-family: monospace;
+    font-size: 0.8rem;
+    resize: vertical;
+    word-break: break-all;
+}
+.transfer-textarea:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+.transfer-actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-top: 0.65rem;
+}
+.transfer-divider {
+    border: none;
+    border-top: 1px solid var(--border-color);
+    margin: 0;
+}
+
 /* My Schedule event cards */
 .schedule-events .event-card {
     display: flex;
