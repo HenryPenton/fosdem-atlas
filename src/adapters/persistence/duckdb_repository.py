@@ -27,14 +27,25 @@ from src.domain.models import (
 )
 
 _TOPIC_STOPWORDS = {
-    # Conference-specific
-    "open source",
+    # ── HTML / URL artefacts ──────────────────────────────────────────────
+    "href",
+    "https",
+    "strong",
+    "'ll",
+    "\u2019ll",
+    # ── Conference-specific ───────────────────────────────────────────────
     "fosdem",
-    "lightning talk",
+    "fosdem junior",
     "bof",
     "devroom",
-    # Presentation terms
+    # ── Presentation / talk language ──────────────────────────────────────
     "talk",
+    "talk presents",
+    "talk explores",
+    "talk introduces",
+    "talk covers",
+    "talk shares",
+    "talk shows",
     "session",
     "presentation",
     "overview",
@@ -42,33 +53,90 @@ _TOPIC_STOPWORDS = {
     "update",
     "status update",
     "case study",
-    # Too generic for a tech conference
-    "software",
+    "lightning talk",
+    "present",
+    "explore",
+    "share",
+    # ── "open source" and all its fragments / variants ────────────────────
+    "open",
+    "source",
+    "open source",
+    "open-source",
     "free software",
-    "development",
+    "free open",
+    "fully open",
+    "open software",
+    "open-source software",
+    "open-source project",
+    "open-source projects",
+    "open-source tools",
+    "source project",
+    "source projects",
+    "source code",
+    "source community",
+    "source communities",
+    "source tools",
+    "source software",
+    "source ecosystem",
+    "source foundations",
+    "foss projects",
+    "software projects",
+    "software tools",
+    "software foundation",
+    "android open",
+    "linux foundation",
+    # ── Generic nouns / verbs too common at any tech conference ────────────
+    "software",
+    "code",
+    "data",
+    "tool",
+    "tools",
+    "project",
+    "projects",
+    "system",
+    "systems",
+    "user",
+    "users",
     "developer",
     "developers",
     "community",
     "application",
     "applications",
-    "project",
-    "projects",
-    "tool",
-    "tools",
-    "approach",
-    "system",
-    "systems",
-    "user",
-    "users",
-    "code",
-    "data",
     "feature",
     "features",
-    "real world",
-    "open",
-    "source",
+    "development",
+    "approach",
+    "work",
+    "build",
+    "building",
+    "support",
+    "make",
+    "challenges",
+    "platform",
+    "platforms",
+    "design",
+    "model",
+    "models",
+    "ecosystem",
+    "network",
+    "framework",
+    "infrastructure",
+    "service",
+    "services",
+    "solution",
+    "solutions",
+    "process",
+    "technology",
     "based",
+    "time",
+    "years",
+    "modern",
+    "future",
+    "public",
+    "free",
+    "real world",
     "world",
+    "digital",
 }
 
 
@@ -129,7 +197,7 @@ class DuckDBEventRepository:
             return
 
         full_text = ". ".join(f"{e.title}. {e.abstract}" for e in events)
-        extractor = yake.KeywordExtractor(lan="en", n=2, top=60, dedupLim=0.5)
+        extractor = yake.KeywordExtractor(lan="en", n=2, top=120, dedupLim=0.5)
         raw_keywords = extractor.extract_keywords(full_text)
 
         candidates = [
@@ -152,8 +220,6 @@ class DuckDBEventRepository:
                     "INSERT INTO keywords (term, count) VALUES (?, ?)",
                     [term, count],
                 )
-                if len(seen_lower) >= 30:
-                    break
 
     def get_all_events(self, sort: str = "time") -> list[EventSummary]:
         _order_map = {

@@ -247,6 +247,19 @@ def create_app(
             },
         )
 
+    @app.get("/keyword/{term:path}", response_class=HTMLResponse)
+    async def keyword_events(request: Request, term: str) -> HTMLResponse:
+        events = schedule_service.search_events(q=term)
+        return templates.TemplateResponse(
+            request=request,
+            name="keyword.html",
+            context={
+                "title": f"FOSDEM Explorer — {term}",
+                "term": term,
+                "events": events,
+            },
+        )
+
     return app
 
 

@@ -598,6 +598,33 @@ class TestEventDetailBookmark:
         assert 'data-bookmark-id="1"' in resp.text
 
 
+class TestKeywordPage:
+    def test_returns_200(self, client: TestClient) -> None:
+        response = client.get("/keyword/Rust")
+        assert response.status_code == 200
+
+    def test_shows_keyword_in_heading(self, client: TestClient) -> None:
+        response = client.get("/keyword/Rust")
+        assert "Rust" in response.text
+
+    def test_shows_matching_events(self, client: TestClient) -> None:
+        response = client.get("/keyword/Rust")
+        assert "Intro to Rust" in response.text
+
+    def test_no_results_for_unknown_keyword(self, client: TestClient) -> None:
+        response = client.get("/keyword/zzzznonexistent")
+        assert response.status_code == 200
+        assert "No talks found" in response.text
+
+    def test_links_to_event_detail(self, client: TestClient) -> None:
+        response = client.get("/keyword/Rust")
+        assert "/event/1" in response.text
+
+    def test_breadcrumb_links_to_analytics(self, client: TestClient) -> None:
+        response = client.get("/keyword/Rust")
+        assert "/analytics" in response.text
+
+
 class TestNavMyScheduleLink:
     def test_nav_has_my_schedule_link(self, client: TestClient) -> None:
         resp = client.get("/")
