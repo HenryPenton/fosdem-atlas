@@ -1,6 +1,7 @@
 """Tests for application services."""
 
-from src.adapters.persistence.duckdb_repository import DuckDBEventRepository
+from src.adapters.persistence.duckdb_events_repository import DuckDBEventsRepository
+from src.adapters.persistence.duckdb_ingestion_repository import DuckDBIngestionRepository
 from src.application.services import (
     AnalyticsService,
     ScheduleService,
@@ -20,31 +21,39 @@ class FakeScheduleFetcher:
 
 
 class TestScrapeService:
-    def test_run_stores_events(self, repository: DuckDBEventRepository) -> None:
+    def test_run_stores_events(
+        self,
+        ingestion_repository: DuckDBIngestionRepository,
+        events_repository: DuckDBEventsRepository,
+    ) -> None:
         fetcher = FakeScheduleFetcher(SAMPLE_EVENTS)
-        service = ScrapeService(fetcher, repository)
+        service = ScrapeService(fetcher, ingestion_repository)
 
         count = service.run("https://example.com/schedule.xml")
 
         assert count == 3
-        assert repository.get_event_count() == 3
+        assert events_repository.get_event_count() == 3
 
-    def test_run_returns_event_count(self, repository: DuckDBEventRepository) -> None:
+    def test_run_returns_event_count(self, ingestion_repository: DuckDBIngestionRepository) -> None:
         fetcher = FakeScheduleFetcher(SAMPLE_EVENTS[:1])
-        service = ScrapeService(fetcher, repository)
+        service = ScrapeService(fetcher, ingestion_repository)
 
         count = service.run("https://example.com/schedule.xml")
 
         assert count == 1
 
-    def test_run_with_no_events(self, repository: DuckDBEventRepository) -> None:
+    def test_run_with_no_events(
+        self,
+        ingestion_repository: DuckDBIngestionRepository,
+        events_repository: DuckDBEventsRepository,
+    ) -> None:
         fetcher = FakeScheduleFetcher([])
-        service = ScrapeService(fetcher, repository)
+        service = ScrapeService(fetcher, ingestion_repository)
 
         count = service.run("https://example.com/schedule.xml")
 
         assert count == 0
-        assert repository.get_event_count() == 0
+        assert events_repository.get_event_count() == 0
 
 
 class TestScheduleService:
@@ -73,8 +82,8 @@ class TestScheduleService:
         rowspans = data.grid_rowspans
         assert rowspans["10:00"]["Room A"] == 1
 
-    def test_get_grid_data_empty_days(self, repository: DuckDBEventRepository) -> None:
-        service = ScheduleService(repository)
+    def test_get_grid_data_empty_days(self, events_repository: DuckDBEventsRepository) -> None:
+        service = ScheduleService(events_repository)
         data = service.get_grid_data("")
         assert data.days == []
         assert data.grid == {}

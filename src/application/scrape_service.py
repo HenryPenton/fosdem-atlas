@@ -1,12 +1,12 @@
 """Scrape service – orchestrates fetching and storing the FOSDEM schedule."""
 
-from src.domain.ports import EventRepository, ScheduleFetcher
+from src.domain.ports import IngestionRepository, ScheduleFetcher
 
 
 class ScrapeService:
     """Orchestrates fetching and storing the FOSDEM schedule."""
 
-    def __init__(self, fetcher: ScheduleFetcher, repository: EventRepository) -> None:
+    def __init__(self, fetcher: ScheduleFetcher, repository: IngestionRepository) -> None:
         self._fetcher = fetcher
         self._repository = repository
 

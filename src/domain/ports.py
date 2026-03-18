@@ -16,10 +16,14 @@ from src.domain.models import (
 )
 
 
-class EventRepository(Protocol):
-    """Port for event persistence."""
+class IngestionRepository(Protocol):
+    """Port for writing events, speakers, and keywords to persistence."""
 
     def insert_events(self, events: list[Event]) -> int: ...
+
+
+class EventsRepository(Protocol):
+    """Port for event schedule browsing and search."""
 
     def get_all_events(self, sort: str = "time") -> list[EventSummary]: ...
 
@@ -53,11 +57,19 @@ class EventRepository(Protocol):
 
     def search_events(self, q: str) -> list[EventSearchResult]: ...
 
+
+class SpeakersRepository(Protocol):
+    """Port for speaker queries."""
+
     def get_all_speakers(self) -> list[SpeakerSummary]: ...
 
     def get_speaker_by_id(self, speaker_id: str) -> Speaker | None: ...
 
     def get_events_by_speaker(self, speaker_id: str) -> list[EventSummary]: ...
+
+
+class AnalyticsRepository(Protocol):
+    """Port for conference analytics and statistics."""
 
     def get_stats(self) -> ConferenceStats: ...
 

@@ -1,13 +1,13 @@
 """Analytics service – conference analytics and statistics."""
 
 from src.domain.models import AnalyticsData
-from src.domain.ports import EventRepository
+from src.domain.ports import AnalyticsRepository
 
 
 class AnalyticsService:
     """Conference analytics and statistics."""
 
-    def __init__(self, repository: EventRepository) -> None:
+    def __init__(self, repository: AnalyticsRepository) -> None:
         self._repo = repository
         self._cache: AnalyticsData | None = None
 

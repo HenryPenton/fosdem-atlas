@@ -20,13 +20,13 @@ from src.domain.models import (
     TrackChanges,
     TracksOverview,
 )
-from src.domain.ports import EventRepository
+from src.domain.ports import EventsRepository
 
 
 class ScheduleService:
     """Browsing and querying the conference schedule."""
 
-    def __init__(self, repository: EventRepository) -> None:
+    def __init__(self, repository: EventsRepository) -> None:
         self._repo = repository
 
     def get_event_count(self) -> int:

@@ -1,13 +1,13 @@
 """Speaker service – speaker queries and detail views."""
 
 from src.domain.models import SpeakerDetail, SpeakerSummary
-from src.domain.ports import EventRepository
+from src.domain.ports import SpeakersRepository
 
 
 class SpeakerService:
     """Speaker queries and detail views."""
 
-    def __init__(self, repository: EventRepository) -> None:
+    def __init__(self, repository: SpeakersRepository) -> None:
         self._repo = repository
 
     def get_all_speakers(self) -> list[SpeakerSummary]:

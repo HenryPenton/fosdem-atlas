@@ -8,8 +8,11 @@ from pathlib import Path
 import pytest
 from fastapi.testclient import TestClient
 
+from src.adapters.persistence.duckdb_analytics_repository import DuckDBAnalyticsRepository
 from src.adapters.persistence.duckdb_connection import DuckDBConnection
-from src.adapters.persistence.duckdb_repository import DuckDBEventRepository
+from src.adapters.persistence.duckdb_events_repository import DuckDBEventsRepository
+from src.adapters.persistence.duckdb_ingestion_repository import DuckDBIngestionRepository
+from src.adapters.persistence.duckdb_speakers_repository import DuckDBSpeakersRepository
 from src.adapters.web.app import create_app
 from src.application.services import AnalyticsService, ScheduleService, SpeakerService
 from src.config import Settings
@@ -79,31 +82,81 @@ def db_connection(tmp_path: Path) -> Generator[DuckDBConnection, None, None]:
 
 
 @pytest.fixture
-def repository(db_connection: DuckDBConnection) -> DuckDBEventRepository:
-    """DuckDBEventRepository backed by a temp database."""
-    return DuckDBEventRepository(db_connection)
+def events_repository(db_connection: DuckDBConnection) -> DuckDBEventsRepository:
+    """DuckDBEventsRepository backed by a temp database."""
+    return DuckDBEventsRepository(db_connection)
 
 
 @pytest.fixture
-def seeded_repository(repository: DuckDBEventRepository) -> DuckDBEventRepository:
-    """Repository pre-loaded with sample events."""
-    repository.insert_events(SAMPLE_EVENTS)
-    return repository
+def ingestion_repository(db_connection: DuckDBConnection) -> DuckDBIngestionRepository:
+    """DuckDBIngestionRepository sharing the same temp database connection."""
+    return DuckDBIngestionRepository(db_connection)
 
 
 @pytest.fixture
-def schedule_service(seeded_repository: DuckDBEventRepository) -> ScheduleService:
-    return ScheduleService(seeded_repository)
+def speakers_repository(db_connection: DuckDBConnection) -> DuckDBSpeakersRepository:
+    """DuckDBSpeakersRepository sharing the same temp database connection."""
+    return DuckDBSpeakersRepository(db_connection)
 
 
 @pytest.fixture
-def analytics_service(seeded_repository: DuckDBEventRepository) -> AnalyticsService:
-    return AnalyticsService(seeded_repository)
+def analytics_repository(db_connection: DuckDBConnection) -> DuckDBAnalyticsRepository:
+    """DuckDBAnalyticsRepository sharing the same temp database connection."""
+    return DuckDBAnalyticsRepository(db_connection)
 
 
 @pytest.fixture
-def speaker_service(seeded_repository: DuckDBEventRepository) -> SpeakerService:
-    return SpeakerService(seeded_repository)
+def seeded_ingestion_repository(
+    ingestion_repository: DuckDBIngestionRepository,
+) -> DuckDBIngestionRepository:
+    """Ingestion repository pre-loaded with sample events."""
+    ingestion_repository.insert_events(SAMPLE_EVENTS)
+    return ingestion_repository
+
+
+@pytest.fixture
+def seeded_events_repository(
+    seeded_ingestion_repository: DuckDBIngestionRepository,  # noqa: ARG001
+    events_repository: DuckDBEventsRepository,
+) -> DuckDBEventsRepository:
+    """Events repository after sample events have been inserted via ingestion."""
+    # _seeded_ingestion_repository drives the insert; events_repository shares the same db_connection
+    return events_repository
+
+
+@pytest.fixture
+def seeded_speakers_repository(
+    seeded_ingestion_repository: DuckDBIngestionRepository,  # noqa: ARG001
+    speakers_repository: DuckDBSpeakersRepository,
+) -> DuckDBSpeakersRepository:
+    """Speakers repository after sample events (and their speakers) have been inserted."""
+    # _seeded_ingestion_repository drives the insert; speakers_repository shares the same db_connection
+    return speakers_repository
+
+
+@pytest.fixture
+def seeded_analytics_repository(
+    seeded_ingestion_repository: DuckDBIngestionRepository,  # noqa: ARG001
+    analytics_repository: DuckDBAnalyticsRepository,
+) -> DuckDBAnalyticsRepository:
+    """Analytics repository after sample events have been inserted."""
+    # _seeded_ingestion_repository drives the insert; analytics_repository shares the same db_connection
+    return analytics_repository
+
+
+@pytest.fixture
+def schedule_service(seeded_events_repository: DuckDBEventsRepository) -> ScheduleService:
+    return ScheduleService(seeded_events_repository)
+
+
+@pytest.fixture
+def analytics_service(seeded_analytics_repository: DuckDBAnalyticsRepository) -> AnalyticsService:
+    return AnalyticsService(seeded_analytics_repository)
+
+
+@pytest.fixture
+def speaker_service(seeded_speakers_repository: DuckDBSpeakersRepository) -> SpeakerService:
+    return SpeakerService(seeded_speakers_repository)
 
 
 @pytest.fixture
