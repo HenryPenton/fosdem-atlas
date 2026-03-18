@@ -85,6 +85,7 @@ nav {
 
 .nav-links {
     display: flex;
+    align-items: center;
     gap: 1.5rem;
 }
 
@@ -1833,17 +1834,14 @@ footer p {
     line-height: 1;
     border-radius: 6px;
     transition: background 0.2s;
+    order: 1;
 }
 
 .nav-toggle:hover {
     background: rgba(255, 255, 255, 0.18);
 }
 
-.nav-actions {
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
-}
+
 
 @media (max-width: 640px) {
     nav {
@@ -1865,6 +1863,7 @@ footer p {
         flex-direction: column;
         gap: 0;
         padding: 0.5rem 0;
+        order: 2;
     }
 
     .nav-links.nav-open {
@@ -1877,8 +1876,13 @@ footer p {
         font-size: 1rem;
     }
 
-    .nav-links a:last-child {
+    .nav-links a:last-of-type {
         border-bottom: none;
+    }
+
+    .nav-links .dark-mode-toggle {
+        align-self: flex-start;
+        margin-top: 0.25rem;
     }
 }
 
