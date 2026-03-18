@@ -1,3 +1,13 @@
+## v0.6.0 (2026-03-18)
+
+### Feat
+
+- add schedule transfer section with export/import functionality and corresponding tests
+- update navigation layout and styles for improved accessibility and responsiveness
+- add keyword search page and dual-range filter for event topics
+- new type aliases
+- update DTOs for events and analytics, refactor API routes to use new models
+
 ## v0.5.1 (2026-03-17)
 
 ### Feat
