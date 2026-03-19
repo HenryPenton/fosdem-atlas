@@ -17,23 +17,53 @@
     </section>
 
     {% if events %}
-    <div class="event-list">
-        {% for event in events %}
-        <div class="event-card">
-            <h3><a href="/event/{{ event.id }}" class="event-title-link">{{ event.title }}</a></h3>
-            {% if event.abstract %}
-            <p class="event-abstract">{{ event.abstract | striptags | truncate(160) }}</p>
-            {% endif %}
-            <div class="meta">
-                <span class="day">📅 {{ event.day }}</span>
-                <span class="time">{{ event.start_time.strftime('%H:%M') }}</span>
-                <span class="room">📍 {{ event.room }}</span>
-                <span class="duration">⏱️ {{ event.duration_minutes }} min</span>
-            </div>
-            <span class="track">{{ event.track }}</span>
+    {% set tracks = events | map(attribute='track') | unique | list | sort %}
+    {% set rooms = events | map(attribute='room') | unique | list | sort %}
+    <div class="stats-grid stats-grid--compact">
+        <div class="stat-card">
+            <div class="stat-value">{{ events | length }}</div>
+            <div class="stat-label">Talks</div>
         </div>
+        <div class="stat-card">
+            <div class="stat-value">{{ tracks | length }}</div>
+            <div class="stat-label">Track{{ 's' if tracks | length != 1 }}</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">{{ rooms | length }}</div>
+            <div class="stat-label">Room{{ 's' if rooms | length != 1 }}</div>
+        </div>
+    </div>
+
+    {% if tracks | length > 1 %}
+    <div class="tag-list">
+        {% for t in tracks %}
+        <a href="/track/{{ t }}" class="tag">{{ t }}</a>
         {% endfor %}
     </div>
+    {% endif %}
+
+    <section class="event-list">
+        {% for event in events %}
+        <div class="event-card">
+            <div class="event-time-badge">{{ event.start_time.strftime('%H:%M') }}</div>
+            <div class="event-body">
+                <h3><a href="/event/{{ event.id }}" class="event-title-link">{{ event.title }}</a></h3>
+                <div class="meta">
+                    <span class="day">📅 {{ event.day }}</span>
+                    <span class="room">📍 {{ event.room }}</span>
+                    <span class="duration">⏱️ {{ event.duration_minutes }} min</span>
+                    <a href="/track/{{ event.track }}" class="track-link">{{ event.track }}</a>
+                </div>
+                {% if event.abstract %}
+                <details class="abstract-toggle">
+                    <summary>Show abstract</summary>
+                    <p class="abstract">{{ event.abstract | safe }}</p>
+                </details>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </section>
     {% else %}
     <div class="no-events">
         <div class="no-events-icon">🔍</div>
