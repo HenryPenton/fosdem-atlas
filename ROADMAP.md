@@ -174,9 +174,20 @@ Build an open-source tool that scrapes the FOSDEM schedule, stores it in DuckDB 
 
 ### 5.4 Documentation
 
-- [ ] Full README with screenshots
-- [ ] Self-hosting guide
-- [ ] CONTRIBUTING.md
+- [x] Full README with screenshots
+- [x] Self-hosting guide
+- [x] CONTRIBUTING.md
+
+### 5.5 Self-Hosting Deploy Snippet
+
+- [x] Add a "Deploy it yourself" section to the homepage with a copyable code block showing the `docker-compose up` quick-start commands
+- [x] Syntax-highlighted, one-click copy button
+
+### 5.6 Load Testing
+
+- [ ] k6 smoke test covering all key pages and API endpoints
+- [ ] k6 load test ramping to realistic VU counts with p(95) latency thresholds
+- [ ] `make load-test` and `make smoke-test` Makefile targets
 
 **🎯 Deliverable:** Production-ready v1.0 release.
 
@@ -230,16 +241,6 @@ Build an open-source tool that scrapes the FOSDEM schedule, stores it in DuckDB 
 | **v0.4.0** | Phase 4 | Analytics dashboard                |
 | **v1.0.0** | Phase 5 | Personal schedule, polish, docs    |
 | **v1.1.0** | Phase 6 | PWA, notifications, a11y, i18n     |
-
-# Access the app
-
-open http://localhost:8000
-
-```
-
----
-
----
 
 ## Contributing
 

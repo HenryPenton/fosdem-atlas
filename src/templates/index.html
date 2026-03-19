@@ -135,5 +135,54 @@
         <p class="no-events-hint">Events will be fetched automatically by the scheduler.</p>
     </div>
     {% endif %}
+
+    <section class="deploy-section">
+        <h2 class="deploy-heading">🚀 Deploy it yourself</h2>
+        <p class="deploy-description">Run your own FOSDEM Explorer in seconds with Docker Compose:</p>
+        <div class="code-block">
+            <div class="code-block-header">
+                <span class="code-block-lang">bash</span>
+                <button class="copy-btn" aria-label="Copy to clipboard" data-copy-target="deploy-snippet">
+                    <span class="copy-btn-icon">📋</span>
+                    <span class="copy-btn-label">Copy</span>
+                </button>
+            </div>
+            <pre class="code-block-body" id="deploy-snippet"><code><span class="code-comment"># Clone the repository</span>
+git clone https://github.com/HenryPenton/fosdem-explorer.git
+cd fosdem-explorer
+
+<span class="code-comment"># Start the app</span>
+docker-compose up -d
+
+<span class="code-comment"># Open in your browser</span>
+open http://localhost:8000</code></pre>
+        </div>
+        <p class="deploy-link">See the <a href="https://github.com/HenryPenton/fosdem-explorer/blob/main/SELF_HOSTING.md">Self-Hosting Guide</a> for environment variables, volumes, and production tips.</p>
+    </section>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function () {
+    document.querySelectorAll('.copy-btn').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            var targetId = btn.getAttribute('data-copy-target');
+            var target = document.getElementById(targetId);
+            if (!target) return;
+            var text = target.textContent || '';
+            navigator.clipboard.writeText(text).then(function () {
+                btn.classList.add('copy-btn--copied');
+                btn.querySelector('.copy-btn-label').textContent = 'Copied!';
+                btn.querySelector('.copy-btn-icon').textContent = '✅';
+                setTimeout(function () {
+                    btn.classList.remove('copy-btn--copied');
+                    btn.querySelector('.copy-btn-label').textContent = 'Copy';
+                    btn.querySelector('.copy-btn-icon').textContent = '📋';
+                }, 2000);
+            });
+        });
+    });
+})();
+</script>
 {% endblock %}
