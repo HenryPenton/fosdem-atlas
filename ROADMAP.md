@@ -205,7 +205,13 @@ Build an open-source tool that scrapes the FOSDEM schedule, stores it in DuckDB 
 
 - [ ] Push notifications via NTFY
 
-### 6.2 Content & Discovery
+### 6.3 UI Fixes & Polish
+
+- [ ] Fix schedule grid layout
+- [ ] Fix "My Schedule" star styling in the navbar
+- [ ] Download and store speaker bios from the FOSDEM schedule feed
+
+### 6.4 Content & Discovery
 
 - [ ] Post-event video links
 - [ ] Public roadmap page
