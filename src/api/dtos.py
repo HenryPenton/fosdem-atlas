@@ -36,14 +36,6 @@ class EventSearchResultDTO:
 
 
 @dataclass(frozen=True)
-class LinkDTO:
-    """A link associated with an event."""
-
-    href: str
-    title: str
-
-
-@dataclass(frozen=True)
 class SpeakerDTO:
     """Speaker nested inside an event detail."""
 

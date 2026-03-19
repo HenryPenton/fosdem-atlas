@@ -558,41 +558,6 @@ main {
     color: var(--text-muted);
 }
 
-/* Now & Next highlighting */
-.event-card--now {
-    border-color: var(--success-color);
-    border-left: 4px solid var(--success-color);
-    background: #f0fdf4;
-}
-
-.event-card--next {
-    border-color: var(--warning-color);
-    border-left: 4px solid var(--warning-color);
-    background: #fffbeb;
-}
-
-.now-badge {
-    display: inline-block;
-    margin-top: 0.5rem;
-    padding: 0.2rem 0.6rem;
-    background: var(--success-color);
-    color: white;
-    border-radius: 999px;
-    font-size: 0.75rem;
-    font-weight: 600;
-}
-
-.next-badge {
-    display: inline-block;
-    margin-top: 0.5rem;
-    padding: 0.2rem 0.6rem;
-    background: var(--warning-color);
-    color: white;
-    border-radius: 999px;
-    font-size: 0.75rem;
-    font-weight: 600;
-}
-
 /* Schedule Grid */
 .grid-controls {
     display: flex;
@@ -1909,14 +1874,6 @@ footer p {
 }
 
 /* Dark mode colour overrides for hardcoded values */
-[data-theme="dark"] .event-card--now {
-    background: #052e16;
-}
-
-[data-theme="dark"] .event-card--next {
-    background: #422006;
-}
-
 [data-theme="dark"] .schedule-conflicts {
     background: #1c1400;
     border-color: #92400e;
