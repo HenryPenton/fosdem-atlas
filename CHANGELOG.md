@@ -1,3 +1,15 @@
+## v1.0.0 (2026-03-19)
+
+### Feat
+
+- add k6 load and smoke tests with Makefile targets for performance validation
+- enhance documentation and self-hosting experience with new guides and deployment instructions
+- enhance keyword page with event statistics and improved layout
+
+### Refactor
+
+- remove unused DTOs and CSS styles for event highlighting
+
 ## v0.7.0 (2026-03-18)
 
 ### Feat
