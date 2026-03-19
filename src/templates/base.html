@@ -32,7 +32,11 @@
             <div class="nav-brand">
                 <a href="/">🎪 FOSDEM Explorer</a>
             </div>
-            <button class="nav-toggle" id="nav-toggle" aria-label="Toggle navigation" aria-expanded="false">☰</button>
+            <button class="nav-toggle" id="nav-toggle" aria-label="Toggle navigation" aria-expanded="false">
+                <span class="hamburger-bar"></span>
+                <span class="hamburger-bar"></span>
+                <span class="hamburger-bar"></span>
+            </button>
             <div class="nav-links" id="nav-links">
                 <a href="/speakers">Speakers</a>
                 <a href="/tracks">Tracks</a>
@@ -101,8 +105,8 @@
             var links = document.getElementById('nav-links');
             toggle.addEventListener('click', function () {
                 var open = links.classList.toggle('nav-open');
+                toggle.classList.toggle('nav-open', open);
                 toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
-                toggle.textContent = open ? '✕' : '☰';
             });
         })();
 
