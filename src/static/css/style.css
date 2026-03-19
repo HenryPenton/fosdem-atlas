@@ -2154,6 +2154,10 @@ footer p {
 }
 
 /* PWA install banner */
+.pwa-install-banner[hidden] {
+    display: none;
+}
+
 .pwa-install-banner {
     position: fixed;
     bottom: 1.25rem;
