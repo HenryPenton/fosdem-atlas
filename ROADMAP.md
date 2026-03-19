@@ -201,9 +201,11 @@ Build an open-source tool that scrapes the FOSDEM schedule, stores it in DuckDB 
 
 - [x] PWA for offline access
 
-### 6.2 Notifications
+### 6.2 Rate Limiting
 
-- [ ] Push notifications via NTFY
+- [ ] Add rate limiting to FastAPI endpoints (e.g. slowapi or similar)
+- [ ] Configure per-IP limits on search and API routes
+- [ ] Return 429 responses with `Retry-After` header
 
 ### 6.3 UI Fixes & Polish
 
@@ -221,7 +223,21 @@ Build an open-source tool that scrapes the FOSDEM schedule, stores it in DuckDB 
 - [ ] Accessibility audit (WCAG)
 - [ ] i18n support
 
-**🎯 Deliverable:** Accessible, offline-capable app with notifications.
+**🎯 Deliverable:** Accessible, offline-capable app with rate limiting.
+
+---
+
+## Phase 7: Push Notifications
+
+**Goal:** Notify users about upcoming talks from their personal schedule.
+
+### 7.1 Push Server
+
+- [ ] Push notifications via NTFY
+- [ ] Notify users before talks on their personal schedule start
+- [ ] Self-hosted NTFY server option documented in SELF_HOSTING.md
+
+**🎯 Deliverable:** Users receive push notifications for upcoming saved talks.
 
 ---
 
@@ -249,7 +265,8 @@ Build an open-source tool that scrapes the FOSDEM schedule, stores it in DuckDB 
 | **v0.3.0** | Phase 3 | Grid view, track/speaker browsers  |
 | **v0.4.0** | Phase 4 | Analytics dashboard                |
 | **v1.0.0** | Phase 5 | Personal schedule, polish, docs    |
-| **v1.1.0** | Phase 6 | PWA, notifications, a11y, i18n     |
+| **v1.1.0** | Phase 6 | PWA, rate limiting, UI fixes, a11y, i18n |
+| **v1.2.0** | Phase 7 | Push notifications                        |
 
 ## Contributing
 
