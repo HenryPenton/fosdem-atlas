@@ -260,6 +260,14 @@ def create_app(
             },
         )
 
+    @app.get("/offline", response_class=HTMLResponse)
+    async def offline(request: Request) -> HTMLResponse:
+        return templates.TemplateResponse(
+            request=request,
+            name="offline.html",
+            context={"title": "FOSDEM Explorer — Offline"},
+        )
+
     return app
 
 

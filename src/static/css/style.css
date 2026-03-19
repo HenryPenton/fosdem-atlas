@@ -2152,3 +2152,55 @@ footer p {
         max-width: 100%;
     }
 }
+
+/* PWA install banner */
+.pwa-install-banner {
+    position: fixed;
+    bottom: 1.25rem;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.75rem 1.25rem;
+    background: var(--card-background);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    font-size: 0.9rem;
+    z-index: 1000;
+    max-width: 480px;
+    width: calc(100% - 2rem);
+}
+
+.pwa-install-actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-shrink: 0;
+}
+
+.pwa-install-accept {
+    padding: 0.35rem 0.9rem;
+    background: var(--primary-color);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.pwa-install-accept:hover {
+    background: var(--primary-dark);
+}
+
+.pwa-install-dismiss {
+    padding: 0.35rem 0.6rem;
+    background: transparent;
+    color: var(--text-muted);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    font-size: 0.85rem;
+    cursor: pointer;
+}

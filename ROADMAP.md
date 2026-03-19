@@ -197,9 +197,12 @@ Build an open-source tool that scrapes the FOSDEM schedule, stores it in DuckDB 
 
 **Goal:** Broader reach and accessibility.
 
-### 6.1 Offline & Notifications
+### 6.1 Offline
 
-- [ ] PWA for offline access
+- [x] PWA for offline access
+
+### 6.2 Notifications
+
 - [ ] Push notifications via NTFY
 
 ### 6.2 Content & Discovery
