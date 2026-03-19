@@ -1,4 +1,4 @@
-.PHONY: help venv dev install run test lint format clean commit bump patch minor major
+.PHONY: help venv dev install run test lint format clean commit bump patch minor major smoke-test load-test
 
 PYTHON := python3
 VENV := venv
@@ -61,3 +61,13 @@ docker-build: ## Build Docker image
 
 docker-run: ## Run Docker container
 	docker run -p 8000:8000 -v $(PWD)/data:/app/data fosdem-explorer:latest
+
+BASE_URL ?= http://localhost:8001
+
+smoke-test: ## Run k6 smoke test (requires k6; server must be running at BASE_URL)
+	@curl -sf $(BASE_URL)/health -o /dev/null || \
+	  { echo "ERROR: No server responding at $(BASE_URL) — start it first (e.g. make run)"; exit 1; }
+	k6 run -e BASE_URL=$(BASE_URL) tests/load/smoke.js
+
+load-test: ## Run k6 load test (requires k6; server must be running at BASE_URL)
+	k6 run -e BASE_URL=$(BASE_URL) tests/load/load.js

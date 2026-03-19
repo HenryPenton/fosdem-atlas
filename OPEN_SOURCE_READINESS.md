@@ -1,6 +1,6 @@
 # Open-Source Readiness Audit
 
-_Audited: 15 March 2026_
+_Audited: 19 March 2026 (v0.7.0)_
 
 ---
 
@@ -45,11 +45,11 @@ Repository = "https://github.com/<your-username>/fosdem-explorer"
 | Configuration         | ✅ Safe          | `debug` defaults to `False`. All settings come from environment variables.                                                     |
 | Docker                | ✅ Good          | Non-root `app` user, no secrets, health checks defined, proper `.dockerignore`.                                                |
 | SQL injection         | ✅ Safe          | All queries use parameterised statements. Dynamic WHERE clauses bind user input as params, not string interpolation.           |
-| XSS                   | ✅ Acceptable    | `\| safe` is used only on FOSDEM abstracts (a trusted, read-only data source). Jinja2 auto-escaping is active everywhere else. |
-| Tests                 | ✅ Clean         | Fabricated fixture data, in-memory DuckDB, no real endpoints.                                                                  |
+| XSS                   | ✅ Acceptable    | `\| safe` is used only on FOSDEM abstracts in `event.html`, `keyword.html`, and `track.html` (a trusted, read-only data source). Jinja2 auto-escaping is active everywhere else. |
+| Tests                 | ✅ Clean         | Fabricated fixture data, in-memory DuckDB, no real endpoints. k6 load/smoke tests use `localhost` by default with an env-var override — no internal hostnames. |
 | Data files            | ✅ Gitignored    | `data/fosdem.duckdb` matches `*.duckdb` and `data/` patterns — will not be committed.                                          |
 | TODOs / internal refs | ✅ Clear         | No TODO, FIXME, internal hostnames, email addresses, or private URLs found.                                                    |
-| CHANGELOG / ROADMAP   | ✅ Public-ready  | No internal-only content.                                                                                                      |
+| CHANGELOG / ROADMAP   | ✅ Public-ready  | No internal-only content. CHANGELOG current through v0.7.0; ROADMAP reflects all completed phases 1–5.                        |
 
 ---
 

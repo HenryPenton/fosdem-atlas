@@ -185,9 +185,9 @@ Build an open-source tool that scrapes the FOSDEM schedule, stores it in DuckDB 
 
 ### 5.6 Load Testing
 
-- [ ] k6 smoke test covering all key pages and API endpoints
-- [ ] k6 load test ramping to realistic VU counts with p(95) latency thresholds
-- [ ] `make load-test` and `make smoke-test` Makefile targets
+- [x] k6 smoke test covering all key pages and API endpoints
+- [x] k6 load test ramping to realistic VU counts with p(95) latency thresholds
+- [x] `make load-test` and `make smoke-test` Makefile targets
 
 **🎯 Deliverable:** Production-ready v1.0 release.
 
