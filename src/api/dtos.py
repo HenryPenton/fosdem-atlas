@@ -207,6 +207,18 @@ class AnalyticsDTO:
 
 
 @dataclass(frozen=True)
+class OverviewDTO:
+    event_count: int
+    days: list[str]
+    day_events: dict[str, int]
+    tracks: list[str]
+    rooms: list[str]
+
+
+# ── Health DTO ──────────────────────────────────────────────
+
+
+@dataclass(frozen=True)
 class HealthDTO:
     status: str
     version: str

@@ -1,0 +1,131 @@
+"""Schedule page routes – index, day, track, event, keyword."""
+
+import dataclasses
+
+from fastapi import APIRouter, Query, Request, Response
+from fastapi.responses import HTMLResponse
+from fastapi.templating import Jinja2Templates
+
+from src.application.services import ScheduleService
+
+
+def create_schedule_router(
+    schedule_service: ScheduleService,
+    templates: Jinja2Templates,
+) -> APIRouter:
+    router = APIRouter(tags=["schedule-pages"])
+
+    @router.get("/", response_class=HTMLResponse)
+    def index(
+        request: Request,
+        day: str = Query(default="", max_length=20),
+    ) -> HTMLResponse:
+        overview = schedule_service.get_overview()
+        grid_data = schedule_service.get_grid_data(day=day)
+        return templates.TemplateResponse(
+            request=request,
+            name="index.html",
+            context={
+                "title": "FOSDEM Explorer",
+                **dataclasses.asdict(overview),
+                **dataclasses.asdict(grid_data),
+            },
+        )
+
+    @router.get("/day/{day}", response_class=HTMLResponse)
+    def day_tracks(request: Request, day: str) -> HTMLResponse:
+        data = schedule_service.get_day_detail(day)
+        return templates.TemplateResponse(
+            request=request,
+            name="day.html",
+            context={
+                "title": f"FOSDEM Explorer — {day}",
+                **dataclasses.asdict(data),
+            },
+        )
+
+    @router.get("/day/{day}/track/{track:path}", response_class=HTMLResponse)
+    def track_events(request: Request, day: str, track: str) -> HTMLResponse:
+        events = schedule_service.get_events_for_day_and_track(day, track)
+        return templates.TemplateResponse(
+            request=request,
+            name="track.html",
+            context={
+                "title": f"FOSDEM Explorer — {track}",
+                "day": day,
+                "track": track,
+                "events": events,
+            },
+        )
+
+    @router.get("/tracks", response_class=HTMLResponse)
+    def tracks_browser(request: Request) -> HTMLResponse:
+        data = schedule_service.get_all_tracks_with_counts()
+        return templates.TemplateResponse(
+            request=request,
+            name="tracks.html",
+            context={
+                "title": "FOSDEM Explorer — Tracks",
+                **dataclasses.asdict(data),
+            },
+        )
+
+    @router.get("/track/{track:path}", response_class=HTMLResponse)
+    def track_detail(request: Request, track: str) -> HTMLResponse:
+        events = schedule_service.get_events_for_track(track)
+        return templates.TemplateResponse(
+            request=request,
+            name="track.html",
+            context={
+                "title": f"FOSDEM Explorer — {track}",
+                "day": None,
+                "track": track,
+                "events": events,
+            },
+        )
+
+    @router.get("/event/{event_id}", response_class=HTMLResponse)
+    def event_detail(request: Request, event_id: str) -> HTMLResponse:
+        result = schedule_service.get_event_detail(event_id)
+        if result is None:
+            return Response(content="Event not found", status_code=404)  # type: ignore[return-value]
+        return templates.TemplateResponse(
+            request=request,
+            name="event.html",
+            context={
+                "title": f"FOSDEM Explorer — {result.title}",
+                "event": result,
+                "speakers": result.speakers,
+            },
+        )
+
+    @router.get("/keyword/{term:path}", response_class=HTMLResponse)
+    def keyword_events(request: Request, term: str) -> HTMLResponse:
+        events = schedule_service.search_events(q=term)
+        return templates.TemplateResponse(
+            request=request,
+            name="keyword.html",
+            context={
+                "title": f"FOSDEM Explorer — {term}",
+                "term": term,
+                "events": events,
+            },
+        )
+
+    @router.get("/my-schedule", response_class=HTMLResponse)
+    def my_schedule_page(request: Request) -> HTMLResponse:
+        return templates.TemplateResponse(
+            request=request,
+            name="my_schedule.html",
+            context={"title": "FOSDEM Explorer — My Schedule"},
+        )
+
+    @router.get("/offline", response_class=HTMLResponse)
+    def offline(request: Request) -> HTMLResponse:
+        return templates.TemplateResponse(
+            request=request,
+            name="offline.html",
+            context={"title": "FOSDEM Explorer — Offline"},
+        )
+
+    return router
