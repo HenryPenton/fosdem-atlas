@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block title %}FOSDEM Explorer — Too Many Requests{% endblock %}
+
+{% block content %}
+<div class="container">
+    <section class="hero">
+        <div class="hero-icon">🚦</div>
+        <h1>Too many requests</h1>
+        <p class="hero-subtitle">
+            You've sent too many requests in a short period. Please wait a moment and try again.
+        </p>
+        <a href="/" class="sort-btn sort-btn--active" style="display:inline-block;margin-top:1rem;">
+            ← Back to schedule
+        </a>
+    </section>
+</div>
+{% endblock %}

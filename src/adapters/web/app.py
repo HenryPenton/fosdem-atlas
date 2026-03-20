@@ -10,9 +10,12 @@ from contextlib import AbstractAsyncContextManager
 from pathlib import Path
 
 from fastapi import FastAPI, Query, Request, Response
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+from slowapi import Limiter
+from slowapi.errors import RateLimitExceeded
+from slowapi.middleware import SlowAPIMiddleware
 from starlette.middleware.base import RequestResponseEndpoint
 from starlette.responses import StreamingResponse
 
@@ -26,6 +29,13 @@ TEMPLATES_DIR = BASE_DIR / "templates"
 STATIC_DIR = BASE_DIR / "static"
 
 CACHE_MAX_AGE = 20
+RATE_LIMIT = "200/minute"
+
+limiter = Limiter(
+    key_func=lambda *_args, **_kwargs: "global",
+    default_limits=[RATE_LIMIT],
+    headers_enabled=True,
+)
 
 
 def create_app(
@@ -43,15 +53,35 @@ def create_app(
         lifespan=lifespan,
     )
 
+    app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
+    templates = Jinja2Templates(directory=TEMPLATES_DIR)
+
+    def _rate_limit_handler(request: Request, exc: RateLimitExceeded) -> Response:
+        accept = request.headers.get("accept", "")
+        response: Response
+        if "text/html" in accept:
+            response = HTMLResponse(
+                content=templates.get_template("rate_limit.html").render(
+                    {"request": request, "title": "FOSDEM Explorer — Too Many Requests"}
+                ),
+                status_code=429,
+            )
+        else:
+            response = JSONResponse(
+                {"error": f"Rate limit exceeded: {exc.detail}"}, status_code=429
+            )
+        return request.app.state.limiter._inject_headers(response, request.state.view_rate_limit)  # type: ignore[no-any-return]
+
+    app.state.limiter = limiter
+    app.add_exception_handler(RateLimitExceeded, _rate_limit_handler)
+    app.add_middleware(SlowAPIMiddleware)
+
     @app.middleware("http")
     async def add_cache_control(request: Request, call_next: RequestResponseEndpoint) -> Response:
         response: Response = await call_next(request)
         if request.url.path != "/health" and request.method == "GET":
             response.headers["Cache-Control"] = f"public, max-age={CACHE_MAX_AGE}"
         return response
-
-    app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
-    templates = Jinja2Templates(directory=TEMPLATES_DIR)
 
     app.include_router(create_api_router(schedule_service, analytics_service, speaker_service))
 

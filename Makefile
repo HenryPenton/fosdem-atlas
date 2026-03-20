@@ -1,4 +1,4 @@
-.PHONY: help venv dev install run test lint format clean commit bump patch minor major smoke-test load-test
+.PHONY: help venv dev install run test lint format clean commit bump patch minor major smoke-test load-test rate-limit-test
 
 PYTHON := python3
 VENV := venv
@@ -71,3 +71,8 @@ smoke-test: ## Run k6 smoke test (requires k6; server must be running at BASE_UR
 
 load-test: ## Run k6 load test (requires k6; server must be running at BASE_URL)
 	k6 run -e BASE_URL=$(BASE_URL) tests/load/load.js
+
+rate-limit-test: ## Run k6 rate-limit test — fires 250 requests and asserts 429s are returned
+	@curl -sf $(BASE_URL)/health -o /dev/null || \
+	  { echo "ERROR: No server responding at $(BASE_URL) — start it first (e.g. make run)"; exit 1; }
+	k6 run -e BASE_URL=$(BASE_URL) tests/load/rate_limit.js

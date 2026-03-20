@@ -22,6 +22,7 @@ dependencies = [
     "pydantic",
     "pydantic-settings",
     "yake",
+    "slowapi",
 ]
 
 [project.optional-dependencies]
@@ -78,6 +79,10 @@ ignore_missing_imports = true
 
 [[tool.mypy.overrides]]
 module = ["yake", "yake.*"]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = ["slowapi", "slowapi.*"]
 ignore_missing_imports = true
 
 [[tool.mypy.overrides]]

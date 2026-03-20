@@ -203,9 +203,8 @@ Build an open-source tool that scrapes the FOSDEM schedule, stores it in DuckDB 
 
 ### 6.2 Rate Limiting
 
-- [ ] Add rate limiting to FastAPI endpoints (e.g. slowapi or similar)
-- [ ] Configure per-IP limits on search and API routes
-- [ ] Return 429 responses with `Retry-After` header
+- [x] Add global rate limiting with slowapi (200 requests/minute)
+- [x] Return 429 responses with `Retry-After` header
 
 ### 6.3 UI Fixes & Polish
 
@@ -218,7 +217,25 @@ Build an open-source tool that scrapes the FOSDEM schedule, stores it in DuckDB 
 - [ ] Post-event video links
 - [ ] Public roadmap page
 
-### 6.3 Accessibility & i18n
+### 6.5 Performance: Caching
+
+See [docs/caching.md](docs/caching.md) for full analysis and caveat on `lru_cache` + instance methods.
+
+**Phase A — zero-argument calls (highest impact)**
+- [ ] Cache `ScheduleService.get_overview()` (called on every homepage load)
+- [ ] Cache `ScheduleService.get_all_tracks_with_counts()` (called on `/tracks`, CSV export, and API)
+- [ ] Cache `SpeakerService.get_all_speakers()` (called on `/speakers`, CSV export, and API)
+
+**Phase B — small-key-space calls**
+- [ ] Cache `ScheduleService.get_grid_data(day)` (most expensive computation; ~3 possible day keys)
+- [ ] Cache `ScheduleService.get_day_detail(day)`
+- [ ] Cache repository-level `get_unique_days/tracks/rooms()` (called on nearly every page load)
+
+**Phase C — bounded per-item caches (optional)**
+- [ ] Cache `ScheduleService.get_event_detail(event_id)` with `maxsize=256`
+- [ ] Cache `SpeakerService.get_speaker_detail(speaker_id)` with `maxsize=256`
+
+### 6.6 Accessibility & i18n
 
 - [ ] Accessibility audit (WCAG)
 - [ ] i18n support
