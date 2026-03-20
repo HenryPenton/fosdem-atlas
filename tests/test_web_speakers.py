@@ -61,6 +61,7 @@ class TestApiV1Speakers:
         data = client.get("/api/v1/speakers/s1").json()
         assert data["name"] == "Mark"
         assert len(data["events"]) == 1
+        assert "bio" in data
 
     def test_speaker_404(self, client: TestClient) -> None:
         response = client.get("/api/v1/speakers/nonexistent")

@@ -7,6 +7,16 @@ from src.adapters.scraper.fosdem_scraper import FosdemScheduleFetcher
 SAMPLE_XML = b"""\
 <?xml version="1.0" encoding="UTF-8"?>
 <schedule>
+  <persons>
+    <person id="p1">
+      <name>Alice</name>
+      <biography>&lt;p&gt;Alice is a kernel developer.&lt;/p&gt;</biography>
+    </person>
+    <person id="p2">
+      <name>Bob</name>
+      <biography></biography>
+    </person>
+  </persons>
   <day index="1" date="2026-02-07">
     <room name="Janson">
       <event id="101">
@@ -77,6 +87,16 @@ class TestFosdemScheduleFetcher:
         assert len(speakers) == 2
         assert speakers[0].id == "p1"
         assert speakers[0].name == "Alice"
+
+    def test_parse_speaker_bio(self) -> None:
+        events = self.fetcher._parse(SAMPLE_XML)
+        speakers = events[0].speakers
+        assert speakers[0].bio == "Alice is a kernel developer."
+        assert speakers[1].bio == ""
+
+    def test_parse_speaker_bio_strips_html(self) -> None:
+        events = self.fetcher._parse(SAMPLE_XML)
+        assert "<p>" not in events[0].speakers[0].bio
 
     def test_parse_links(self) -> None:
         events = self.fetcher._parse(SAMPLE_XML)

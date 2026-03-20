@@ -78,6 +78,7 @@ class SpeakerDetailDTO:
 
     id: str
     name: str
+    bio: str
     events: list[EventSummaryDTO]
 
 

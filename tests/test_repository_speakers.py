@@ -54,6 +54,35 @@ class TestGetSpeakerById:
     ) -> None:
         assert seeded_speakers_repository.get_speaker_by_id("nonexistent") is None
 
+    def test_bio_stored_and_retrieved(
+        self,
+        ingestion_repository: DuckDBIngestionRepository,
+        speakers_repository: DuckDBSpeakersRepository,
+    ) -> None:
+        events = [
+            Event(
+                id="bio-test",
+                title="Bio Talk",
+                start_time=datetime(2026, 2, 7, 11, 0),
+                duration_minutes=30,
+                room="Room B",
+                track="Test",
+                day="2026-02-07",
+                speakers=[Speaker(id="bio1", name="Bio Speaker", bio="A seasoned developer.")],
+            )
+        ]
+        ingestion_repository.insert_events(events)
+        speaker = speakers_repository.get_speaker_by_id("bio1")
+        assert speaker is not None
+        assert speaker.bio == "A seasoned developer."
+
+    def test_bio_defaults_to_empty_string(
+        self, seeded_speakers_repository: DuckDBSpeakersRepository
+    ) -> None:
+        speaker = seeded_speakers_repository.get_speaker_by_id("s1")
+        assert speaker is not None
+        assert speaker.bio == ""
+
 
 class TestGetEventsBySpeaker:
     def test_returns_speakers_events(

@@ -208,16 +208,10 @@ Build an open-source tool that scrapes the FOSDEM schedule, stores it in DuckDB 
 
 ### 6.3 UI Fixes & Polish
 
-- [ ] Fix schedule grid layout
-- [ ] Fix "My Schedule" star styling in the navbar
-- [ ] Download and store speaker bios from the FOSDEM schedule feed
+- [x] Replace emoji star bookmark with consistent SVG icon throughout the app
+- [x] Download and store speaker bios from the FOSDEM schedule feed
 
-### 6.4 Content & Discovery
-
-- [ ] Post-event video links
-- [ ] Public roadmap page
-
-### 6.5 Performance: Caching
+### 6.4 Performance: Caching
 
 See [docs/caching.md](docs/caching.md) for full analysis and caveat on `lru_cache` + instance methods.
 
@@ -235,10 +229,19 @@ See [docs/caching.md](docs/caching.md) for full analysis and caveat on `lru_cach
 - [ ] Cache `ScheduleService.get_event_detail(event_id)` with `maxsize=256`
 - [ ] Cache `SpeakerService.get_speaker_detail(speaker_id)` with `maxsize=256`
 
+### 6.5 Content & Discovery
+
+- [ ] Post-event video links
+- [ ] Public roadmap page
+
 ### 6.6 Accessibility & i18n
 
 - [ ] Accessibility audit (WCAG)
 - [ ] i18n support
+
+### 6.7 Schedule Grid Layout
+
+- [ ] Fix schedule grid layout
 
 **🎯 Deliverable:** Accessible, offline-capable app with rate limiting.
 

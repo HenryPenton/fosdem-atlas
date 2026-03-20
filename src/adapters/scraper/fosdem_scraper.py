@@ -1,5 +1,6 @@
 """FOSDEM schedule fetcher - adapter implementing the ScheduleFetcher port."""
 
+import re
 from datetime import datetime
 
 import httpx
@@ -24,6 +25,15 @@ class FosdemScheduleFetcher:
 
     def _parse(self, xml_content: bytes) -> list[Event]:
         root = etree.fromstring(xml_content)  # noqa: S320
+
+        # Build bio lookup from the top-level <persons> section
+        bios: dict[str, str] = {}
+        for person in root.findall("./persons/person"):
+            person_id = person.get("id", "")
+            bio_elem = person.find("biography")
+            if person_id and bio_elem is not None and bio_elem.text:
+                bios[person_id] = self._strip_html(bio_elem.text)
+
         events: list[Event] = []
 
         for day in root.findall(".//day"):
@@ -46,7 +56,11 @@ class FosdemScheduleFetcher:
                     duration_minutes = self._parse_duration(duration_str)
 
                     speakers = [
-                        Speaker(id=p.get("id", ""), name=p.text.strip())
+                        Speaker(
+                            id=p.get("id", ""),
+                            name=p.text.strip() if p.text else "",
+                            bio=bios.get(p.get("id", ""), ""),
+                        )
                         for p in event_elem.findall(".//person")
                         if p.text and p.text.strip()
                     ]
@@ -76,6 +90,10 @@ class FosdemScheduleFetcher:
                     )
 
         return events
+
+    @staticmethod
+    def _strip_html(text: str) -> str:
+        return re.sub(r"<[^>]+>", " ", text).strip()
 
     @staticmethod
     def _text(element: etree._Element, tag: str) -> str:

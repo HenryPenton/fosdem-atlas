@@ -87,12 +87,12 @@ var MySchedule = (function () {
             var id = btn.getAttribute('data-bookmark-id');
             if (has(id)) {
                 btn.classList.add('bookmark-btn--active');
-                btn.textContent = '⭐';
                 btn.title = 'Remove from My Schedule';
+                btn.setAttribute('aria-label', 'Remove from My Schedule');
             } else {
                 btn.classList.remove('bookmark-btn--active');
-                btn.textContent = '☆';
                 btn.title = 'Add to My Schedule';
+                btn.setAttribute('aria-label', 'Add to My Schedule');
             }
             if (btn._bookmarkBound) return;
             btn._bookmarkBound = true;
@@ -102,12 +102,12 @@ var MySchedule = (function () {
                 var added = toggle(id);
                 if (added) {
                     btn.classList.add('bookmark-btn--active');
-                    btn.textContent = '⭐';
                     btn.title = 'Remove from My Schedule';
+                    btn.setAttribute('aria-label', 'Remove from My Schedule');
                 } else {
                     btn.classList.remove('bookmark-btn--active');
-                    btn.textContent = '☆';
                     btn.title = 'Add to My Schedule';
+                    btn.setAttribute('aria-label', 'Add to My Schedule');
                 }
                 updateNavBadge();
             });

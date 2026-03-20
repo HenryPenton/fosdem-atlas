@@ -162,8 +162,8 @@ class DuckDBIngestionRepository:
 
                 for speaker in event.speakers:
                     conn.execute(
-                        "INSERT OR IGNORE INTO speakers (id, name) VALUES (?, ?)",
-                        [speaker.id, speaker.name],
+                        "INSERT OR IGNORE INTO speakers (id, name, bio) VALUES (?, ?, ?)",
+                        [speaker.id, speaker.name, speaker.bio],
                     )
                     conn.execute(
                         "INSERT OR IGNORE INTO event_speakers (event_id, speaker_id) VALUES (?, ?)",

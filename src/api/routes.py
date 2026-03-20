@@ -145,6 +145,7 @@ def create_api_router(
         return SpeakerDetailDTO(
             id=result.id,
             name=result.name,
+            bio=result.bio,
             events=[
                 EventSummaryDTO(
                     id=e.id,

@@ -16,7 +16,7 @@
             <div class="event-detail-body">
                 <div class="event-detail-title-row">
                     <h1 class="event-detail-title">{{ event.title }}</h1>
-                    <button class="bookmark-btn event-detail-bookmark" data-bookmark-id="{{ event.id }}" title="Add to My Schedule">☆</button>
+                    <button class="bookmark-btn event-detail-bookmark" data-bookmark-id="{{ event.id }}" title="Add to My Schedule" aria-label="Add to My Schedule"><svg class="bookmark-icon" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M17 3H7c-1.1 0-2 .9-2 2v16l7-3 7 3V5c0-1.1-.9-2-2-2z"/></svg></button>
                 </div>
                 {% if event.subtitle %}
                 <p class="event-detail-subtitle">{{ event.subtitle }}</p>

@@ -110,7 +110,7 @@
                                 <span class="grid-event-title">{{ ev.title | truncate(55) }}</span>
                                 <span class="grid-event-meta">⏱️ {{ ev.duration_minutes }}m</span>
                             </a>
-                            <button class="bookmark-btn bookmark-btn--grid" data-bookmark-id="{{ ev.id }}" title="Add to My Schedule">☆</button>
+                            <button class="bookmark-btn bookmark-btn--grid" data-bookmark-id="{{ ev.id }}" title="Add to My Schedule" aria-label="Add to My Schedule"><svg class="bookmark-icon" viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path d="M17 3H7c-1.1 0-2 .9-2 2v16l7-3 7 3V5c0-1.1-.9-2-2-2z"/></svg></button>
                         </div>
                         {% endfor %}
                     </td>

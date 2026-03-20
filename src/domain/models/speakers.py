@@ -15,6 +15,7 @@ class Speaker:
 
     id: str
     name: str
+    bio: str = ""
 
 
 @dataclass(frozen=True)
@@ -32,4 +33,5 @@ class SpeakerDetail:
 
     id: str
     name: str
+    bio: str
     events: list[EventSummary]

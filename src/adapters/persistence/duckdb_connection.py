@@ -58,7 +58,8 @@ class DuckDBConnection:
             """
             CREATE TABLE IF NOT EXISTS speakers (
                 id VARCHAR PRIMARY KEY,
-                name VARCHAR NOT NULL
+                name VARCHAR NOT NULL,
+                bio VARCHAR NOT NULL DEFAULT ''
             )
         """
         )

@@ -16,6 +16,13 @@
         <p class="hero-subtitle">{{ events|length }} talk{{ 's' if events|length != 1 }} at FOSDEM</p>
     </section>
 
+    {% if speaker.bio %}
+    <section class="speaker-bio">
+        <h2 class="speaker-bio__heading">About</h2>
+        <p class="speaker-bio__text">{{ speaker.bio }}</p>
+    </section>
+    {% endif %}
+
     <section class="event-list">
         {% for event in events %}
         <div class="event-card">

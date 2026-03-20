@@ -19,4 +19,4 @@ class SpeakerService:
         if speaker is None:
             return None
         events = self._repo.get_events_by_speaker(speaker_id)
-        return SpeakerDetail(id=speaker.id, name=speaker.name, events=events)
+        return SpeakerDetail(id=speaker.id, name=speaker.name, bio=speaker.bio, events=events)

@@ -31,12 +31,12 @@ class DuckDBSpeakersRepository:
     def get_speaker_by_id(self, speaker_id: str) -> Speaker | None:
         conn = self._db.get()
         row = conn.execute(
-            "SELECT id, name FROM speakers WHERE id = ?",
+            "SELECT id, name, COALESCE(bio, '') FROM speakers WHERE id = ?",
             [speaker_id],
         ).fetchone()
         if row is None:
             return None
-        return Speaker(id=str(row[0]), name=str(row[1]))
+        return Speaker(id=str(row[0]), name=str(row[1]), bio=str(row[2]))
 
     def get_events_by_speaker(self, speaker_id: str) -> list[EventSummary]:
         conn = self._db.get()
