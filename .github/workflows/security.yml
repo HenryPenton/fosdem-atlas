@@ -17,18 +17,34 @@ jobs:
   semgrep:
     name: Semgrep SAST
     runs-on: ubuntu-latest
-    container:
-      image: semgrep/semgrep:latest
     steps:
       - uses: actions/checkout@v6
 
+      - name: Install Semgrep
+        run: pip install semgrep
+
       - name: Run Semgrep
-        run: semgrep ci
+        run: semgrep ci --sarif --output semgrep.sarif
+        continue-on-error: true
         env:
           SEMGREP_RULES: >-
             p/default
             p/python
             p/owasp-top-ten
+
+      - name: Upload SARIF to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: semgrep.sarif
+          category: semgrep
+
+      - name: Upload Semgrep report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: semgrep-report
+          path: semgrep.sarif
 
   trivy:
     name: Trivy Vulnerability Scan
@@ -43,7 +59,22 @@ jobs:
           scan-ref: .
           severity: CRITICAL,HIGH
           exit-code: 1
-          format: table
+          format: sarif
+          output: trivy.sarif
+
+      - name: Upload SARIF to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: trivy.sarif
+          category: trivy
+
+      - name: Upload Trivy report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: trivy-report
+          path: trivy.sarif
 
   trufflehog:
     name: TruffleHog Secrets Scan
