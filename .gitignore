@@ -87,6 +87,12 @@ data/
 .DS_Store
 Thumbs.db
 
+# Node / Cypress
+node_modules/
+cypress/screenshots/
+cypress/videos/
+cypress/downloads/
+
 # Project specific
 logs/
 *.log

@@ -1,0 +1,49 @@
+name: Cypress Accessibility
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  cypress-a11y:
+    name: Accessibility Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install Python dependencies
+        run: pip install -e .
+
+      - name: Start application server
+        run: |
+          uvicorn src.main:app --host 0.0.0.0 --port 8001 &
+          # Wait for the server to be ready
+          for i in $(seq 1 30); do
+            curl -sf http://localhost:8001/health && break
+            echo "Waiting for server... ($i)"
+            sleep 2
+          done
+
+      - name: Cypress run
+        uses: cypress-io/github-action@v7
+        with:
+          working-directory: cypress
+          spec: e2e/accessibility.cy.js
+          wait-on: "http://localhost:8001/health"
+          wait-on-timeout: 60
+
+      - name: Upload screenshots on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cypress-screenshots
+          path: cypress/screenshots
+          retention-days: 7

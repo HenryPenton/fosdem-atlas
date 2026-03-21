@@ -1,4 +1,4 @@
-.PHONY: help venv dev install run test lint format clean commit bump patch minor major smoke-test load-test rate-limit-test
+.PHONY: help venv dev install run test lint format clean commit bump patch minor major smoke-test load-test rate-limit-test cy-install cy-open cy-run cy-a11y
 
 PYTHON := python3
 VENV := venv
@@ -76,3 +76,19 @@ rate-limit-test: ## Run k6 rate-limit test — fires 250 requests and asserts 42
 	@curl -sf $(BASE_URL)/health -o /dev/null || \
 	  { echo "ERROR: No server responding at $(BASE_URL) — start it first (e.g. make run)"; exit 1; }
 	k6 run -e BASE_URL=$(BASE_URL) tests/load/rate_limit.js
+
+cy-install: ## Install Cypress and dependencies
+	cd cypress && npm install
+
+cy-open: cy-install ## Open Cypress interactive runner (server must be running)
+	cd cypress && npx cypress open
+
+cy-run: cy-install ## Run all Cypress tests headlessly (server must be running)
+	@curl -sf $(BASE_URL)/health -o /dev/null || \
+	  { echo "ERROR: No server responding at $(BASE_URL) — start it first (e.g. make run)"; exit 1; }
+	cd cypress && npx cypress run
+
+cy-a11y: cy-install ## Run Cypress accessibility tests only (server must be running)
+	@curl -sf $(BASE_URL)/health -o /dev/null || \
+	  { echo "ERROR: No server responding at $(BASE_URL) — start it first (e.g. make run)"; exit 1; }
+	cd cypress && npx cypress run --spec 'e2e/accessibility.cy.js'
