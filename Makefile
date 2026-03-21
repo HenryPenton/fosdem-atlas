@@ -1,4 +1,4 @@
-.PHONY: help venv dev install run test lint format clean commit bump patch minor major smoke-test load-test rate-limit-test cy-install cy-open cy-run cy-a11y
+.PHONY: help venv dev install run test lint format clean commit bump patch minor major smoke-test load-test rate-limit-test cy-install cy-open cy-run cy-smoke cy-a11y
 
 PYTHON := python3
 VENV := venv
@@ -87,6 +87,11 @@ cy-run: cy-install ## Run all Cypress tests headlessly (server must be running)
 	@curl -sf $(BASE_URL)/health -o /dev/null || \
 	  { echo "ERROR: No server responding at $(BASE_URL) — start it first (e.g. make run)"; exit 1; }
 	cd cypress && npx cypress run
+
+cy-smoke: cy-install ## Run Cypress smoke tests only (server must be running)
+	@curl -sf $(BASE_URL)/health -o /dev/null || \
+	  { echo "ERROR: No server responding at $(BASE_URL) — start it first (e.g. make run)"; exit 1; }
+	cd cypress && npx cypress run --spec 'e2e/smoke.cy.js'
 
 cy-a11y: cy-install ## Run Cypress accessibility tests only (server must be running)
 	@curl -sf $(BASE_URL)/health -o /dev/null || \

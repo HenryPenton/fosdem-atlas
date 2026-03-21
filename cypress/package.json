@@ -4,6 +4,7 @@
   "scripts": {
     "cy:open": "cypress open",
     "cy:run": "cypress run",
+    "cy:smoke": "cypress run --spec 'e2e/smoke.cy.js'",
     "cy:a11y": "cypress run --spec 'e2e/accessibility.cy.js'"
   },
   "devDependencies": {
