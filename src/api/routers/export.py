@@ -1,12 +1,11 @@
 """Export endpoints (CSV, iCal)."""
 
-import csv
 import dataclasses
-import io
 
 from fastapi import APIRouter, Query, Response
 from fastapi.responses import StreamingResponse
 
+from src.adapters.csv_utils import csv_streaming_response
 from src.application.services import ScheduleService, SpeakerService
 
 
@@ -19,12 +18,12 @@ def create_export_router(
     @router.get("/events.csv")
     def export_events_csv() -> StreamingResponse:
         events = schedule_service.get_all_events(sort="time")
-        return _csv_response([dataclasses.asdict(e) for e in events], "events.csv")
+        return csv_streaming_response([dataclasses.asdict(e) for e in events], "events.csv")
 
     @router.get("/speakers.csv")
     def export_speakers_csv() -> StreamingResponse:
         speakers = speaker_service.get_all_speakers()
-        return _csv_response([dataclasses.asdict(s) for s in speakers], "speakers.csv")
+        return csv_streaming_response([dataclasses.asdict(s) for s in speakers], "speakers.csv")
 
     @router.get("/schedule.ics")
     def export_schedule_ical(
@@ -39,19 +38,3 @@ def create_export_router(
         )
 
     return router
-
-
-def _csv_response(rows: list[dict[str, str | int | float]], filename: str) -> StreamingResponse:
-    if not rows:
-        buf = io.StringIO("")
-    else:
-        buf = io.StringIO()
-        writer = csv.DictWriter(buf, fieldnames=list(rows[0].keys()))
-        writer.writeheader()
-        writer.writerows(rows)
-        buf.seek(0)
-    return StreamingResponse(
-        buf,
-        media_type="text/csv",
-        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
-    )

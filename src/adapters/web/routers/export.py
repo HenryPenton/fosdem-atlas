@@ -1,13 +1,11 @@
 """Export routes – CSV and iCal."""
 
-import csv
 import dataclasses
-import io
 
-import nh3
 from fastapi import APIRouter, Query, Response
 from fastapi.responses import StreamingResponse
 
+from src.adapters.csv_utils import csv_streaming_response
 from src.application.services import ScheduleService, SpeakerService
 
 
@@ -20,12 +18,12 @@ def create_export_page_router(
     @router.get("/export/events.csv")
     def export_events_csv() -> StreamingResponse:
         events = schedule_service.get_all_events(sort="time")
-        return _csv_response([dataclasses.asdict(e) for e in events], "events.csv")
+        return csv_streaming_response([dataclasses.asdict(e) for e in events], "events.csv")
 
     @router.get("/export/speakers.csv")
     def export_speakers_csv() -> StreamingResponse:
         speakers = speaker_service.get_all_speakers()
-        return _csv_response([dataclasses.asdict(s) for s in speakers], "speakers.csv")
+        return csv_streaming_response([dataclasses.asdict(s) for s in speakers], "speakers.csv")
 
     @router.get("/my-schedule/export.ics")
     def my_schedule_ical(
@@ -40,29 +38,3 @@ def create_export_page_router(
         )
 
     return router
-
-
-def _sanitise_csv_value(value: str | int | float) -> str | int | float:
-    """Strip HTML and prefix formula-trigger characters for safe CSV output."""
-    if isinstance(value, str):
-        value = str(nh3.clean(value, tags=set()))  # strip all HTML tags
-        if value and value[0] in ("=", "+", "-", "@"):
-            return "\t" + value
-    return value
-
-
-def _csv_response(rows: list[dict[str, str | int | float]], filename: str) -> StreamingResponse:
-    if not rows:
-        buf = io.StringIO("")
-    else:
-        buf = io.StringIO()
-        sanitised = [{k: _sanitise_csv_value(v) for k, v in row.items()} for row in rows]
-        writer = csv.DictWriter(buf, fieldnames=list(rows[0].keys()), lineterminator="\n")
-        writer.writeheader()
-        writer.writerows(sanitised)
-        buf.seek(0)
-    return StreamingResponse(
-        buf,
-        media_type="text/csv",
-        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
-    )
