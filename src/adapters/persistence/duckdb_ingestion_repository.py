@@ -142,8 +142,15 @@ class DuckDBIngestionRepository:
                     fosdem_url = next(
                         (lk.href for lk in event.links if "fosdem.org" in lk.href), ""
                     )
+                    _video_exts = {".mp4", ".webm", ".ogv", ".avi", ".mkv"}
                     video_url = next(
-                        (lk.href for lk in event.links if "video.fosdem.org" in lk.href), ""
+                        (
+                            lk.href
+                            for lk in event.links
+                            if "video.fosdem.org" in lk.href
+                            and any(lk.href.endswith(ext) for ext in _video_exts)
+                        ),
+                        "",
                     )
                     conn.execute(
                         """

@@ -4,7 +4,7 @@ from datetime import datetime
 
 from src.adapters.persistence.duckdb_events_repository import DuckDBEventsRepository
 from src.adapters.persistence.duckdb_ingestion_repository import DuckDBIngestionRepository
-from src.domain.models import Event, Speaker
+from src.domain.models import Event, Link, Speaker
 from tests.conftest import SAMPLE_EVENTS
 
 
@@ -74,3 +74,63 @@ class TestInsertEvents:
         count = ingestion_repository.insert_events([])
         assert count == 0
         assert events_repository.get_event_count() == 0
+
+    def test_vtt_link_not_stored_as_video_url(
+        self,
+        ingestion_repository: DuckDBIngestionRepository,
+        events_repository: DuckDBEventsRepository,
+    ) -> None:
+        """Only recognised video formats (mp4, webm, etc.) are stored as video_url."""
+        events = [
+            Event(
+                id="20",
+                title="Talk with Subs",
+                start_time=datetime(2026, 2, 7, 10, 0),
+                duration_minutes=30,
+                room="Room A",
+                track="Test",
+                day="2026-02-07",
+                links=[
+                    Link(
+                        href="https://video.fosdem.org/2026/h1234/talk.vtt",
+                        title="Subtitles",
+                    ),
+                    Link(
+                        href="https://video.fosdem.org/2026/h1234/talk.webm",
+                        title="Video recording",
+                    ),
+                ],
+            )
+        ]
+        ingestion_repository.insert_events(events)
+        detail = events_repository.get_event_by_id("20")
+        assert detail is not None
+        assert detail.video_url == "https://video.fosdem.org/2026/h1234/talk.webm"
+
+    def test_only_vtt_link_results_in_empty_video_url(
+        self,
+        ingestion_repository: DuckDBIngestionRepository,
+        events_repository: DuckDBEventsRepository,
+    ) -> None:
+        """If no video.fosdem.org link has a known video extension, video_url is empty."""
+        events = [
+            Event(
+                id="21",
+                title="Talk Subs Only",
+                start_time=datetime(2026, 2, 7, 10, 0),
+                duration_minutes=30,
+                room="Room A",
+                track="Test",
+                day="2026-02-07",
+                links=[
+                    Link(
+                        href="https://video.fosdem.org/2026/h1234/talk.vtt",
+                        title="Subtitles",
+                    ),
+                ],
+            )
+        ]
+        ingestion_repository.insert_events(events)
+        detail = events_repository.get_event_by_id("21")
+        assert detail is not None
+        assert detail.video_url == ""
