@@ -4,6 +4,7 @@ import csv
 import dataclasses
 import io
 
+import nh3
 from fastapi import APIRouter, Query, Response
 from fastapi.responses import StreamingResponse
 
@@ -42,9 +43,11 @@ def create_export_page_router(
 
 
 def _sanitise_csv_value(value: str | int | float) -> str | int | float:
-    """Prefix string cells that start with formula-trigger characters."""
-    if isinstance(value, str) and value and value[0] in ("=", "+", "-", "@"):
-        return "\t" + value
+    """Strip HTML and prefix formula-trigger characters for safe CSV output."""
+    if isinstance(value, str):
+        value = str(nh3.clean(value, tags=set()))  # strip all HTML tags
+        if value and value[0] in ("=", "+", "-", "@"):
+            return "\t" + value
     return value
 
 
