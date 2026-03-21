@@ -62,8 +62,10 @@ _BUMP_FLAG  := $(if $(_BUMP_LEVEL),--increment $(shell echo $(_BUMP_LEVEL) | tr 
 
 bump: ## Bump version, update CHANGELOG.md, and tag (e.g. make bump [patch|minor|major])
 	$(MAKE) sbom
+	$(MAKE) format
+	sed -i '' -e 's/[[:space:]]*$$//' docs/sbom.json
+	[ -n "$$(tail -c1 docs/sbom.json)" ] && printf '\n' >> docs/sbom.json || true
 	git add docs/sbom.json
-	git diff --cached --quiet docs/sbom.json || git commit -m "chore: refresh SBOM"
 	$(BIN)/cz bump $(_BUMP_FLAG)
 
 patch minor major: ## Increment level selector for use with bump (e.g. make bump patch)
