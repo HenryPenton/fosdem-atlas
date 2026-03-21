@@ -25,7 +25,7 @@ class DuckDBEventsRepository:
         }
         order_by = _order_map.get(sort, "start_time, room")
         conn = self._db.get()
-        result = conn.execute(
+        result = conn.execute(  # nosemgrep: python.lang.security.audit.formatted-sql-query.formatted-sql-query,python.sqlalchemy.security.sqlalchemy-execute-raw-query.sqlalchemy-execute-raw-query  # noqa: E501
             f"""
             SELECT id, title, subtitle, abstract, start_time, duration_minutes, room, track, day
             FROM events
@@ -209,7 +209,7 @@ class DuckDBEventsRepository:
             return []
         conn = self._db.get()
         placeholders = ", ".join("?" for _ in event_ids)
-        result = conn.execute(
+        result = conn.execute(  # nosemgrep: python.lang.security.audit.formatted-sql-query.formatted-sql-query,python.sqlalchemy.security.sqlalchemy-execute-raw-query.sqlalchemy-execute-raw-query  # noqa: E501
             f"""
             SELECT id, title, subtitle, abstract, start_time,
                    duration_minutes, room, track, day, fosdem_url
@@ -260,7 +260,7 @@ class DuckDBEventsRepository:
             params.append(day)
 
         where = f"WHERE {' AND '.join(conditions)}" if conditions else ""
-        result = conn.execute(
+        result = conn.execute(  # nosemgrep: python.lang.security.audit.formatted-sql-query.formatted-sql-query,python.sqlalchemy.security.sqlalchemy-execute-raw-query.sqlalchemy-execute-raw-query  # noqa: E501
             f"""
             SELECT id, title, abstract, start_time, duration_minutes, room, track, day
             FROM events
