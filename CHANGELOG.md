@@ -1,3 +1,46 @@
+## v2.0.0 (2026-03-21)
+
+### Feat
+
+- add cyclonedx-bom to development dependencies
+- add security scan workflow with Semgrep, Trivy, and TruffleHog
+- accessibility fixes
+- dark mode styles for hero text, word cloud terms, and heatmap cells
+- add my schedule grid feature and enhance event grid rendering
+- update hero section with SVG icon and schedule transfer UI
+- update roadmap with rate limiting details and update caching documentation
+- implement caching for event and speaker details, and update load test parameters
+- enhance caching mechanisms across services and update load testing parameters
+- add speaker bios to the application, including database schema updates and UI enhancements
+- implement global rate limiting with slowapi and add rate limit test cases
+
+### Fix
+
+- add logging for health check failures and implement tests for unhealthy status
+- remove cpu/mem limit on docker
+- migrate to multi-stage Docker build and optimize resource limits in docker-compose
+- implement styled 404 error pages for events and speakers
+- implement health check for DuckDB connections and add recovery tests
+- update dependencies in pyproject.toml and improve install targets in Makefile
+- specify exact versions for dependencies in pyproject.toml
+- update Trivy scan configuration and remove TruffleHog job
+- add SIGNING_KEY to fake_secrets.env for testing purposes
+- trufflehog
+- update HTMX script tag to include integrity and crossorigin attributes for improved security
+- update security scan workflow to enhance output formatting and improve summary reporting for Semgrep, Trivy, and TruffleHog
+- enhance security scan workflow by updating Semgrep and Trivy configurations, adding output summaries, and improving artifact uploads
+- security scanning tool issues
+- update security scan workflow to use SARIF format and improve report uploads
+- add .catch() handler to fetch calls in My Schedule for error handling
+- add security response headers to prevent clickjacking and MIME sniffing
+- enhance CSV sanitization by adding HTML stripping and formula protection
+- resolve CSV formula injection and ensure consistent event abstracts
+- add HTML sanitization for event abstracts and include nh3 dependency
+
+### Refactor
+
+- web application structure by modularizing routes
+
 ## v1.1.0 (2026-03-19)
 
 ### Feat
