@@ -226,8 +226,8 @@ See [docs/caching.md](docs/caching.md) for full analysis and caveat on `lru_cach
 - [x] Cache repository-level `get_unique_days/tracks/rooms()` (called on nearly every page load)
 
 **Phase C — bounded per-item caches (optional)**
-- [ ] Cache `ScheduleService.get_event_detail(event_id)` with `maxsize=256`
-- [ ] Cache `SpeakerService.get_speaker_detail(speaker_id)` with `maxsize=256`
+- [x] Cache `ScheduleService.get_event_detail(event_id)` with `maxsize=256`
+- [x] Cache `SpeakerService.get_speaker_detail(speaker_id)` with `maxsize=256`
 
 ### 6.5 Content & Discovery
 

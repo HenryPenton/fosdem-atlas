@@ -14,8 +14,8 @@ export const options = {
   scenarios: {
     load: {
       executor: 'shared-iterations',
-      vus: 100,                // concurrent virtual users
-      iterations: 6000,       // one iteration per simulated user
+      vus: 500,                // concurrent virtual users
+      iterations: 10000,       // one iteration per simulated user
       maxDuration: '3m',      // safety cap
     },
   },

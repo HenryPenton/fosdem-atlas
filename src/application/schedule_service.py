@@ -35,6 +35,7 @@ class ScheduleService:
         self._days_cache: list[str] | None = None
         self._unique_tracks_cache: list[str] | None = None
         self._unique_rooms_cache: list[str] | None = None
+        self._event_detail_cache: dict[str, EventDetail] = {}
 
     def invalidate_cache(self) -> None:
         self._overview_cache = None
@@ -44,6 +45,7 @@ class ScheduleService:
         self._days_cache = None
         self._unique_tracks_cache = None
         self._unique_rooms_cache = None
+        self._event_detail_cache.clear()
 
     def get_event_count(self) -> int:
         return self._repo.get_event_count()
@@ -230,11 +232,17 @@ class ScheduleService:
 
     def get_event_detail(self, event_id: str) -> EventDetail | None:
         """Event with its speakers, or None if not found."""
+        if event_id in self._event_detail_cache:
+            return self._event_detail_cache[event_id]
         event = self._repo.get_event_by_id(event_id)
         if event is None:
             return None
         speakers = self._repo.get_speakers_for_event(event_id)
-        return dataclasses.replace(event, speakers=speakers)
+        result = dataclasses.replace(event, speakers=speakers)
+        if len(self._event_detail_cache) >= 256:
+            self._event_detail_cache.pop(next(iter(self._event_detail_cache)))
+        self._event_detail_cache[event_id] = result
+        return result
 
     def search_events(
         self, q: str = "", track: str = "", room: str = "", day: str = ""
