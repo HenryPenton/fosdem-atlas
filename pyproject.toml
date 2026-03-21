@@ -23,6 +23,7 @@ dependencies = [
     "pydantic-settings",
     "yake",
     "slowapi",
+    "nh3",
 ]
 
 [project.optional-dependencies]

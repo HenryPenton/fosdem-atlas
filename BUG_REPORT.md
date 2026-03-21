@@ -7,7 +7,7 @@ _249 Python tests passing · ruff + mypy clean · 28 a11y + 18 smoke Cypress tes
 
 ## Critical
 
-### BUG-1: XSS — `| safe` renders unsanitised HTML from FOSDEM abstracts
+### ~~BUG-1: XSS — `| safe` renders unsanitised HTML from FOSDEM abstracts~~ ✅ Fixed
 
 **Files:** `src/templates/event.html:51`, `src/templates/partials/event_card.html:21`
 
@@ -17,9 +17,10 @@ abstract content. While FOSDEM is a trusted data source, a modified or
 compromised XML feed could inject `<script>` tags that execute in users'
 browsers.
 
-**Fix:** Sanitise abstracts at ingestion time using a library like `bleach` or
-`nh3`, or replace `| safe` with a custom Jinja2 filter that strips dangerous
-tags while preserving formatting.
+**Fix applied:** `nh3` added as a production dependency. Abstracts are now
+sanitised via `FosdemScheduleFetcher._sanitise_html()` at ingestion time using
+an allowlist of safe formatting tags. The stored content is clean before it
+ever reaches the `| safe` filter.
 
 ---
 

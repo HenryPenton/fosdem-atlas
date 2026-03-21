@@ -4,6 +4,7 @@ import re
 from datetime import datetime
 
 import httpx
+import nh3
 from lxml import etree
 
 from src.domain.models import Event, Link, Speaker
@@ -47,7 +48,7 @@ class FosdemScheduleFetcher:
 
                     title = self._text(event_elem, "title")
                     subtitle = self._text(event_elem, "subtitle")
-                    abstract = self._text(event_elem, "abstract")
+                    abstract = self._sanitise_html(self._text(event_elem, "abstract"))
                     track = self._text(event_elem, "track")
                     start_str = self._text(event_elem, "start")
                     duration_str = self._text(event_elem, "duration")
@@ -90,6 +91,17 @@ class FosdemScheduleFetcher:
                     )
 
         return events
+
+    @staticmethod
+    def _sanitise_html(text: str) -> str:
+        """Strip dangerous tags/attributes while preserving safe formatting."""
+        return str(
+            nh3.clean(
+                text,
+                tags={"p", "br", "em", "strong", "a", "ul", "ol", "li", "code", "pre"},
+                attributes={"a": {"href", "title"}},
+            )
+        )
 
     @staticmethod
     def _strip_html(text: str) -> str:
