@@ -8,22 +8,7 @@ _249 Python tests passing · ruff + mypy clean · 28 a11y + 18 smoke Cypress tes
 
 ## Medium
 
-### ~~BUG-6: Inconsistent `EventSummary` construction — abstract sometimes missing~~ ✅ Fixed
-
-**File:** `src/adapters/persistence/duckdb_events_repository.py`
-
-`get_all_events()` constructs `EventSummary` without the `abstract` field (it
-defaults to `""`), but `get_events_by_day_and_track()` and
-`get_events_by_track()` include it. Templates receiving events from different
-code paths may see empty abstracts for the same event depending on which service
-method was called.
-
-**Fix applied:** `abstract` added to the SELECT and `EventSummary` construction
-in `get_all_events()`. All code paths now return the abstract consistently.
-
----
-
-### BUG-7: Schedule grid hour rows not keyboard-accessible
+### BUG-1: Schedule grid hour rows not keyboard-accessible
 
 **File:** `src/templates/partials/schedule_grid.html:31`
 
@@ -36,7 +21,7 @@ place a `<button>` inside the row cell.
 
 ---
 
-### BUG-8: Analytics tabs missing ARIA connections
+### BUG-2: Analytics tabs missing ARIA connections
 
 **File:** `src/templates/analytics.html`
 
@@ -49,19 +34,7 @@ buttons with their panels.
 
 ---
 
-### BUG-9: Health endpoint silently swallows exceptions
-
-**File:** `src/adapters/web/routers/health.py`
-
-`except Exception` catches and discards all errors without logging. Silent
-failures make production debugging and alerting impossible.
-
-**Fix:** Add `logging.exception()` or `logging.error()` inside the except
-block.
-
----
-
-### BUG-10: ILIKE wildcards in user search input not escaped
+### BUG-3: ILIKE wildcards in user search input not escaped
 
 **File:** `src/adapters/persistence/duckdb_events_repository.py`
 
@@ -77,21 +50,7 @@ Not a SQL injection risk (queries are parameterised), but a correctness bug.
 
 ## Low
 
-### ~~BUG-11: 404 pages return plain text instead of styled HTML~~ ✅ Fixed
-
-**Files:** `src/adapters/web/routers/schedule.py`, `src/adapters/web/routers/speakers.py`
-
-When an event or speaker is not found, the route returns
-`Response(content="…not found", status_code=404)` — raw text with no page
-layout. Users see unstyled text instead of a branded error page.
-
-**Fix applied:** Both routes now render `404.html` (a new template extending
-`base.html`) with a styled "Not found" message and a link back to the schedule.
-Status code 404 is preserved.
-
----
-
-### BUG-12: Speakers without events excluded from speakers listing
+### BUG-4: Speakers without events excluded from speakers listing
 
 **File:** `src/adapters/persistence/duckdb_speakers_repository.py`
 
@@ -110,6 +69,5 @@ appear.
 | ------------------------------------- | ----------------------------------------------------- |
 | `/api/v1/overview` endpoint           | No test exists                                        |
 | `build_grid_for_ids()` service method | Called by My Schedule grid route but untested         |
-| Health endpoint 503 path              | `except` branch not exercised in tests                |
 | Malformed XML in scraper              | No tests for missing or broken XML tags               |
 | Concurrent access                     | No thread-safety tests for the DuckDB connection pool |
