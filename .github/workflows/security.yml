@@ -58,6 +58,14 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Generate requirements.txt for Trivy
+        run: pip install -e ".[dev]" --quiet && pip freeze > requirements.txt
+
       - name: Run Trivy
         uses: aquasecurity/trivy-action@0.35.0
         with:
@@ -66,16 +74,16 @@ jobs:
           scanners: vuln,secret,misconfig
           severity: CRITICAL,HIGH,MEDIUM
           format: table
-          output: trivy-table.txt
-        continue-on-error: true
+          output: trivy-report.txt
+          exit-code: "1"
 
       - name: Write Trivy summary
         if: always()
         run: |
           {
-            echo "## Trivy Vulnerability Results"
+            echo "## Trivy Scan Results (vuln, secret, misconfig)"
             echo '```'
-            cat trivy-table.txt
+            cat trivy-report.txt
             echo '```'
           } >> $GITHUB_STEP_SUMMARY
 
@@ -84,43 +92,4 @@ jobs:
         if: always()
         with:
           name: trivy-report
-          path: trivy-table.txt
-
-  trufflehog:
-    name: TruffleHog Secrets Scan
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v6
-        with:
-          fetch-depth: 0
-
-      - name: Install TruffleHog
-        run: curl -sSfL https://raw.githubusercontent.com/trufflesecurity/trufflehog/main/scripts/install.sh | sh -s -- -b /usr/local/bin
-
-      - name: Run TruffleHog
-        run: |
-          trufflehog filesystem . --only-verified --json > trufflehog-report.json 2>/dev/null || true
-          # Each finding is one JSON line; log lines have a "level" key, findings have a "DetectorName" key
-          FINDINGS=$(grep '"DetectorName"' trufflehog-report.json 2>/dev/null | wc -l)
-          {
-            echo "## TruffleHog Secrets Scan Results"
-            if [ "$FINDINGS" -eq 0 ]; then
-              echo "No verified secrets found. ✅"
-            else
-              echo "⚠️ **$FINDINGS verified secret(s) found:**"
-              echo '```json'
-              grep '"DetectorName"' trufflehog-report.json
-              echo '```'
-            fi
-          } >> $GITHUB_STEP_SUMMARY
-          if [ "$FINDINGS" -gt 0 ]; then
-            echo "::error::TruffleHog found $FINDINGS verified secret(s). See the job summary and downloaded artifact for details."
-            exit 1
-          fi
-
-      - name: Upload TruffleHog report
-        uses: actions/upload-artifact@v5
-        if: always()
-        with:
-          name: trufflehog-report
-          path: trufflehog-report.json
+          path: trivy-report.txt
