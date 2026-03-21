@@ -171,12 +171,15 @@ Build an open-source tool that scrapes the FOSDEM schedule, stores it in DuckDB 
 - [x] Health check endpoints
 - [x] Graceful shutdown
 - [x] Production Docker optimizations
+- [ ] Migrate Dockerfile to multi-stage build to reduce image size
+- [ ] Add port mapping and resource limits to `docker-compose.yml`
 
 ### 5.4 Documentation
 
 - [x] Full README with screenshots
 - [x] Self-hosting guide
 - [x] CONTRIBUTING.md
+- [ ] Add SPDX licence identifier headers to source files
 
 ### 5.5 Self-Hosting Deploy Snippet
 
@@ -188,6 +191,12 @@ Build an open-source tool that scrapes the FOSDEM schedule, stores it in DuckDB 
 - [x] k6 smoke test covering all key pages and API endpoints
 - [x] k6 load test ramping to realistic VU counts with p(95) latency thresholds
 - [x] `make load-test` and `make smoke-test` Makefile targets
+
+### 5.7 Dependency & CI Hygiene
+
+- [ ] Pin production dependencies to narrow version ranges for reproducible builds
+- [ ] Add Python 3.11 to CI test matrix to verify declared `>=3.11` compatibility
+- [ ] Set up Dependabot or Renovate for automated dependency updates
 
 **🎯 Deliverable:** Production-ready v1.0 release.
 
@@ -239,10 +248,12 @@ Build an open-source tool that scrapes the FOSDEM schedule, stores it in DuckDB 
 
 - [ ] Accessibility audit (WCAG)
 - [ ] i18n support
+- [ ] Fix heatmap colour-scale tooltip when all event counts are zero (shows misleading max of 1)
 
 ### 6.7 Schedule Grid Layout
 
 - [ ] Fix schedule grid layout
+- [ ] Use `CSS.escape()` in `toggleHour()` to handle time strings with CSS-special characters
 
 **🎯 Deliverable:** Accessible, offline-capable app with rate limiting.
 
