@@ -1,6 +1,6 @@
 """Speaker page routes."""
 
-from fastapi import APIRouter, Request, Response
+from fastapi import APIRouter, Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 
@@ -29,7 +29,15 @@ def create_speakers_page_router(
     def speaker_detail(request: Request, speaker_id: str) -> HTMLResponse:
         result = speaker_service.get_speaker_detail(speaker_id)
         if result is None:
-            return Response(content="Speaker not found", status_code=404)  # type: ignore[return-value]
+            return templates.TemplateResponse(
+                request=request,
+                name="404.html",
+                context={
+                    "title": "FOSDEM Explorer — Not Found",
+                    "message": "That speaker doesn't exist or may have been removed.",
+                },
+                status_code=404,
+            )
         return templates.TemplateResponse(
             request=request,
             name="speaker.html",

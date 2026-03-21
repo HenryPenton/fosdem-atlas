@@ -2,7 +2,7 @@
 
 import dataclasses
 
-from fastapi import APIRouter, Query, Request, Response
+from fastapi import APIRouter, Query, Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 
@@ -88,7 +88,15 @@ def create_schedule_router(
     def event_detail(request: Request, event_id: str) -> HTMLResponse:
         result = schedule_service.get_event_detail(event_id)
         if result is None:
-            return Response(content="Event not found", status_code=404)  # type: ignore[return-value]
+            return templates.TemplateResponse(
+                request=request,
+                name="404.html",
+                context={
+                    "title": "FOSDEM Explorer — Not Found",
+                    "message": "That event doesn't exist or may have been removed.",
+                },
+                status_code=404,
+            )
         return templates.TemplateResponse(
             request=request,
             name="event.html",

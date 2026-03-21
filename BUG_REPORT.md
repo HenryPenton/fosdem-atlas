@@ -3,32 +3,6 @@
 _Generated: 21 March 2026 — v1.1.0_
 _249 Python tests passing · ruff + mypy clean · 28 a11y + 18 smoke Cypress tests passing_
 
----
-
-### ~~BUG-4: Missing `.catch()` on fetch calls in My Schedule~~ ✅ Fixed
-
-**File:** `src/templates/my_schedule.html`
-
-Two `fetch()` calls (schedule grid load ~line 118, conflict detection ~line 157)
-have no `.catch()` handler. Network errors silently leave the page in a broken
-or empty state with no user feedback.
-
-**Fix applied:** `.catch()` handlers added to both fetch calls, displaying an
-error toast via `showToast()` on network failure.
-
----
-
-### ~~BUG-5: DuckDB connections have no recovery path~~ ✅ Fixed
-
-**File:** `src/adapters/persistence/duckdb_connection.py`
-
-`DuckDBConnection.get()` caches connections per thread with no TTL or health
-check. If the database file is deleted, moved, or becomes corrupt, every
-subsequent request on that thread fails indefinitely with no automatic recovery.
-
-**Fix applied:** `get()` now runs `SELECT 1` on any cached connection before
-returning it. If the health check raises, the stale connection is closed and
-removed, and a fresh connection is created and returned transparently.
 
 ---
 
@@ -103,7 +77,7 @@ Not a SQL injection risk (queries are parameterised), but a correctness bug.
 
 ## Low
 
-### BUG-11: 404 pages return plain text instead of styled HTML
+### ~~BUG-11: 404 pages return plain text instead of styled HTML~~ ✅ Fixed
 
 **Files:** `src/adapters/web/routers/schedule.py`, `src/adapters/web/routers/speakers.py`
 
@@ -111,8 +85,9 @@ When an event or speaker is not found, the route returns
 `Response(content="…not found", status_code=404)` — raw text with no page
 layout. Users see unstyled text instead of a branded error page.
 
-**Fix:** Return a template response using a 404 template or `base.html` with
-an error message block.
+**Fix applied:** Both routes now render `404.html` (a new template extending
+`base.html`) with a styled "Not found" message and a link back to the schedule.
+Status code 404 is preserved.
 
 ---
 

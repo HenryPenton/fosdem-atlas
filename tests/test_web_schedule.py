@@ -103,6 +103,22 @@ class TestTrackPage:
         assert response.status_code == 200
 
 
+class TestEventDetail:
+    def test_returns_200_for_known_event(self, client: TestClient) -> None:
+        response = client.get("/event/1")
+        assert response.status_code == 200
+
+    def test_shows_event_title(self, client: TestClient) -> None:
+        response = client.get("/event/1")
+        assert "Intro to Rust" in response.text
+
+    def test_returns_404_for_unknown_event(self, client: TestClient) -> None:
+        response = client.get("/event/nonexistent")
+        assert response.status_code == 404
+        assert "Not found" in response.text
+        assert "FOSDEM Explorer" in response.text
+
+
 class TestApiEvents:
     def test_returns_200(self, client: TestClient) -> None:
         response = client.get("/api/events")
