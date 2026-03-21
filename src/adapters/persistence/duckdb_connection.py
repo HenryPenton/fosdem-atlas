@@ -26,6 +26,17 @@ class DuckDBConnection:
     def get(self) -> duckdb.DuckDBPyConnection:
         """Return the calling thread's DuckDB connection, creating it if needed."""
         conn: duckdb.DuckDBPyConnection | None = getattr(self._local, "connection", None)
+        if conn is not None:
+            try:
+                conn.execute("SELECT 1")
+            except Exception:
+                with contextlib.suppress(Exception):
+                    conn.close()
+                with self._lock:
+                    if conn in self._all_connections:
+                        self._all_connections.remove(conn)
+                self._local.connection = None
+                conn = None
         if conn is None:
             path = Path(self._db_path)
             path.parent.mkdir(parents=True, exist_ok=True)

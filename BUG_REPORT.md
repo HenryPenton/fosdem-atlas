@@ -18,7 +18,7 @@ error toast via `showToast()` on network failure.
 
 ---
 
-### BUG-5: DuckDB connections have no recovery path
+### ~~BUG-5: DuckDB connections have no recovery path~~ ✅ Fixed
 
 **File:** `src/adapters/persistence/duckdb_connection.py`
 
@@ -26,8 +26,9 @@ error toast via `showToast()` on network failure.
 check. If the database file is deleted, moved, or becomes corrupt, every
 subsequent request on that thread fails indefinitely with no automatic recovery.
 
-**Fix:** Add a lightweight health check (e.g. `SELECT 1`) in `get()` before
-returning a cached connection, and re-create on failure.
+**Fix applied:** `get()` now runs `SELECT 1` on any cached connection before
+returning it. If the health check raises, the stale connection is closed and
+removed, and a fresh connection is created and returned transparently.
 
 ---
 
