@@ -27,7 +27,7 @@ class DuckDBEventsRepository:
         conn = self._db.get()
         result = conn.execute(
             f"""
-            SELECT id, title, subtitle, start_time, duration_minutes, room, track, day
+            SELECT id, title, subtitle, abstract, start_time, duration_minutes, room, track, day
             FROM events
             ORDER BY day, {order_by}
             """
@@ -38,11 +38,12 @@ class DuckDBEventsRepository:
                 id=str(row[0]),
                 title=str(row[1]),
                 subtitle=str(row[2]),
-                start_time=row[3],
-                duration_minutes=int(row[4]),
-                room=str(row[5]),
-                track=str(row[6]),
-                day=str(row[7]),
+                abstract=str(row[3]),
+                start_time=row[4],
+                duration_minutes=int(row[5]),
+                room=str(row[6]),
+                track=str(row[7]),
+                day=str(row[8]),
             )
             for row in result
         ]

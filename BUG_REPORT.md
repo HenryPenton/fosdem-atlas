@@ -24,7 +24,7 @@ ever reaches the `| safe` filter.
 
 ---
 
-### BUG-2: CSV formula injection in event export
+### ~~BUG-2: CSV formula injection in event export~~ ✅ Fixed
 
 **File:** `src/adapters/web/routers/export.py`
 
@@ -32,8 +32,9 @@ The CSV export writes `event.abstract` directly into cells with no escaping.
 Abstracts starting with `=`, `+`, `-`, or `@` trigger formula execution when
 opened in Excel or Google Sheets.
 
-**Fix:** Prefix cell values starting with those characters with a single quote
-or tab character before writing.
+**Fix applied:** `_sanitise_csv_value()` helper added in `export.py`. All string
+cell values are checked before writing; any value whose first character is a
+formula-trigger (`=`, `+`, `-`, `@`) is prefixed with a tab character.
 
 ---
 
@@ -86,7 +87,7 @@ returning a cached connection, and re-create on failure.
 
 ## Medium
 
-### BUG-6: Inconsistent `EventSummary` construction — abstract sometimes missing
+### ~~BUG-6: Inconsistent `EventSummary` construction — abstract sometimes missing~~ ✅ Fixed
 
 **File:** `src/adapters/persistence/duckdb_events_repository.py`
 
@@ -96,8 +97,8 @@ defaults to `""`), but `get_events_by_day_and_track()` and
 code paths may see empty abstracts for the same event depending on which service
 method was called.
 
-**Fix:** Include `abstract` in the SELECT for `get_all_events()` or document
-that it intentionally omits it for performance.
+**Fix applied:** `abstract` added to the SELECT and `EventSummary` construction
+in `get_all_events()`. All code paths now return the abstract consistently.
 
 ---
 

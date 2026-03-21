@@ -41,14 +41,22 @@ def create_export_page_router(
     return router
 
 
+def _sanitise_csv_value(value: str | int | float) -> str | int | float:
+    """Prefix string cells that start with formula-trigger characters."""
+    if isinstance(value, str) and value and value[0] in ("=", "+", "-", "@"):
+        return "\t" + value
+    return value
+
+
 def _csv_response(rows: list[dict[str, str | int | float]], filename: str) -> StreamingResponse:
     if not rows:
         buf = io.StringIO("")
     else:
         buf = io.StringIO()
-        writer = csv.DictWriter(buf, fieldnames=list(rows[0].keys()))
+        sanitised = [{k: _sanitise_csv_value(v) for k, v in row.items()} for row in rows]
+        writer = csv.DictWriter(buf, fieldnames=list(rows[0].keys()), lineterminator="\n")
         writer.writeheader()
-        writer.writerows(rows)
+        writer.writerows(sanitised)
         buf.seek(0)
     return StreamingResponse(
         buf,
