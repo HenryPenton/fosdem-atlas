@@ -58,10 +58,10 @@ body {
 
 /* Header & Navigation */
 header {
-    background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+    background: var(--primary-dark);
     color: white;
     padding: 1rem 1.5rem;
-    box-shadow: 0 4px 12px rgba(26, 86, 219, 0.2);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     position: sticky;
     top: 0;
     z-index: 100;
@@ -141,10 +141,6 @@ main {
     color: var(--text-color);
     font-weight: 800;
     letter-spacing: -0.03em;
-    background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
 }
 
 .hero-subtitle {
@@ -392,16 +388,19 @@ main {
     gap: 0.15rem;
 }
 
-.track-card h3 {
+.track-card h3,
+.track-name {
     margin: 0;
     color: var(--text-color);
     font-size: 1rem;
     font-weight: 600;
+    display: block;
 }
 
 .track-count {
     font-size: 0.8rem;
-    color: var(--text-muted);
+    color: var(--text-color);
+    opacity: 0.7;
 }
 
 .track-arrow {
@@ -459,7 +458,7 @@ main {
     min-width: 0;
 }
 
-.event-card h3 {
+.event-card h2 {
     margin-bottom: 0.25rem;
     color: var(--text-color);
     font-size: 1.05rem;
@@ -480,6 +479,11 @@ main {
     gap: 1rem;
     color: var(--text-muted);
     font-size: 0.85rem;
+}
+
+.track-link {
+    color: var(--primary-color);
+    text-decoration: underline;
 }
 
 .event-card .track {
@@ -564,6 +568,11 @@ main {
 
 .sort-btn--active:hover {
     color: white;
+}
+
+[data-theme="dark"] .sort-btn--active {
+    background: #2563eb;
+    border-color: #2563eb;
 }
 
 /* Day section grouping */
@@ -839,7 +848,8 @@ footer {
 
 footer a {
     color: var(--footer-link);
-    text-decoration: none;
+    text-decoration: underline;
+    text-underline-offset: 0.15em;
 }
 
 footer a:hover {
@@ -1304,6 +1314,12 @@ footer p {
 
 .speaker-name {
     font-weight: 500;
+    color: var(--primary-color);
+    text-decoration: none;
+}
+
+.speaker-name:hover {
+    text-decoration: underline;
 }
 
 .abstract-body {
@@ -1981,13 +1997,22 @@ footer p {
     background: rgba(255, 255, 255, 0.18);
 }
 
+/* Ensure inline links in body text are underlined for a11y (link-in-text-block) */
+.no-events a,
+.empty-state a,
+.deploy-link a,
+.abstract-body a {
+    text-decoration: underline;
+    text-underline-offset: 0.15em;
+    color: var(--primary-color);
+}
+
 /* Dark mode colour overrides for hardcoded values */
 
-/* Hero gradient text: dark-mode gradient-start/end are too dark to read against
-   the dark page background (~2.6:1). Use the same bright blues already established
-   for primary/accent in dark mode so contrast is ≥7:1. */
-[data-theme="dark"] .hero h1 {
-    background: linear-gradient(135deg, #60a5fa, #a78bfa);
+/* Header: --primary-dark flips to a light pastel in dark mode, so use an
+   explicit dark navy that keeps white text well above 4.5:1 contrast. */
+[data-theme="dark"] header {
+    background: #1e3a5f;
 }
 
 /* Word-cloud terms: the light-mode HSL formula yields 40–55% lightness, which
@@ -2245,7 +2270,7 @@ footer p {
     font-size: 0.75rem;
     font-weight: 600;
     text-transform: uppercase;
-    color: #94a3b8;
+    color: #cbd5e1;
     letter-spacing: 0.05em;
 }
 
@@ -2292,7 +2317,7 @@ footer p {
 }
 
 .code-comment {
-    color: #64748b;
+    color: #94a3b8;
 }
 
 @media (max-width: 640px) {

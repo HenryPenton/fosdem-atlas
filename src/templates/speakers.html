@@ -19,7 +19,7 @@
         {% for speaker in speakers %}
         <a href="/speaker/{{ speaker.id }}" class="track-card">
             <div class="track-info">
-                <h3>{{ speaker.name }}</h3>
+                <span class="track-name">{{ speaker.name }}</span>
                 <span class="track-count">{{ speaker.talk_count }} talk{{ 's' if speaker.talk_count != 1 }}</span>
             </div>
             <span class="track-arrow">&rarr;</span>
