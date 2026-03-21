@@ -1,4 +1,4 @@
-.PHONY: help venv dev install run test lint format clean commit bump patch minor major smoke-test load-test rate-limit-test cy-install cy-open cy-run cy-smoke cy-a11y
+.PHONY: help venv dev install run test lint format audit clean commit bump patch minor major smoke-test load-test rate-limit-test cy-install cy-open cy-run cy-smoke cy-a11y
 
 PYTHON := python3
 VENV := venv
@@ -18,6 +18,7 @@ install: venv ## Install production dependencies
 
 dev: venv ## Install development dependencies
 	$(BIN)/pip install -e ".[dev]"
+	$(BIN)/pip install pip-audit
 	$(BIN)/pre-commit install
 	$(BIN)/pre-commit install --hook-type commit-msg
 
@@ -29,6 +30,9 @@ run-prod: ## Run in production mode (single worker — DuckDB is single-process)
 
 test: ## Run tests
 	$(BIN)/pytest
+
+audit: ## Run pip-audit to check for known vulnerabilities in dependencies
+	$(BIN)/pip-audit
 
 lint: ## Run linting
 	$(BIN)/ruff check src tests
