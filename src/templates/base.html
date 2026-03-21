@@ -110,6 +110,16 @@
             });
         })();
 
+        // Grid hour toggle
+        function toggleHour(headerRow) {
+            var hour = headerRow.getAttribute('data-hour');
+            var contentRows = document.querySelectorAll('tr.grid-hour-content[data-hour="' + hour + '"]');
+            var isOpen = headerRow.classList.toggle('grid-hour--open');
+            contentRows.forEach(function (row) {
+                row.style.display = isOpen ? '' : 'none';
+            });
+        }
+
         // Toast notification helper
         function showToast(message, type) {
             var container = document.getElementById('toast-container');

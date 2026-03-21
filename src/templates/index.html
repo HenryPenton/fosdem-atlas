@@ -75,58 +75,7 @@
         </div>
     </div>
 
-    {% if rooms and time_slots %}
-    <div class="grid-wrapper">
-        <table class="schedule-grid" role="grid" aria-label="Schedule grid for {{ selected_day }}">
-            <thead>
-                <tr>
-                    <th class="grid-corner" scope="col">Time</th>
-                    {% for room in rooms %}
-                    <th class="grid-room-header" scope="col">
-                        <span class="grid-room-name">{{ room }}</span>
-                        {% for track in room_tracks.get(room, []) %}
-                        <span class="grid-room-track">{{ track }}</span>
-                        {% endfor %}
-                    </th>
-                    {% endfor %}
-                </tr>
-            </thead>
-            <tbody>
-                {% for slot in time_slots %}
-                {% set slot_key = slot.strftime('%H:%M') %}
-                <tr>
-                    <th class="grid-time" scope="row">{{ slot_key }}</th>
-                    {% for room in rooms %}
-                    {% set span = grid_rowspans.get(slot_key, {}).get(room, 1) %}
-                    {% if span > 0 %}
-                    <td class="grid-cell{% if grid.get(slot_key, {}).get(room) %} grid-cell--filled{% endif %}"{% if span > 1 %} rowspan="{{ span }}"{% endif %}>
-                        {% set track_change = room_track_changes.get(room, {}).get(slot_key) %}
-                        {% if track_change %}
-                        <div class="grid-track-change">{{ track_change }}</div>
-                        {% endif %}
-                        {% for ev in grid.get(slot_key, {}).get(room, []) %}
-                        <div class="grid-event-wrapper">
-                            <a href="/event/{{ ev.id }}" class="grid-event" title="{{ ev.title }} ({{ ev.duration_minutes }} min)">
-                                <span class="grid-event-title">{{ ev.title | truncate(55) }}</span>
-                                <span class="grid-event-meta">⏱️ {{ ev.duration_minutes }}m</span>
-                            </a>
-                            <button class="bookmark-btn bookmark-btn--grid" data-bookmark-id="{{ ev.id }}" title="Add to My Schedule" aria-label="Add to My Schedule"><svg class="bookmark-icon" viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path d="M17 3H7c-1.1 0-2 .9-2 2v16l7-3 7 3V5c0-1.1-.9-2-2-2z"/></svg></button>
-                        </div>
-                        {% endfor %}
-                    </td>
-                    {% endif %}
-                    {% endfor %}
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-    {% else %}
-    <div class="no-events">
-        <div class="no-events-icon">📭</div>
-        <p>No events scheduled on {{ selected_day }}.</p>
-    </div>
-    {% endif %}
+    {% include "partials/schedule_grid.html" %}
 
     {% else %}
     <div class="no-events">

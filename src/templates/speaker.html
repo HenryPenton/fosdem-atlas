@@ -25,21 +25,9 @@
 
     <section class="event-list">
         {% for event in events %}
-        <div class="event-card">
-            <div class="event-time-badge">{{ event.start_time.strftime('%H:%M') }}</div>
-            <div class="event-body">
-                <h3><a href="/event/{{ event.id }}" class="event-title-link">{{ event.title }}</a></h3>
-                {% if event.subtitle %}
-                <p class="subtitle">{{ event.subtitle }}</p>
-                {% endif %}
-                <div class="meta">
-                    <span class="day">📅 {{ event.day }}</span>
-                    <span class="room">📍 {{ event.room }}</span>
-                    <span class="duration">⏱️ {{ event.duration_minutes }} min</span>
-                    <a href="/track/{{ event.track }}" class="track-link">{{ event.track }}</a>
-                </div>
-            </div>
-        </div>
+        {% with show_abstract=false %}
+        {% include "partials/event_card.html" %}
+        {% endwith %}
         {% endfor %}
     </section>
 </div>

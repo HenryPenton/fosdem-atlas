@@ -1,0 +1,12 @@
+{% if grids_by_day %}
+{% for day, grid_data in grids_by_day.items() %}
+<h2 class="schedule-day-heading">{{ day }}</h2>
+{% with rooms=grid_data.rooms, time_slots=grid_data.time_slots, grid=grid_data.grid, room_tracks=grid_data.room_tracks, room_track_changes=grid_data.room_track_changes, selected_day=grid_data.selected_day %}
+{% include "partials/schedule_grid.html" %}
+{% endwith %}
+{% endfor %}
+{% else %}
+<p id="schedule-empty" class="empty-state">
+    No events saved yet. Browse the <a href="/">schedule</a> and click the bookmark icon to add events.
+</p>
+{% endif %}

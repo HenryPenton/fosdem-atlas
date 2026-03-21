@@ -1,7 +1,6 @@
 """Schedule service – browsing and querying the conference schedule."""
 
 import dataclasses
-import math
 from collections import defaultdict
 from datetime import datetime, timedelta, timezone
 
@@ -15,7 +14,6 @@ from src.domain.models import (
     RoomEventMap,
     RoomTrackChanges,
     RoomTracks,
-    RowspanGrid,
     ScheduleGrid,
     TrackChanges,
     TracksOverview,
@@ -83,7 +81,7 @@ class ScheduleService:
         return self._overview_cache
 
     def get_grid_data(self, day: str) -> GridData:
-        """Build grid structure: rooms × time slots for a day."""
+        """Build grid structure: rooms × hourly time slots for a day."""
         if day in self._grid_cache:
             return self._grid_cache[day]
         days = self._repo.get_unique_days()
@@ -94,8 +92,6 @@ class ScheduleService:
                 rooms=[],
                 time_slots=[],
                 grid={},
-                grid_rowspans={},
-                grid_covered=set(),
                 room_tracks={},
                 room_track_changes={},
             )
@@ -114,49 +110,28 @@ class ScheduleService:
 
         time_slots: list[datetime] = []
         if starts:
-            slot_start = min(starts).replace(minute=(min(starts).minute // 30) * 30, second=0)
+            slot_start = min(starts).replace(minute=0, second=0)
             slot_end = max(ends)
             current = slot_start
             while current < slot_end:
                 time_slots.append(current)
-                current += timedelta(minutes=30)
+                current += timedelta(hours=1)
 
+        # Place each event in the hour of its start time
         grid: ScheduleGrid = defaultdict(lambda: defaultdict(list))
         for ev in events:
             st = ev.start_time
             if not isinstance(st, datetime):
                 continue
-            slot_key = st.replace(minute=(st.minute // 30) * 30, second=0).strftime("%H:%M")
+            slot_key = st.replace(minute=0, second=0).strftime("%H:%M")
             grid[slot_key][ev.room].append(ev)
 
-        # Compute rowspans and covered cells so the template can render proper rowspan= attrs.
-        # A cell is "covered" when a previous row's rowspan extends over it — it must be skipped.
-        time_slot_keys = [s.strftime("%H:%M") for s in time_slots]
-        grid_rowspans: RowspanGrid = {}
-        grid_covered: set[tuple[str, str]] = set()
+        # Sort events within each cell by start time
+        for slot_key in grid:
+            for room in grid[slot_key]:
+                grid[slot_key][room].sort(key=lambda e: e.start_time)
 
-        for i, slot_key in enumerate(time_slot_keys):
-            grid_rowspans[slot_key] = {}
-            for room in rooms:
-                if (slot_key, room) in grid_covered:
-                    grid_rowspans[slot_key][room] = 0  # skip this cell
-                    continue
-                events_here = grid.get(slot_key, {}).get(room, [])
-                if events_here:
-                    span = max(
-                        1,
-                        max(math.ceil(ev.duration_minutes / 30) for ev in events_here),
-                    )
-                    for j in range(1, span):
-                        if i + j < len(time_slot_keys):
-                            grid_covered.add((time_slot_keys[i + j], room))
-                    grid_rowspans[slot_key][room] = span
-                else:
-                    grid_rowspans[slot_key][room] = 1
-
-        # Build per-room ordered track list and change-point markers by walking events
-        # chronologically per room. Each time the track name changes we record the slot_key
-        # of the first event in the new track so the template can render a divider.
+        # Build per-room ordered track list and change-point markers
         room_events_by_room: RoomEventMap = defaultdict(list)
         for ev in events:
             if isinstance(ev.start_time, datetime):
@@ -177,7 +152,7 @@ class ScheduleService:
                 st = ev.start_time
                 if not isinstance(st, datetime):
                     continue
-                slot_key = st.replace(minute=(st.minute // 30) * 30, second=0).strftime("%H:%M")
+                slot_key = st.replace(minute=0, second=0).strftime("%H:%M")
                 if current_track is not None:
                     changes[slot_key] = track
                 if track not in seen:
@@ -192,8 +167,6 @@ class ScheduleService:
             rooms=rooms,
             time_slots=time_slots,
             grid=dict(grid),
-            grid_rowspans=grid_rowspans,
-            grid_covered=grid_covered,
             room_tracks=room_tracks,
             room_track_changes=room_track_changes,
         )
@@ -259,6 +232,111 @@ class ScheduleService:
 
     def get_events_by_ids(self, event_ids: list[str]) -> list[EventDetail]:
         return self._repo.get_events_by_ids(event_ids)
+
+    def build_grid_for_ids(self, event_ids: list[str]) -> dict[str, GridData]:
+        """Build per-day GridData structures for a specific set of event IDs."""
+        events = self._repo.get_events_by_ids(event_ids)
+
+        # Group events by day
+        by_day: dict[str, list[EventDetail]] = defaultdict(list)
+        for ev in events:
+            if isinstance(ev.start_time, datetime):
+                by_day[ev.day].append(ev)
+
+        result: dict[str, GridData] = {}
+        for day, day_events in sorted(by_day.items()):
+            rooms = sorted({ev.room for ev in day_events})
+
+            starts = [ev.start_time for ev in day_events if isinstance(ev.start_time, datetime)]
+            ends = [
+                ev.start_time + timedelta(minutes=ev.duration_minutes)
+                for ev in day_events
+                if isinstance(ev.start_time, datetime)
+            ]
+
+            time_slots: list[datetime] = []
+            if starts:
+                slot_start = min(starts).replace(minute=0, second=0)
+                slot_end = max(ends)
+                current = slot_start
+                while current < slot_end:
+                    time_slots.append(current)
+                    current += timedelta(hours=1)
+
+            grid: ScheduleGrid = defaultdict(lambda: defaultdict(list))
+            for ev in day_events:
+                st = ev.start_time
+                if not isinstance(st, datetime):
+                    continue
+                slot_key = st.replace(minute=0, second=0).strftime("%H:%M")
+                # EventDetail is not an EventSummary, build a compatible summary
+                summary = EventSummary(
+                    id=ev.id,
+                    title=ev.title,
+                    subtitle=ev.subtitle,
+                    start_time=ev.start_time,
+                    duration_minutes=ev.duration_minutes,
+                    room=ev.room,
+                    track=ev.track,
+                    day=ev.day,
+                    abstract=ev.abstract,
+                )
+                grid[slot_key][ev.room].append(summary)
+
+            for slot_key in grid:
+                for room in grid[slot_key]:
+                    grid[slot_key][room].sort(key=lambda e: e.start_time)
+
+            room_events_by_room: RoomEventMap = defaultdict(list)
+            for ev in day_events:
+                if isinstance(ev.start_time, datetime):
+                    summary = EventSummary(
+                        id=ev.id,
+                        title=ev.title,
+                        subtitle=ev.subtitle,
+                        start_time=ev.start_time,
+                        duration_minutes=ev.duration_minutes,
+                        room=ev.room,
+                        track=ev.track,
+                        day=ev.day,
+                        abstract=ev.abstract,
+                    )
+                    room_events_by_room[ev.room].append(summary)
+
+            room_tracks: RoomTracks = {}
+            room_track_changes: RoomTrackChanges = {}
+            for room in rooms:
+                sorted_evs = sorted(room_events_by_room.get(room, []), key=lambda e: e.start_time)
+                seen: list[str] = []
+                current_track: str | None = None
+                changes: TrackChanges = {}
+                for sevt in sorted_evs:
+                    track = sevt.track
+                    if not track or track == current_track:
+                        continue
+                    st = sevt.start_time
+                    if not isinstance(st, datetime):
+                        continue
+                    slot_key = st.replace(minute=0, second=0).strftime("%H:%M")
+                    if current_track is not None:
+                        changes[slot_key] = track
+                    if track not in seen:
+                        seen.append(track)
+                    current_track = track
+                room_tracks[room] = seen
+                room_track_changes[room] = changes
+
+            result[day] = GridData(
+                days=sorted(by_day.keys()),
+                selected_day=day,
+                rooms=rooms,
+                time_slots=time_slots,
+                grid=dict(grid),
+                room_tracks=room_tracks,
+                room_track_changes=room_track_changes,
+            )
+
+        return result
 
     def build_ical(self, event_ids: list[str]) -> str:
         """Build an iCal calendar string for the given event IDs."""

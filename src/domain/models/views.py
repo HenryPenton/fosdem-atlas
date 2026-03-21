@@ -15,8 +15,6 @@ from src.domain.models.events import EventSummary
 
 # time-slot key → room name → events in that slot/room
 ScheduleGrid: TypeAlias = dict[str, dict[str, list[EventSummary]]]
-# time-slot key → room name → rowspan count
-RowspanGrid: TypeAlias = dict[str, dict[str, int]]
 # room name → ordered list of events
 RoomEventMap: TypeAlias = dict[str, list[EventSummary]]
 # room name → ordered list of track names
@@ -49,8 +47,6 @@ class GridData:
     rooms: list[str]
     time_slots: list[datetime]
     grid: ScheduleGrid
-    grid_rowspans: RowspanGrid
-    grid_covered: set[tuple[str, str]]
     room_tracks: RoomTracks
     room_track_changes: RoomTrackChanges
 

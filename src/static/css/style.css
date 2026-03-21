@@ -608,7 +608,8 @@ main {
 
 .schedule-grid {
     width: 100%;
-    border-collapse: collapse;
+    border-collapse: separate;
+    border-spacing: 0;
     min-width: 600px;
     font-size: 0.85rem;
 }
@@ -631,6 +632,7 @@ main {
     color: var(--text-muted);
     font-size: 0.8rem;
     text-transform: uppercase;
+    box-shadow: 1px 0 0 var(--border-color);
 }
 
 .grid-room-header {
@@ -680,17 +682,56 @@ main {
     position: sticky;
     left: 0;
     z-index: 1;
-    background: var(--background-color);
+    background: var(--card-background);
     font-weight: 700;
     color: var(--primary-color);
     font-size: 0.85rem;
     white-space: nowrap;
     text-align: center;
+    box-shadow: 1px 0 0 var(--border-color);
 }
 
 .grid-cell {
     min-height: 70px;
     background: var(--card-background);
+}
+
+.grid-hour-header {
+    cursor: pointer;
+    user-select: none;
+}
+
+.grid-hour-header:hover .grid-time {
+    background: var(--primary-light);
+}
+
+.grid-hour-toggle {
+    display: inline-block;
+    transition: transform 0.2s;
+    margin-right: 0.4rem;
+    font-size: 0.7rem;
+}
+
+.grid-hour-header.grid-hour--open .grid-hour-toggle {
+    transform: rotate(90deg);
+}
+
+.grid-hour-count {
+    font-weight: 400;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+.grid-hour-summary {
+    background: var(--card-background);
+}
+
+.grid-time-spacer {
+    position: sticky;
+    left: 0;
+    z-index: 1;
+    background: var(--card-background);
+    box-shadow: 1px 0 0 var(--border-color);
 }
 
 .grid-cell--filled {
@@ -780,6 +821,10 @@ main {
     .schedule-grid th,
     .schedule-grid td {
         padding: 0.35rem;
+    }
+
+    .bookmark-btn--grid {
+        opacity: 1;
     }
 }
 

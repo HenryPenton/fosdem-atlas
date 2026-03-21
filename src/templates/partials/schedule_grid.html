@@ -1,0 +1,60 @@
+{% if rooms and time_slots %}
+<div class="grid-wrapper">
+    <table class="schedule-grid" role="grid" aria-label="Schedule grid for {{ selected_day }}">
+        <thead>
+            <tr>
+                <th class="grid-corner" scope="col">Time</th>
+                {% for room in rooms %}
+                <th class="grid-room-header" scope="col">
+                    <span class="grid-room-name">{{ room }}</span>
+                    {% for track in room_tracks.get(room, []) %}
+                    <span class="grid-room-track">{{ track }}</span>
+                    {% endfor %}
+                </th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for slot in time_slots %}
+            {% set slot_key = slot.strftime('%H:%M') %}
+            {% set hour_events = grid.get(slot_key, {}) %}
+            {% set total_events = hour_events.values() | map('length') | sum %}
+            <tr class="grid-hour-header" data-hour="{{ slot_key }}" onclick="toggleHour(this)">
+                <th class="grid-time" scope="row">
+                    <span class="grid-hour-toggle">▶</span>
+                    {{ slot_key }}
+                </th>
+                <td class="grid-hour-summary" colspan="{{ rooms|length }}">
+                    <span class="grid-hour-count">{{ total_events }} event{{ 's' if total_events != 1 else '' }}</span>
+                </td>
+            </tr>
+            <tr class="grid-hour-content" data-hour="{{ slot_key }}" style="display: none;">
+                <td class="grid-time-spacer"></td>
+                {% for room in rooms %}
+                <td class="grid-cell{% if hour_events.get(room) %} grid-cell--filled{% endif %}">
+                    {% set track_change = room_track_changes.get(room, {}).get(slot_key) %}
+                    {% if track_change %}
+                    <div class="grid-track-change">{{ track_change }}</div>
+                    {% endif %}
+                    {% for ev in hour_events.get(room, []) %}
+                    <div class="grid-event-wrapper">
+                        <a href="/event/{{ ev.id }}" class="grid-event" title="{{ ev.title }} ({{ ev.duration_minutes }} min)">
+                            <span class="grid-event-title">{{ ev.title | truncate(55) }}</span>
+                            <span class="grid-event-meta">{{ ev.start_time.strftime('%H:%M') }} · {{ ev.duration_minutes }}m</span>
+                        </a>
+                        <button class="bookmark-btn bookmark-btn--grid" data-bookmark-id="{{ ev.id }}" title="Add to My Schedule" aria-label="Add to My Schedule"><svg class="bookmark-icon" viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path d="M17 3H7c-1.1 0-2 .9-2 2v16l7-3 7 3V5c0-1.1-.9-2-2-2z"/></svg></button>
+                    </div>
+                    {% endfor %}
+                </td>
+                {% endfor %}
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="no-events">
+    <div class="no-events-icon">📭</div>
+    <p>No events scheduled on {{ selected_day }}.</p>
+</div>
+{% endif %}

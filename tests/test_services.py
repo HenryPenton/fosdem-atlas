@@ -71,24 +71,19 @@ class TestScheduleService:
         assert "Room B" in data.rooms
         assert len(data.time_slots) > 0
         assert len(data.grid) > 0
-        assert data.grid_rowspans is not None
-        assert data.grid_covered is not None
 
-    def test_get_grid_data_rowspan_reflects_duration(
-        self, schedule_service: ScheduleService
-    ) -> None:
-        # "Intro to Rust" in Room A at 10:00 with duration=30 → rowspan 1
+    def test_get_grid_data_events_placed_in_hour(self, schedule_service: ScheduleService) -> None:
+        # "Intro to Rust" in Room A at 10:00 → appears in "10:00" hour slot
         data = schedule_service.get_grid_data("2026-02-07")
-        rowspans = data.grid_rowspans
-        assert rowspans["10:00"]["Room A"] == 1
+        assert "Room A" in data.grid.get("10:00", {})
+        events = data.grid["10:00"]["Room A"]
+        assert any(ev.title == "Intro to Rust" for ev in events)
 
     def test_get_grid_data_empty_days(self, events_repository: DuckDBEventsRepository) -> None:
         service = ScheduleService(events_repository)
         data = service.get_grid_data("")
         assert data.days == []
         assert data.grid == {}
-        assert data.grid_rowspans == {}
-        assert data.grid_covered == set()
         assert data.room_tracks == {}
         assert data.room_track_changes == {}
 

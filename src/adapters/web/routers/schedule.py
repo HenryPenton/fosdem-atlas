@@ -120,6 +120,19 @@ def create_schedule_router(
             context={"title": "FOSDEM Explorer — My Schedule"},
         )
 
+    @router.get("/my-schedule/grid", response_class=HTMLResponse)
+    def my_schedule_grid(
+        request: Request,
+        ids: str = Query(default="", max_length=4096),
+    ) -> HTMLResponse:
+        event_ids = [i.strip() for i in ids.split(",") if i.strip()]
+        grids_by_day = schedule_service.build_grid_for_ids(event_ids) if event_ids else {}
+        return templates.TemplateResponse(
+            request=request,
+            name="partials/my_schedule_grid.html",
+            context={"grids_by_day": grids_by_day},
+        )
+
     @router.get("/offline", response_class=HTMLResponse)
     def offline(request: Request) -> HTMLResponse:
         return templates.TemplateResponse(

@@ -29,9 +29,6 @@
     </div>
 
     <div id="schedule-events" class="schedule-events">
-        <p id="schedule-empty" class="empty-state">
-            No events saved yet. Browse the <a href="/schedule">schedule</a> and click the bookmark icon to add events.
-        </p>
     </div>
 
     <div class="schedule-transfer">
@@ -72,10 +69,7 @@
 <script>
 (function () {
     var saved = MySchedule.getIds();
-    if (saved.length === 0) return;
-
     var controls = document.getElementById('schedule-controls');
-    var emptyMsg = document.getElementById('schedule-empty');
     var eventsDiv = document.getElementById('schedule-events');
     var countSpan = document.getElementById('schedule-count');
     var icalLink = document.getElementById('schedule-ical');
@@ -83,142 +77,58 @@
     var conflictsDiv = document.getElementById('schedule-conflicts');
     var conflictList = document.getElementById('conflict-list');
 
-    controls.hidden = false;
-    emptyMsg.hidden = true;
-    countSpan.textContent = saved.length + ' event' + (saved.length !== 1 ? 's' : '');
+    function loadGrid() {
+        var ids = MySchedule.getIds();
+        if (ids.length === 0) {
+            controls.hidden = true;
+            eventsDiv.innerHTML = '<p class="empty-state">No events saved yet. Browse the <a href="/">schedule</a> and click the bookmark icon to add events.</p>';
+            return;
+        }
+        controls.hidden = false;
+        countSpan.textContent = ids.length + ' event' + (ids.length !== 1 ? 's' : '');
+        icalLink.href = '/my-schedule/export.ics?ids=' + encodeURIComponent(ids.join(','));
 
-    icalLink.href = '/my-schedule/export.ics?ids=' + encodeURIComponent(saved.join(','));
-
-    fetch('/api/v1/events/by-ids?ids=' + encodeURIComponent(saved.join(',')))
-        .then(function (r) { return r.json(); })
-        .then(function (events) {
-            if (events.length === 0) {
-                emptyMsg.hidden = false;
-                controls.hidden = true;
-                return;
-            }
-
-            // Group by day
-            var byDay = {};
-            events.forEach(function (ev) {
-                var day = ev.day ? String(ev.day).split('T')[0] : 'Unknown';
-                if (!byDay[day]) byDay[day] = [];
-                byDay[day].push(ev);
+        fetch('/my-schedule/grid?ids=' + encodeURIComponent(ids.join(',')))
+            .then(function (r) { return r.text(); })
+            .then(function (html) {
+                eventsDiv.innerHTML = html;
+                MySchedule.initBookmarkButtons();
             });
 
-            var html = '';
-            Object.keys(byDay).sort().forEach(function (day) {
-                var dayEvents = byDay[day];
-                html += '<h2 class="schedule-day-heading">' + esc(day) + '</h2>';
-
-                // Collect rooms
-                var roomSet = {};
-                dayEvents.forEach(function (ev) { roomSet[ev.room] = true; });
-                var rooms = Object.keys(roomSet).sort();
-
-                // Build 30-min time slots
-                var starts = [], ends = [];
-                dayEvents.forEach(function (ev) {
-                    if (ev.start_time) {
-                        var s = new Date(ev.start_time);
-                        starts.push(s);
-                        ends.push(new Date(s.getTime() + (ev.duration_minutes || 30) * 60000));
-                    }
-                });
-
-                if (starts.length === 0) return;
-
-                starts.sort(function (a, b) { return a - b; });
-                ends.sort(function (a, b) { return a - b; });
-
-                var minTime = new Date(starts[0]);
-                minTime.setMinutes(Math.floor(minTime.getMinutes() / 30) * 30, 0, 0);
-                var maxTime = ends[ends.length - 1];
-
-                var slots = [];
-                var curr = new Date(minTime);
-                while (curr < maxTime) {
-                    slots.push(new Date(curr));
-                    curr = new Date(curr.getTime() + 30 * 60000);
+        // Conflict detection via API
+        fetch('/api/v1/events/by-ids?ids=' + encodeURIComponent(ids.join(',')))
+            .then(function (r) { return r.json(); })
+            .then(function (events) {
+                var conflicts = MySchedule.detectConflicts(events);
+                if (conflicts.length > 0) {
+                    conflictsDiv.hidden = false;
+                    conflictList.innerHTML = conflicts.map(function (c) {
+                        var d = document.createElement('div');
+                        function esc(s) {
+                            d.appendChild(document.createTextNode(String(s)));
+                            var h = d.innerHTML;
+                            d.innerHTML = '';
+                            return h;
+                        }
+                        return '<li class="conflict-item">' +
+                            '<a href="/event/' + esc(c.a.id) + '">' + esc(c.a.title) + '</a>' +
+                            ' conflicts with ' +
+                            '<a href="/event/' + esc(c.b.id) + '">' + esc(c.b.title) + '</a>' +
+                            ' <span class="conflict-detail">(' + esc(c.a.room) + ' / ' + esc(c.b.room) + ')</span>' +
+                            '</li>';
+                    }).join('');
                 }
-
-                // Build grid: slotKey -> room -> [events]
-                var grid = {};
-                dayEvents.forEach(function (ev) {
-                    if (!ev.start_time) return;
-                    var s = new Date(ev.start_time);
-                    var slotKey = pad(s.getHours()) + ':' + pad(Math.floor(s.getMinutes() / 30) * 30);
-                    if (!grid[slotKey]) grid[slotKey] = {};
-                    if (!grid[slotKey][ev.room]) grid[slotKey][ev.room] = [];
-                    grid[slotKey][ev.room].push(ev);
-                });
-
-                // Render grid table
-                html += '<div class="grid-wrapper">';
-                html += '<table class="schedule-grid" role="grid">';
-                html += '<thead><tr><th class="grid-corner">Time</th>';
-                rooms.forEach(function (room) {
-                    html += '<th class="grid-room-header">' + esc(room) + '</th>';
-                });
-                html += '</tr></thead><tbody>';
-
-                slots.forEach(function (slot) {
-                    var slotKey = pad(slot.getHours()) + ':' + pad(slot.getMinutes());
-                    html += '<tr><th class="grid-time">' + slotKey + '</th>';
-                    rooms.forEach(function (room) {
-                        var cellEvents = (grid[slotKey] && grid[slotKey][room]) ? grid[slotKey][room] : [];
-                        var filledClass = cellEvents.length > 0 ? ' grid-cell--filled' : '';
-                        html += '<td class="grid-cell' + filledClass + '">';
-                        cellEvents.forEach(function (ev) {
-                            var title = ev.title.length > 40 ? ev.title.substring(0, 40) + '\u2026' : ev.title;
-                            html += '<div class="grid-event-wrapper">';
-                            html += '<a href="/event/' + esc(ev.id) + '" class="grid-event" title="' + esc(ev.title) + ' (' + ev.duration_minutes + ' min)">';
-                            html += '<span class="grid-event-title">' + esc(title) + '</span>';
-                            html += '<span class="grid-event-meta">\u23F1\uFE0F ' + ev.duration_minutes + 'm</span>';
-                            html += '</a>';
-                            html += '<button class="bookmark-btn bookmark-btn--grid bookmark-btn--active" onclick="removeAndRefresh(\'' + esc(ev.id) + '\')" title="Remove from My Schedule"><svg class="bookmark-icon" viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path d="M17 3H7c-1.1 0-2 .9-2 2v16l7-3 7 3V5c0-1.1-.9-2-2-2z"/></svg></button>';
-                            html += '</div>';
-                        });
-                        html += '</td>';
-                    });
-                    html += '</tr>';
-                });
-
-                html += '</tbody></table></div>';
             });
-            eventsDiv.innerHTML = html;
-
-            // Conflict detection
-            var conflicts = MySchedule.detectConflicts(events);
-            if (conflicts.length > 0) {
-                conflictsDiv.hidden = false;
-                conflictList.innerHTML = conflicts.map(function (c) {
-                    return '<li class="conflict-item">' +
-                        '<a href="/event/' + esc(c.a.id) + '">' + esc(c.a.title) + '</a>' +
-                        ' conflicts with ' +
-                        '<a href="/event/' + esc(c.b.id) + '">' + esc(c.b.title) + '</a>' +
-                        ' <span class="conflict-detail">(' + esc(c.a.room) + ' / ' + esc(c.b.room) + ')</span>' +
-                        '</li>';
-                }).join('');
-            }
-        });
+    }
 
     clearBtn.addEventListener('click', function () {
         if (confirm('Remove all saved events?')) {
             MySchedule.clear();
-            location.reload();
+            loadGrid();
         }
     });
 
-    function esc(s) {
-        var d = document.createElement('div');
-        d.appendChild(document.createTextNode(String(s)));
-        return d.innerHTML;
-    }
-
-    function pad(n) {
-        return n < 10 ? '0' + n : '' + n;
-    }
+    loadGrid();
 })();
 
 function removeAndRefresh(id) {
@@ -293,6 +203,5 @@ function removeAndRefresh(id) {
         location.reload();
     });
 })();
-
 </script>
 {% endblock %}

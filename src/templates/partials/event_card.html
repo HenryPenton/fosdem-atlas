@@ -1,0 +1,25 @@
+<div class="event-card">
+    <div class="event-time-badge">{{ event.start_time.strftime('%H:%M') }}</div>
+    <div class="event-body">
+        <h3><a href="/event/{{ event.id }}" class="event-title-link">{{ event.title }}</a></h3>
+        {% if (show_subtitle is not defined or show_subtitle) and event.subtitle %}
+        <p class="subtitle">{{ event.subtitle }}</p>
+        {% endif %}
+        <div class="meta">
+            {% if show_day is not defined or show_day %}
+            <span class="day">📅 {{ event.day }}</span>
+            {% endif %}
+            <span class="room">📍 {{ event.room }}</span>
+            <span class="duration">⏱️ {{ event.duration_minutes }} min</span>
+            {% if show_track is not defined or show_track %}
+            <a href="/track/{{ event.track }}" class="track-link">{{ event.track }}</a>
+            {% endif %}
+        </div>
+        {% if (show_abstract is not defined or show_abstract) and event.abstract %}
+        <details class="abstract-toggle">
+            <summary>Show abstract</summary>
+            <p class="abstract">{{ event.abstract | safe }}</p>
+        </details>
+        {% endif %}
+    </div>
+</div>
