@@ -28,10 +28,19 @@ jobs:
             --config p/default \
             --config p/python \
             --config p/owasp-top-ten \
-            --sarif --output semgrep.sarif \
-            --text 2>&1 | tee semgrep-output.txt
-          echo "## Semgrep SAST Results" >> $GITHUB_STEP_SUMMARY
-          cat semgrep-output.txt >> $GITHUB_STEP_SUMMARY
+            --json --output semgrep.json
+          # Also produce human-readable text for summary
+          semgrep scan \
+            --config p/default \
+            --config p/python \
+            --config p/owasp-top-ten \
+            --text 2>&1 | tee semgrep-output.txt || true
+          {
+            echo "## Semgrep SAST Results"
+            echo '```'
+            cat semgrep-output.txt
+            echo '```'
+          } >> $GITHUB_STEP_SUMMARY
         continue-on-error: true
 
       - name: Upload Semgrep report
@@ -40,7 +49,7 @@ jobs:
         with:
           name: semgrep-report
           path: |
-            semgrep.sarif
+            semgrep.json
             semgrep-output.txt
 
   trivy:
@@ -49,40 +58,33 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - name: Run Trivy (table output for summary)
+      - name: Run Trivy
         uses: aquasecurity/trivy-action@0.35.0
         with:
           scan-type: fs
           scan-ref: .
-          severity: CRITICAL,HIGH
+          scanners: vuln,secret,misconfig
+          severity: CRITICAL,HIGH,MEDIUM
           format: table
           output: trivy-table.txt
-        continue-on-error: true
-
-      - name: Run Trivy (JSON for artifact)
-        uses: aquasecurity/trivy-action@0.35.0
-        with:
-          scan-type: fs
-          scan-ref: .
-          severity: CRITICAL,HIGH
-          format: json
-          output: trivy.json
         continue-on-error: true
 
       - name: Write Trivy summary
         if: always()
         run: |
-          echo "## Trivy Vulnerability Results" >> $GITHUB_STEP_SUMMARY
-          cat trivy-table.txt >> $GITHUB_STEP_SUMMARY
+          {
+            echo "## Trivy Vulnerability Results"
+            echo '```'
+            cat trivy-table.txt
+            echo '```'
+          } >> $GITHUB_STEP_SUMMARY
 
       - name: Upload Trivy report
         uses: actions/upload-artifact@v5
         if: always()
         with:
           name: trivy-report
-          path: |
-            trivy-table.txt
-            trivy.json
+          path: trivy-table.txt
 
   trufflehog:
     name: TruffleHog Secrets Scan
@@ -97,14 +99,20 @@ jobs:
 
       - name: Run TruffleHog
         run: |
-          trufflehog filesystem . --only-verified --json > trufflehog-report.json 2>&1 || true
-          echo "## TruffleHog Secrets Scan Results" >> $GITHUB_STEP_SUMMARY
-          COUNT=$(wc -l < trufflehog-report.json | tr -d ' ')
-          if [ "$COUNT" -eq 0 ]; then
-            echo "No verified secrets found. ✅" >> $GITHUB_STEP_SUMMARY
-          else
-            echo "⚠️ $COUNT verified secret(s) found. See artifact for details." >> $GITHUB_STEP_SUMMARY
-          fi
+          trufflehog filesystem . --only-verified --json > trufflehog-report.json 2>/dev/null || true
+          # Each finding is one JSON line; log lines have a "level" key, findings have a "DetectorName" key
+          FINDINGS=$(grep -c '"DetectorName"' trufflehog-report.json 2>/dev/null || echo 0)
+          {
+            echo "## TruffleHog Secrets Scan Results"
+            if [ "$FINDINGS" -eq 0 ]; then
+              echo "No verified secrets found. ✅"
+            else
+              echo "⚠️ **$FINDINGS verified secret(s) found:**"
+              echo '```json'
+              grep '"DetectorName"' trufflehog-report.json
+              echo '```'
+            fi
+          } >> $GITHUB_STEP_SUMMARY
 
       - name: Upload TruffleHog report
         uses: actions/upload-artifact@v5
