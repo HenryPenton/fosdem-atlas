@@ -5,60 +5,6 @@ _249 Python tests passing · ruff + mypy clean · 28 a11y + 18 smoke Cypress tes
 
 ---
 
-## Critical
-
-### ~~BUG-1: XSS — `| safe` renders unsanitised HTML from FOSDEM abstracts~~ ✅ Fixed
-
-**Files:** `src/templates/event.html:51`, `src/templates/partials/event_card.html:21`
-
-Event abstracts from the FOSDEM XML feed are rendered with Jinja2's `| safe`
-filter, bypassing auto-escaping. The scraper performs no HTML sanitisation on
-abstract content. While FOSDEM is a trusted data source, a modified or
-compromised XML feed could inject `<script>` tags that execute in users'
-browsers.
-
-**Fix applied:** `nh3` added as a production dependency. Abstracts are now
-sanitised via `FosdemScheduleFetcher._sanitise_html()` at ingestion time using
-an allowlist of safe formatting tags. The stored content is clean before it
-ever reaches the `| safe` filter.
-
----
-
-### ~~BUG-2: CSV formula injection in event export~~ ✅ Fixed
-
-**File:** `src/adapters/web/routers/export.py`
-
-The CSV export writes `event.abstract` directly into cells with no escaping.
-Abstracts starting with `=`, `+`, `-`, or `@` trigger formula execution when
-opened in Excel or Google Sheets.
-
-**Fix applied:** `_sanitise_csv_value()` helper added in `export.py`. All string
-cell values are checked before writing; any value whose first character is a
-formula-trigger (`=`, `+`, `-`, `@`) is prefixed with a tab character.
-
----
-
-## High
-
-### BUG-3: No security response headers
-
-**File:** `src/adapters/web/app.py`
-
-The app sets no `Content-Security-Policy`, `X-Frame-Options`,
-`X-Content-Type-Options`, or `Strict-Transport-Security` headers. Pages can be
-iframed by third-party sites (clickjacking) and responses are subject to MIME
-content-sniffing.
-
-**Fix:** Add a middleware that sets at minimum:
-
-```
-X-Content-Type-Options: nosniff
-X-Frame-Options: DENY
-Referrer-Policy: strict-origin-when-cross-origin
-```
-
----
-
 ### BUG-4: Missing `.catch()` on fetch calls in My Schedule
 
 **File:** `src/templates/my_schedule.html`
@@ -184,10 +130,10 @@ appear.
 
 ## Test Coverage Gaps
 
-| Area | Notes |
-| ---- | ----- |
-| `/api/v1/overview` endpoint | No test exists |
-| `build_grid_for_ids()` service method | Called by My Schedule grid route but untested |
-| Health endpoint 503 path | `except` branch not exercised in tests |
-| Malformed XML in scraper | No tests for missing or broken XML tags |
-| Concurrent access | No thread-safety tests for the DuckDB connection pool |
+| Area                                  | Notes                                                 |
+| ------------------------------------- | ----------------------------------------------------- |
+| `/api/v1/overview` endpoint           | No test exists                                        |
+| `build_grid_for_ids()` service method | Called by My Schedule grid route but untested         |
+| Health endpoint 503 path              | `except` branch not exercised in tests                |
+| Malformed XML in scraper              | No tests for missing or broken XML tags               |
+| Concurrent access                     | No thread-safety tests for the DuckDB connection pool |
