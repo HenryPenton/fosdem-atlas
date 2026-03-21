@@ -171,8 +171,8 @@ Build an open-source tool that scrapes the FOSDEM schedule, stores it in DuckDB 
 - [x] Health check endpoints
 - [x] Graceful shutdown
 - [x] Production Docker optimizations
-- [ ] Migrate Dockerfile to multi-stage build to reduce image size
-- [ ] Add port mapping and resource limits to `docker-compose.yml`
+- [x] Migrate Dockerfile to multi-stage build to reduce image size
+- [x] Add port mapping and resource limits to `docker-compose.yml`
 
 ### 5.4 Documentation
 
