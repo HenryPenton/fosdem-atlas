@@ -183,7 +183,7 @@ class DuckDBEventsRepository:
         row = conn.execute(
             """
             SELECT id, title, subtitle, abstract, start_time,
-                   duration_minutes, room, track, day, fosdem_url
+                   duration_minutes, room, track, day, fosdem_url, video_url
             FROM events
             WHERE id = ?
             """,
@@ -202,6 +202,7 @@ class DuckDBEventsRepository:
             track=str(row[7]),
             day=str(row[8]),
             fosdem_url=str(row[9]),
+            video_url=str(row[10] or ""),
         )
 
     def get_events_by_ids(self, event_ids: list[str]) -> list[EventDetail]:
@@ -212,7 +213,7 @@ class DuckDBEventsRepository:
         result = conn.execute(  # nosemgrep: python.lang.security.audit.formatted-sql-query.formatted-sql-query,python.sqlalchemy.security.sqlalchemy-execute-raw-query.sqlalchemy-execute-raw-query  # noqa: E501
             f"""
             SELECT id, title, subtitle, abstract, start_time,
-                   duration_minutes, room, track, day, fosdem_url
+                   duration_minutes, room, track, day, fosdem_url, video_url
             FROM events
             WHERE id IN ({placeholders})
             ORDER BY day, start_time, room
@@ -231,6 +232,7 @@ class DuckDBEventsRepository:
                 track=str(row[7]),
                 day=str(row[8]),
                 fosdem_url=str(row[9]),
+                video_url=str(row[10] or ""),
             )
             for row in result
         ]

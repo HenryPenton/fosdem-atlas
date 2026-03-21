@@ -16,7 +16,7 @@ from src.adapters.persistence.duckdb_speakers_repository import DuckDBSpeakersRe
 from src.adapters.web.app import create_app
 from src.application.services import AnalyticsService, ScheduleService, SpeakerService
 from src.config import Settings
-from src.domain.models import Event, Speaker
+from src.domain.models import Event, Link, Speaker
 
 
 def _make_event(
@@ -30,6 +30,7 @@ def _make_event(
     track: str = "Testing",
     day: str = "2026-02-07",
     speakers: list[Speaker] | None = None,
+    links: list[Link] | None = None,
 ) -> Event:
     return Event(
         id=id,
@@ -42,6 +43,7 @@ def _make_event(
         track=track,
         day=day,
         speakers=speakers or [],
+        links=links or [],
     )
 
 

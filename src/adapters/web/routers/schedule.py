@@ -6,6 +6,7 @@ from fastapi import APIRouter, Query, Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 
+from src.adapters.web.routers.utils import back_link
 from src.application.services import ScheduleService
 
 
@@ -47,6 +48,19 @@ def create_schedule_router(
     @router.get("/day/{day}/track/{track:path}", response_class=HTMLResponse)
     def track_events(request: Request, day: str, track: str) -> HTMLResponse:
         events = schedule_service.get_events_for_day_and_track(day, track)
+        if not events:
+            url, label = back_link(request, default_url="/tracks", default_label="Back to tracks")
+            return templates.TemplateResponse(
+                request=request,
+                name="404.html",
+                context={
+                    "title": "FOSDEM Explorer — Not Found",
+                    "message": "No events found for that track.",
+                    "back_url": url,
+                    "back_label": label,
+                },
+                status_code=404,
+            )
         return templates.TemplateResponse(
             request=request,
             name="track.html",
@@ -73,6 +87,19 @@ def create_schedule_router(
     @router.get("/track/{track:path}", response_class=HTMLResponse)
     def track_detail(request: Request, track: str) -> HTMLResponse:
         events = schedule_service.get_events_for_track(track)
+        if not events:
+            url, label = back_link(request, default_url="/tracks", default_label="Back to tracks")
+            return templates.TemplateResponse(
+                request=request,
+                name="404.html",
+                context={
+                    "title": "FOSDEM Explorer — Not Found",
+                    "message": "That track doesn't exist or has no events.",
+                    "back_url": url,
+                    "back_label": label,
+                },
+                status_code=404,
+            )
         return templates.TemplateResponse(
             request=request,
             name="track.html",
@@ -88,12 +115,15 @@ def create_schedule_router(
     def event_detail(request: Request, event_id: str) -> HTMLResponse:
         result = schedule_service.get_event_detail(event_id)
         if result is None:
+            url, label = back_link(request)
             return templates.TemplateResponse(
                 request=request,
                 name="404.html",
                 context={
                     "title": "FOSDEM Explorer — Not Found",
                     "message": "That event doesn't exist or may have been removed.",
+                    "back_url": url,
+                    "back_label": label,
                 },
                 status_code=404,
             )

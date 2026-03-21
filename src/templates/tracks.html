@@ -12,12 +12,23 @@
     <section class="hero">
         <div class="hero-icon">🎤</div>
         <h1>Tracks</h1>
-        <p class="hero-subtitle">{{ tracks|length }} track{{ 's' if tracks|length != 1 }} across the conference</p>
+        <p class="hero-subtitle" id="tracks-count">{{ tracks|length }} track{{ 's' if tracks|length != 1 }} across the conference</p>
     </section>
 
-    <section class="track-list">
+    <div class="filter-bar">
+        <input
+            type="search"
+            id="track-filter"
+            class="search-input"
+            placeholder="Filter by name…"
+            aria-label="Filter tracks by name"
+            autocomplete="off"
+        >
+    </div>
+
+    <section class="track-list" id="tracks-list">
         {% for track in tracks %}
-        <a href="/track/{{ track }}" class="track-card">
+        <a href="/track/{{ track }}" class="track-card" data-name="{{ track | lower }}">
             <div class="track-info">
                 <span class="track-name">{{ track }}</span>
                 <span class="track-count">{{ track_events[track] }} talk{{ 's' if track_events[track] != 1 }}</span>
@@ -27,4 +38,23 @@
         {% endfor %}
     </section>
 </div>
+
+<script>
+(function () {
+    var input = document.getElementById('track-filter');
+    var cards = document.querySelectorAll('#tracks-list .track-card');
+    var countEl = document.getElementById('tracks-count');
+    var total = cards.length;
+    input.addEventListener('input', function () {
+        var q = input.value.toLowerCase().trim();
+        var visible = 0;
+        cards.forEach(function (card) {
+            var match = !q || card.dataset.name.includes(q);
+            card.hidden = !match;
+            if (match) visible++;
+        });
+        countEl.textContent = visible + ' track' + (visible !== 1 ? 's' : '') + (q ? ' matching \u201c' + input.value + '\u201d' : ' across the conference');
+    });
+})();
+</script>
 {% endblock %}

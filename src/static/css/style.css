@@ -376,6 +376,10 @@ main {
     transition: all 0.2s ease;
 }
 
+.track-card[hidden] {
+    display: none;
+}
+
 .track-card:hover {
     box-shadow: 0 6px 16px rgba(26, 86, 219, 0.1);
     border-left-color: var(--gradient-end);

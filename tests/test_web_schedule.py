@@ -93,14 +93,13 @@ class TestTrackPage:
         response = client.get("/day/2026-02-07/track/Rust")
         assert "Intro to Rust" in response.text
 
-    def test_nonexistent_track_returns_200(self, client: TestClient) -> None:
+    def test_nonexistent_track_returns_404(self, client: TestClient) -> None:
         response = client.get("/day/2026-02-07/track/Go")
-        assert response.status_code == 200
+        assert response.status_code == 404
 
-    def test_track_with_slash_in_name(self, client: TestClient) -> None:
-        # Tracks like "BOF/Unconference" contain a slash; the route must capture it
+    def test_track_with_slash_in_name_returns_404(self, client: TestClient) -> None:
         response = client.get("/day/2026-02-07/track/BOF/Unconference")
-        assert response.status_code == 200
+        assert response.status_code == 404
 
 
 class TestEventDetail:

@@ -22,6 +22,10 @@ class TestTracksBrowserPage:
         response = client.get("/tracks")
         assert "/track/Rust" in response.text
 
+    def test_has_filter_input(self, client: TestClient) -> None:
+        response = client.get("/tracks")
+        assert 'id="track-filter"' in response.text
+
 
 class TestTrackDetailPage:
     def test_returns_200(self, client: TestClient) -> None:
@@ -41,13 +45,22 @@ class TestTrackDetailPage:
         response = client.get("/track/Rust")
         assert "/tracks" in response.text
 
-    def test_nonexistent_track_returns_200(self, client: TestClient) -> None:
+    def test_nonexistent_track_returns_404(self, client: TestClient) -> None:
         response = client.get("/track/NoSuchTrack")
-        assert response.status_code == 200
+        assert response.status_code == 404
+        assert "Not found" in response.text
+
+    def test_404_default_back_link(self, client: TestClient) -> None:
+        response = client.get("/track/NoSuchTrack")
+        assert "Back to tracks" in response.text
+
+    def test_404_referer_back_link(self, client: TestClient) -> None:
+        response = client.get("/track/NoSuchTrack", headers={"Referer": "http://testserver/tracks"})
+        assert "Back to tracks" in response.text
 
     def test_track_with_slash_in_name(self, client: TestClient) -> None:
         response = client.get("/track/BOF/Unconference")
-        assert response.status_code == 200
+        assert response.status_code == 404
 
 
 class TestApiV1Tracks:

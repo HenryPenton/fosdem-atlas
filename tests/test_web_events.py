@@ -1,6 +1,13 @@
 """Tests for event detail pages, bookmark UI, and the events API (v1)."""
 
+import pytest
 from fastapi.testclient import TestClient
+
+from src.adapters.persistence.duckdb_ingestion_repository import DuckDBIngestionRepository
+from src.adapters.web.app import create_app
+from src.application.services import AnalyticsService, ScheduleService, SpeakerService
+from src.config import Settings
+from src.domain.models import Link
 
 
 class TestEventDetailPage:
@@ -32,6 +39,55 @@ class TestEventDetailPage:
     def test_returns_404_for_unknown_event(self, client: TestClient) -> None:
         response = client.get("/event/nonexistent")
         assert response.status_code == 404
+
+    def test_404_default_back_link(self, client: TestClient) -> None:
+        response = client.get("/event/nonexistent")
+        assert "Back to schedule" in response.text
+
+    def test_404_referer_back_link(self, client: TestClient) -> None:
+        response = client.get(
+            "/event/nonexistent", headers={"Referer": "http://testserver/speakers"}
+        )
+        assert "Back to speakers" in response.text
+
+
+class TestEventVideoLink:
+    @pytest.fixture
+    def client_with_video(
+        self,
+        seeded_ingestion_repository: DuckDBIngestionRepository,
+        schedule_service: ScheduleService,
+        analytics_service: AnalyticsService,
+        speaker_service: SpeakerService,
+        settings: Settings,
+    ) -> TestClient:
+        from tests.conftest import _make_event
+
+        event = _make_event(
+            id="vid1",
+            title="Talk With Video",
+            links=[
+                Link(href="https://fosdem.org/2026/schedule/event/vid1/", title="Event page"),
+                Link(href="https://video.fosdem.org/2026/h1234/vid1.webm", title="Video recording"),
+            ],
+        )
+        seeded_ingestion_repository.insert_events([event])
+        app = create_app(
+            schedule_service=schedule_service,
+            analytics_service=analytics_service,
+            speaker_service=speaker_service,
+            settings=settings,
+        )
+        return TestClient(app)
+
+    def test_shows_video_link(self, client_with_video: TestClient) -> None:
+        response = client_with_video.get("/event/vid1")
+        assert "video.fosdem.org" in response.text
+        assert "Watch recording" in response.text
+
+    def test_no_video_link_when_absent(self, client: TestClient) -> None:
+        response = client.get("/event/1")
+        assert "Watch recording" not in response.text
 
 
 class TestEventDetailBookmark:

@@ -76,10 +76,12 @@ class DuckDBConnection:
                 room VARCHAR NOT NULL,
                 track VARCHAR NOT NULL,
                 day DATE NOT NULL,
-                fosdem_url VARCHAR NOT NULL DEFAULT ''
+                fosdem_url VARCHAR NOT NULL DEFAULT '',
+                video_url VARCHAR NOT NULL DEFAULT ''
             )
         """
         )
+
         conn.execute(
             """
             CREATE TABLE IF NOT EXISTS speakers (

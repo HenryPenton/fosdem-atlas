@@ -24,6 +24,10 @@ class TestSpeakersBrowserPage:
         response = client.get("/speakers")
         assert "1 speaker" in response.text
 
+    def test_has_filter_input(self, client: TestClient) -> None:
+        response = client.get("/speakers")
+        assert 'id="speaker-filter"' in response.text
+
 
 class TestSpeakerDetailPage:
     def test_returns_200(self, client: TestClient) -> None:
@@ -43,6 +47,16 @@ class TestSpeakerDetailPage:
         assert response.status_code == 404
         assert "Not found" in response.text
         assert "FOSDEM Explorer" in response.text
+
+    def test_404_default_back_link(self, client: TestClient) -> None:
+        response = client.get("/speaker/nonexistent")
+        assert "Back to speakers" in response.text
+
+    def test_404_referer_back_link(self, client: TestClient) -> None:
+        response = client.get(
+            "/speaker/nonexistent", headers={"Referer": "http://testserver/speakers"}
+        )
+        assert "Back to speakers" in response.text
 
     def test_links_back_to_speakers(self, client: TestClient) -> None:
         response = client.get("/speaker/s1")

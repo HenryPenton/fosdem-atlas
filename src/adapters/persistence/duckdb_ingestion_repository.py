@@ -142,12 +142,15 @@ class DuckDBIngestionRepository:
                     fosdem_url = next(
                         (lk.href for lk in event.links if "fosdem.org" in lk.href), ""
                     )
+                    video_url = next(
+                        (lk.href for lk in event.links if "video.fosdem.org" in lk.href), ""
+                    )
                     conn.execute(
                         """
                         INSERT INTO events
                             (id, title, subtitle, abstract, start_time,
-                             duration_minutes, room, track, day, fosdem_url)
-                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                             duration_minutes, room, track, day, fosdem_url, video_url)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                         """,
                         [
                             event.id,
@@ -160,6 +163,7 @@ class DuckDBIngestionRepository:
                             event.track,
                             event.day,
                             fosdem_url,
+                            video_url,
                         ],
                     )
 

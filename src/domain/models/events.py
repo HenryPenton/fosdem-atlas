@@ -74,4 +74,5 @@ class EventDetail:
     track: str
     day: str
     fosdem_url: str
+    video_url: str = ""
     speakers: list[Speaker] = field(default_factory=list)

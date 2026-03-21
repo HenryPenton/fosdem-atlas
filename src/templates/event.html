@@ -63,6 +63,14 @@
                     </a>
                 </li>
                 {% endif %}
+                {% if event.video_url %}
+                <li>
+                    <a href="{{ event.video_url }}" target="_blank" rel="noopener noreferrer"
+                       class="detail-link">
+                        🎬 Watch recording
+                    </a>
+                </li>
+                {% endif %}
                 <li>
                     <a href="/day/{{ event.day }}/track/{{ event.track }}" class="detail-link">
                         ← Back to {{ event.track }} track
