@@ -1,3 +1,11 @@
+## v2.1.0 (2026-03-21)
+
+### Feat
+
+- add urlencode_path filter to templates for safe URL encoding of track links
+- add video URL support for events and enhance 404 error pages with context-aware back links
+- add robots.txt endpoint and update HTMX script source
+
 ## v2.0.1 (2026-03-21)
 
 ### Fix
