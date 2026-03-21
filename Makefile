@@ -1,4 +1,4 @@
-.PHONY: help venv dev install run test lint format audit clean commit bump patch minor major smoke-test load-test rate-limit-test cy-install cy-open cy-run cy-smoke cy-a11y
+.PHONY: help venv dev install prod run test lint format audit clean commit bump patch minor major smoke-test load-test rate-limit-test cy-install cy-open cy-run cy-smoke cy-a11y
 
 PYTHON := python3
 VENV := venv
@@ -18,9 +18,11 @@ install: venv ## Install production dependencies
 
 dev: venv ## Install development dependencies
 	$(BIN)/pip install -e ".[dev]"
-	$(BIN)/pip install pip-audit
 	$(BIN)/pre-commit install
 	$(BIN)/pre-commit install --hook-type commit-msg
+
+prod: venv ## Install production dependencies (matches Docker build)
+	$(BIN)/pip install .
 
 run: ## Run the application
 	$(BIN)/uvicorn src.main:app --reload --host 0.0.0.0 --port 8001
