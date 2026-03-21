@@ -191,12 +191,6 @@ Build an open-source tool that scrapes the FOSDEM schedule, stores it in DuckDB 
 - [x] k6 load test ramping to realistic VU counts with p(95) latency thresholds
 - [x] `make load-test` and `make smoke-test` Makefile targets
 
-### 5.7 Dependency & CI Hygiene
-
-- [ ] Pin production dependencies to narrow version ranges for reproducible builds
-- [ ] Add Python 3.11 to CI test matrix to verify declared `>=3.11` compatibility
-- [ ] Set up Dependabot or Renovate for automated dependency updates
-
 **🎯 Deliverable:** Production-ready v1.0 release.
 
 ---
@@ -241,7 +235,6 @@ Build an open-source tool that scrapes the FOSDEM schedule, stores it in DuckDB 
 ### 6.5 Content & Discovery
 
 - [ ] Post-event video links
-- [ ] Public roadmap page
 - [ ] Search/filter on the Speakers page (client-side filter by name)
 - [ ] Search/filter on the Tracks page (client-side filter by track name)
 - [ ] 404 pages use `Referer` header to show a context-aware back link
@@ -249,13 +242,23 @@ Build an open-source tool that scrapes the FOSDEM schedule, stores it in DuckDB 
 ### 6.6 Accessibility & i18n
 
 - [ ] Accessibility audit (WCAG)
-- [ ] i18n support
 - [ ] Fix heatmap colour-scale tooltip when all event counts are zero (shows misleading max of 1)
 
 ### 6.7 Schedule Grid Layout
 
 - [ ] Fix schedule grid layout
 - [ ] Use `CSS.escape()` in `toggleHour()` to handle time strings with CSS-special characters
+
+### 6.8 Dependency & CI Hygiene
+
+- [ ] Public roadmap page
+- [ ] Pin production dependencies to narrow version ranges for reproducible builds
+- [ ] Add Python 3.11 to CI test matrix to verify declared `>=3.11` compatibility
+- [ ] Set up Dependabot or Renovate for automated dependency updates
+
+### 6.9 i18n support
+
+- [ ] i18n support
 
 **🎯 Deliverable:** Accessible, offline-capable app with rate limiting.
 
