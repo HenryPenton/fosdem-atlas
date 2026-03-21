@@ -67,6 +67,7 @@ database file.
 ## Testing
 
 - All new features must have corresponding tests in `tests/`
+- When changing or removing existing behaviour, update any tests that cover it
 - Use `pytest` with `pytest-asyncio` for async tests
 - Mock external I/O (HTTP calls, filesystem) — do not hit the real FOSDEM API
   in tests

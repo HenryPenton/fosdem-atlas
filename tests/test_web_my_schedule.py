@@ -18,10 +18,10 @@ class TestMySchedulePage:
         assert "transfer-details" in resp.text
         assert "Transfer Schedule" in resp.text
 
-    def test_export_generate_button_present(self, client: TestClient) -> None:
+    def test_export_copy_button_present(self, client: TestClient) -> None:
         resp = client.get("/my-schedule")
-        assert "transfer-generate-btn" in resp.text
-        assert "Generate Code" in resp.text
+        assert "transfer-copy-btn" in resp.text
+        assert "Copy to Clipboard" in resp.text
 
     def test_import_merge_and_overwrite_buttons_present(self, client: TestClient) -> None:
         resp = client.get("/my-schedule")

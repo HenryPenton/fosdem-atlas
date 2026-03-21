@@ -10,7 +10,7 @@
     </nav>
 
     <section class="hero">
-        <div class="hero-icon">⭐</div>
+        <div class="hero-icon"><svg viewBox="0 0 24 24" width="48" height="48" aria-hidden="true"><path d="M17 3H7c-1.1 0-2 .9-2 2v16l7-3 7 3V5c0-1.1-.9-2-2-2z"/></svg></div>
         <h1>My Schedule</h1>
         <p class="hero-subtitle">Your saved events — stored in your browser</p>
     </section>
@@ -30,7 +30,7 @@
 
     <div id="schedule-events" class="schedule-events">
         <p id="schedule-empty" class="empty-state">
-            No events saved yet. Browse the <a href="/schedule">schedule</a> and click ⭐ to add events.
+            No events saved yet. Browse the <a href="/schedule">schedule</a> and click the bookmark icon to add events.
         </p>
     </div>
 
@@ -40,13 +40,12 @@
             <div class="transfer-body">
                 <div class="transfer-export">
                     <h3>Export</h3>
-                    <p>Generate a code representing your current schedule. Copy it and paste it on another device.</p>
+                    <p>Copy this code and paste it on another device to transfer your schedule.</p>
                     <div class="transfer-row">
-                        <textarea id="transfer-export-text" class="transfer-textarea" readonly placeholder="Click 'Generate Code' to create your export code…" aria-label="Exported schedule code"></textarea>
+                        <code id="transfer-export-text" class="transfer-code" aria-label="Exported schedule code">Add events to your schedule to see your code here.</code>
                     </div>
                     <div class="transfer-actions">
-                        <button id="transfer-generate-btn" class="sort-btn sort-btn--active">📤 Generate Code</button>
-                        <button id="transfer-copy-btn" class="sort-btn" hidden>📋 Copy to Clipboard</button>
+                        <button id="transfer-copy-btn" class="sort-btn sort-btn--active">📋 Copy to Clipboard</button>
                     </div>
                 </div>
                 <hr class="transfer-divider">
@@ -177,7 +176,7 @@
                             html += '<span class="grid-event-title">' + esc(title) + '</span>';
                             html += '<span class="grid-event-meta">\u23F1\uFE0F ' + ev.duration_minutes + 'm</span>';
                             html += '</a>';
-                            html += '<button class="bookmark-btn bookmark-btn--grid bookmark-btn--active" onclick="removeAndRefresh(\'' + esc(ev.id) + '\')" title="Remove from My Schedule">\u2B50</button>';
+                            html += '<button class="bookmark-btn bookmark-btn--grid bookmark-btn--active" onclick="removeAndRefresh(\'' + esc(ev.id) + '\')" title="Remove from My Schedule"><svg class="bookmark-icon" viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path d="M17 3H7c-1.1 0-2 .9-2 2v16l7-3 7 3V5c0-1.1-.9-2-2-2z"/></svg></button>';
                             html += '</div>';
                         });
                         html += '</td>';
@@ -229,32 +228,29 @@ function removeAndRefresh(id) {
 
 // Schedule transfer (export / import)
 (function () {
-    var generateBtn = document.getElementById('transfer-generate-btn');
     var copyBtn = document.getElementById('transfer-copy-btn');
     var exportText = document.getElementById('transfer-export-text');
     var importText = document.getElementById('transfer-import-text');
     var mergeBtn = document.getElementById('transfer-merge-btn');
     var overwriteBtn = document.getElementById('transfer-overwrite-btn');
 
-    generateBtn.addEventListener('click', function () {
+    function refreshExportCode() {
+        var ids = MySchedule.getIds();
+        exportText.textContent = ids.length > 0 ? btoa(JSON.stringify(ids)) : 'Add events to your schedule to see your code here.';
+    }
+
+    refreshExportCode();
+
+    copyBtn.addEventListener('click', function () {
         var ids = MySchedule.getIds();
         if (ids.length === 0) {
             showToast('No events in your schedule to export.', 'error');
             return;
         }
-        var code = btoa(JSON.stringify(ids));
-        exportText.value = code;
-        copyBtn.hidden = false;
-        exportText.select();
-    });
-
-    copyBtn.addEventListener('click', function () {
-        if (!exportText.value) return;
-        navigator.clipboard.writeText(exportText.value).then(function () {
+        navigator.clipboard.writeText(exportText.textContent).then(function () {
             showToast('Schedule code copied to clipboard!', 'success');
         }).catch(function () {
-            exportText.select();
-            showToast('Could not access clipboard — select the code above and copy manually.', 'error');
+            showToast('Could not access clipboard — copy the code above manually.', 'error');
         });
     });
 

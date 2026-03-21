@@ -129,6 +129,12 @@ main {
     margin-bottom: 0.75rem;
 }
 
+.hero-icon svg {
+    fill: var(--primary-color);
+    display: block;
+    margin: 0 auto;
+}
+
 .hero h1 {
     font-size: 2.8rem;
     margin-bottom: 0.5rem;
@@ -1844,6 +1850,19 @@ footer p {
     font-size: 0.875rem;
     color: var(--text-muted);
     margin-bottom: 0.65rem;
+}
+.transfer-code {
+    display: block;
+    width: 100%;
+    padding: 0.6rem 0.75rem;
+    border: 1.5px solid var(--border-color);
+    border-radius: 0.5rem;
+    background: var(--background-color);
+    color: var(--text-color);
+    font-family: monospace;
+    font-size: 0.8rem;
+    word-break: break-all;
+    box-sizing: border-box;
 }
 .transfer-textarea {
     width: 100%;
