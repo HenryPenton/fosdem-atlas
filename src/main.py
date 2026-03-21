@@ -47,6 +47,8 @@ def _run_scrape() -> None:
         count = _scrape_service.run(settings.fosdem_schedule_url)
         print(f"Scheduled scrape complete: {count} events stored")
         _analytics_service.invalidate_cache()
+        _schedule_service.invalidate_cache()
+        _speaker_service.invalidate_cache()
     except Exception as exc:
         print(f"Scheduled scrape failed: {exc}")
 

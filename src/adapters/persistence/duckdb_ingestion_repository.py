@@ -131,46 +131,53 @@ class DuckDBIngestionRepository:
     def insert_events(self, events: list[Event]) -> int:
         with self._db.lock:
             conn = self._db.get()
+            conn.execute("BEGIN")
+            try:
+                conn.execute("DELETE FROM event_speakers")
+                conn.execute("DELETE FROM keywords")
+                conn.execute("DELETE FROM events")
+                conn.execute("DELETE FROM speakers")
 
-            conn.execute("DELETE FROM event_speakers")
-            conn.execute("DELETE FROM keywords")
-            conn.execute("DELETE FROM events")
-            conn.execute("DELETE FROM speakers")
-
-            for event in events:
-                fosdem_url = next((lk.href for lk in event.links if "fosdem.org" in lk.href), "")
-                conn.execute(
-                    """
-                    INSERT INTO events
-                        (id, title, subtitle, abstract, start_time,
-                         duration_minutes, room, track, day, fosdem_url)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                    """,
-                    [
-                        event.id,
-                        event.title,
-                        event.subtitle,
-                        event.abstract,
-                        event.start_time,
-                        event.duration_minutes,
-                        event.room,
-                        event.track,
-                        event.day,
-                        fosdem_url,
-                    ],
-                )
-
-                for speaker in event.speakers:
-                    conn.execute(
-                        "INSERT OR IGNORE INTO speakers (id, name, bio) VALUES (?, ?, ?)",
-                        [speaker.id, speaker.name, speaker.bio],
+                for event in events:
+                    fosdem_url = next(
+                        (lk.href for lk in event.links if "fosdem.org" in lk.href), ""
                     )
                     conn.execute(
-                        "INSERT OR IGNORE INTO event_speakers (event_id, speaker_id) VALUES (?, ?)",
-                        [event.id, speaker.id],
+                        """
+                        INSERT INTO events
+                            (id, title, subtitle, abstract, start_time,
+                             duration_minutes, room, track, day, fosdem_url)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                        """,
+                        [
+                            event.id,
+                            event.title,
+                            event.subtitle,
+                            event.abstract,
+                            event.start_time,
+                            event.duration_minutes,
+                            event.room,
+                            event.track,
+                            event.day,
+                            fosdem_url,
+                        ],
                     )
 
-            self._extract_keywords(conn, events)
+                    for speaker in event.speakers:
+                        conn.execute(
+                            "INSERT OR IGNORE INTO speakers (id, name, bio) VALUES (?, ?, ?)",
+                            [speaker.id, speaker.name, speaker.bio],
+                        )
+                        conn.execute(
+                            "INSERT OR IGNORE INTO event_speakers (event_id, speaker_id) VALUES (?, ?)",
+                            [event.id, speaker.id],
+                        )
+
+                self._extract_keywords(conn, events)
+                conn.execute("COMMIT")
+            except Exception:
+                conn.execute("ROLLBACK")
+                raise
 
         return len(events)
 

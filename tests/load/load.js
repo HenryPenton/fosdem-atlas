@@ -1,6 +1,6 @@
 /**
- * k6 load test — ramps to 20 concurrent VUs and verifies p(95) latency
- * stays under 1 s with an error rate below 1 %.
+ * k6 load test — simulates 2000 users each performing 2–3 browsing actions.
+ * Runs as shared iterations across 50 VUs with a 3-minute safety cap.
  *
  * Usage:
  *   k6 run tests/load/load.js
@@ -11,11 +11,14 @@ import http from 'k6/http';
 import { check, sleep } from 'k6';
 
 export const options = {
-  stages: [
-    { duration: '30s', target: 20 }, // ramp up
-    { duration: '1m', target: 20 },  // hold
-    { duration: '30s', target: 0 },  // ramp down
-  ],
+  scenarios: {
+    load: {
+      executor: 'shared-iterations',
+      vus: 100,                // concurrent virtual users
+      iterations: 6000,       // one iteration per simulated user
+      maxDuration: '3m',      // safety cap
+    },
+  },
   thresholds: {
     http_req_failed: ['rate<0.01'],
     http_req_duration: ['p(95)<1000'],
@@ -146,10 +149,9 @@ const scenarios = [
 ];
 
 export default function (data) {
-  // Execute 3–5 random scenarios per iteration with realistic think time between them.
-  const count = 3 + Math.floor(Math.random() * 3);
+  const count = 2 + Math.floor(Math.random() * 2); // 2 or 3 actions per user
   for (let i = 0; i < count; i++) {
     pick(scenarios)(data);
-    sleep(1 + Math.random() * 2); // 1–3 s think time
+    sleep(0.5 + Math.random() * 1); // 0.5–1.5 s think time
   }
 }

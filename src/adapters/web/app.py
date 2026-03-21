@@ -31,7 +31,7 @@ TEMPLATES_DIR = BASE_DIR / "templates"
 STATIC_DIR = BASE_DIR / "static"
 
 CACHE_MAX_AGE = 20
-RATE_LIMIT = "200/minute"
+RATE_LIMIT = "1000/minute"
 
 limiter = Limiter(
     key_func=lambda *_args, **_kwargs: "global",

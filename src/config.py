@@ -24,7 +24,7 @@ class Settings(BaseSettings):
     database_path: str = "data/fosdem.duckdb"
 
     # Scraper
-    scrape_interval_minutes: int = 5
+    scrape_interval_minutes: int = 15
     fosdem_schedule_url: str = "https://fosdem.org/2026/schedule/xml"
 
     # FOSDEM year

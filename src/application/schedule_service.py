@@ -28,32 +28,62 @@ class ScheduleService:
 
     def __init__(self, repository: EventsRepository) -> None:
         self._repo = repository
+        self._overview_cache: OverviewData | None = None
+        self._tracks_cache: TracksOverview | None = None
+        self._grid_cache: dict[str, GridData] = {}
+        self._day_detail_cache: dict[str, DayDetail] = {}
+        self._days_cache: list[str] | None = None
+        self._unique_tracks_cache: list[str] | None = None
+        self._unique_rooms_cache: list[str] | None = None
+
+    def invalidate_cache(self) -> None:
+        self._overview_cache = None
+        self._tracks_cache = None
+        self._grid_cache.clear()
+        self._day_detail_cache.clear()
+        self._days_cache = None
+        self._unique_tracks_cache = None
+        self._unique_rooms_cache = None
 
     def get_event_count(self) -> int:
         return self._repo.get_event_count()
 
     def get_unique_days(self) -> list[str]:
-        return self._repo.get_unique_days()
+        if self._days_cache is not None:
+            return self._days_cache
+        self._days_cache = self._repo.get_unique_days()
+        return self._days_cache
 
     def get_unique_tracks(self) -> list[str]:
-        return self._repo.get_unique_tracks()
+        if self._unique_tracks_cache is not None:
+            return self._unique_tracks_cache
+        self._unique_tracks_cache = self._repo.get_unique_tracks()
+        return self._unique_tracks_cache
 
     def get_unique_rooms(self) -> list[str]:
-        return self._repo.get_unique_rooms()
+        if self._unique_rooms_cache is not None:
+            return self._unique_rooms_cache
+        self._unique_rooms_cache = self._repo.get_unique_rooms()
+        return self._unique_rooms_cache
 
     def get_overview(self) -> OverviewData:
         """Home page data."""
+        if self._overview_cache is not None:
+            return self._overview_cache
         days = self._repo.get_unique_days()
-        return OverviewData(
+        self._overview_cache = OverviewData(
             event_count=self._repo.get_event_count(),
             days=days,
             day_events={d: len(self._repo.get_events_by_day(d)) for d in days},
             tracks=self._repo.get_unique_tracks(),
             rooms=self._repo.get_unique_rooms(),
         )
+        return self._overview_cache
 
     def get_grid_data(self, day: str) -> GridData:
         """Build grid structure: rooms × time slots for a day."""
+        if day in self._grid_cache:
+            return self._grid_cache[day]
         days = self._repo.get_unique_days()
         if not days:
             return GridData(
@@ -154,7 +184,7 @@ class ScheduleService:
             room_tracks[room] = seen
             room_track_changes[room] = changes
 
-        return GridData(
+        result = GridData(
             days=days,
             selected_day=selected_day,
             rooms=rooms,
@@ -165,26 +195,35 @@ class ScheduleService:
             room_tracks=room_tracks,
             room_track_changes=room_track_changes,
         )
+        self._grid_cache[day] = result
+        return result
 
     def get_day_detail(self, day: str) -> DayDetail:
         """Tracks for a day with event counts."""
+        if day in self._day_detail_cache:
+            return self._day_detail_cache[day]
         tracks = self._repo.get_tracks_by_day(day)
-        return DayDetail(
+        result = DayDetail(
             day=day,
             tracks=tracks,
             track_events={t: len(self._repo.get_events_by_day_and_track(day, t)) for t in tracks},
         )
+        self._day_detail_cache[day] = result
+        return result
 
     def get_events_for_day_and_track(self, day: str, track: str) -> list[EventSummary]:
         return self._repo.get_events_by_day_and_track(day, track)
 
     def get_all_tracks_with_counts(self) -> TracksOverview:
         """All tracks with their event counts."""
+        if self._tracks_cache is not None:
+            return self._tracks_cache
         tracks = self._repo.get_unique_tracks()
-        return TracksOverview(
+        self._tracks_cache = TracksOverview(
             tracks=tracks,
             track_events={t: len(self._repo.get_events_by_track(t)) for t in tracks},
         )
+        return self._tracks_cache
 
     def get_events_for_track(self, track: str) -> list[EventSummary]:
         return self._repo.get_events_by_track(track)

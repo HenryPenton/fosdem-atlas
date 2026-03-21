@@ -216,14 +216,14 @@ Build an open-source tool that scrapes the FOSDEM schedule, stores it in DuckDB 
 See [docs/caching.md](docs/caching.md) for full analysis and caveat on `lru_cache` + instance methods.
 
 **Phase A — zero-argument calls (highest impact)**
-- [ ] Cache `ScheduleService.get_overview()` (called on every homepage load)
-- [ ] Cache `ScheduleService.get_all_tracks_with_counts()` (called on `/tracks`, CSV export, and API)
-- [ ] Cache `SpeakerService.get_all_speakers()` (called on `/speakers`, CSV export, and API)
+- [x] Cache `ScheduleService.get_overview()` (called on every homepage load)
+- [x] Cache `ScheduleService.get_all_tracks_with_counts()` (called on `/tracks`, CSV export, and API)
+- [x] Cache `SpeakerService.get_all_speakers()` (called on `/speakers`, CSV export, and API)
 
 **Phase B — small-key-space calls**
-- [ ] Cache `ScheduleService.get_grid_data(day)` (most expensive computation; ~3 possible day keys)
-- [ ] Cache `ScheduleService.get_day_detail(day)`
-- [ ] Cache repository-level `get_unique_days/tracks/rooms()` (called on nearly every page load)
+- [x] Cache `ScheduleService.get_grid_data(day)` (most expensive computation; ~3 possible day keys)
+- [x] Cache `ScheduleService.get_day_detail(day)`
+- [x] Cache repository-level `get_unique_days/tracks/rooms()` (called on nearly every page load)
 
 **Phase C — bounded per-item caches (optional)**
 - [ ] Cache `ScheduleService.get_event_detail(event_id)` with `maxsize=256`

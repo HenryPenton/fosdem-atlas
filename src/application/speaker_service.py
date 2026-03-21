@@ -9,9 +9,16 @@ class SpeakerService:
 
     def __init__(self, repository: SpeakersRepository) -> None:
         self._repo = repository
+        self._speakers_cache: list[SpeakerSummary] | None = None
+
+    def invalidate_cache(self) -> None:
+        self._speakers_cache = None
 
     def get_all_speakers(self) -> list[SpeakerSummary]:
-        return self._repo.get_all_speakers()
+        if self._speakers_cache is not None:
+            return self._speakers_cache
+        self._speakers_cache = self._repo.get_all_speakers()
+        return self._speakers_cache
 
     def get_speaker_detail(self, speaker_id: str) -> SpeakerDetail | None:
         """Speaker with their events, or None if not found."""

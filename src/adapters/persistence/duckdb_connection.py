@@ -1,5 +1,6 @@
 """DuckDB connection management."""
 
+import contextlib
 import threading
 from pathlib import Path
 
@@ -7,34 +8,48 @@ import duckdb
 
 
 class DuckDBConnection:
-    """Manages the DuckDB connection lifecycle."""
+    """Manages DuckDB connections with per-thread isolation.
+
+    DuckDB connections are not thread-safe.  Returning a single shared
+    connection to multiple threads causes
+    "Attempting to execute an unsuccessful or closed pending query result"
+    under concurrent load.  Each OS/asyncio worker thread therefore gets
+    its own connection via threading.local().
+    """
 
     def __init__(self, db_path: str) -> None:
         self._db_path = db_path
-        self._connection: duckdb.DuckDBPyConnection | None = None
         self._lock = threading.RLock()
+        self._local = threading.local()
+        self._all_connections: list[duckdb.DuckDBPyConnection] = []
 
     def get(self) -> duckdb.DuckDBPyConnection:
-        """Get or create the DuckDB connection (thread-safe)."""
-        with self._lock:
-            if self._connection is None:
-                path = Path(self._db_path)
-                path.parent.mkdir(parents=True, exist_ok=True)
-                self._connection = duckdb.connect(str(path))
-                self._init_schema(self._connection)
-            return self._connection
+        """Return the calling thread's DuckDB connection, creating it if needed."""
+        conn: duckdb.DuckDBPyConnection | None = getattr(self._local, "connection", None)
+        if conn is None:
+            path = Path(self._db_path)
+            path.parent.mkdir(parents=True, exist_ok=True)
+            conn = duckdb.connect(str(path))
+            # Hold the lock during schema init so concurrent new threads don't
+            # race on DDL (CREATE TABLE IF NOT EXISTS causes a catalog
+            # write-write conflict when multiple connections run it in parallel).
+            with self._lock:
+                self._init_schema(conn)
+                self._all_connections.append(conn)
+            self._local.connection = conn
+        return conn
 
     @property
     def lock(self) -> threading.RLock:
-        """Lock for callers needing multi-statement transactions."""
+        """Lock for callers needing exclusive multi-statement transactions."""
         return self._lock
 
     def close(self) -> None:
-        """Close the DuckDB connection."""
+        """Close all open per-thread connections."""
         with self._lock:
-            if self._connection is not None:
-                self._connection.close()
-                self._connection = None
+            for conn in self._all_connections:
+                with contextlib.suppress(Exception):
+                    conn.close()
 
     def _init_schema(self, conn: duckdb.DuckDBPyConnection) -> None:
         """Initialize the database schema."""
@@ -66,8 +81,8 @@ class DuckDBConnection:
         conn.execute(
             """
             CREATE TABLE IF NOT EXISTS event_speakers (
-                event_id VARCHAR NOT NULL REFERENCES events(id),
-                speaker_id VARCHAR NOT NULL REFERENCES speakers(id),
+                event_id VARCHAR NOT NULL,
+                speaker_id VARCHAR NOT NULL,
                 PRIMARY KEY (event_id, speaker_id)
             )
         """
