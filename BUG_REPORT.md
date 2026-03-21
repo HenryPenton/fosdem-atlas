@@ -1,8 +1,27 @@
 # Bug Report
 
-_Generated: 21 March 2026 — v1.1.0_
-_249 Python tests passing · ruff + mypy clean · 28 a11y + 18 smoke Cypress tests passing_
+_Generated: 21 March 2026 — v2.1.0_
+_269 Python tests passing · ruff + mypy clean · 28 a11y + 18 smoke Cypress tests passing_
 
+
+---
+
+## High
+
+### BUG-5: CSV injection in API export endpoint
+
+**File:** `src/api/routers/export.py`
+
+The API CSV export (`/api/v1/export/events.csv`, `/api/v1/export/speakers.csv`)
+writes event titles and abstracts directly to CSV without sanitisation. Values
+starting with `=`, `+`, `-`, or `@` are interpreted as formulas by spreadsheet
+applications. The web export endpoint (`src/adapters/web/routers/export.py`)
+already protects against this with `_sanitise_csv_value()`, but the API
+endpoint has no equivalent.
+
+**Fix:** Apply the same `_sanitise_csv_value()` sanitisation in
+`src/api/routers/export.py`'s `_csv_response()`, or extract it to a shared
+utility.
 
 ---
 
@@ -48,6 +67,21 @@ Not a SQL injection risk (queries are parameterised), but a correctness bug.
 
 ---
 
+### BUG-6: Conflict detection only warns for different rooms
+
+**File:** `src/static/js/my-schedule.js:71-73`
+
+`detectConflicts()` skips overlapping events in the same room
+(`if (parsed[i].room !== parsed[j].room)`). The comment says "same room isn't
+a conflict the user can control", but the logic is inverted — same-room
+overlaps are the *most* impossible to attend, while different-room overlaps
+might be manageable. Users are warned about the wrong set of conflicts.
+
+**Fix:** Remove the room check so all temporal overlaps are reported, or
+reverse the condition to warn about same-room overlaps.
+
+---
+
 ## Low
 
 ### BUG-4: Speakers without events excluded from speakers listing
@@ -71,3 +105,5 @@ appear.
 | `build_grid_for_ids()` service method | Called by My Schedule grid route but untested         |
 | Malformed XML in scraper              | No tests for missing or broken XML tags               |
 | Concurrent access                     | No thread-safety tests for the DuckDB connection pool |
+| API CSV export sanitisation           | No test verifies formula-injection protection         |
+| Conflict detection logic              | No test for `detectConflicts()` same-room behaviour   |
