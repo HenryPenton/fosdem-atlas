@@ -101,7 +101,7 @@ jobs:
         run: |
           trufflehog filesystem . --only-verified --json > trufflehog-report.json 2>/dev/null || true
           # Each finding is one JSON line; log lines have a "level" key, findings have a "DetectorName" key
-          FINDINGS=$(grep -c '"DetectorName"' trufflehog-report.json 2>/dev/null || echo 0)
+          FINDINGS=$(grep '"DetectorName"' trufflehog-report.json 2>/dev/null | wc -l)
           {
             echo "## TruffleHog Secrets Scan Results"
             if [ "$FINDINGS" -eq 0 ]; then
