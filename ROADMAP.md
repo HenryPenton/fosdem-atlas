@@ -238,6 +238,7 @@ Build an open-source tool that scrapes the FOSDEM schedule, stores it in DuckDB 
 - [x] Search/filter on the Speakers page (client-side filter by name)
 - [x] Search/filter on the Tracks page (client-side filter by track name)
 - [x] 404 pages use `Referer` header to show a context-aware back link
+- [ ] Slide viewer/download — surface slide attachment links on event detail pages, with an inline PDF viewer where available and a fallback download link
 
 ### 6.6 Accessibility & i18n
 
