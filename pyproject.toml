@@ -38,6 +38,7 @@ dev = [
     "lxml-stubs",
     "pip-audit",
     "commitizen",
+    "cyclonedx-bom",
 ]
 
 [tool.ruff]

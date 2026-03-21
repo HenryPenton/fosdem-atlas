@@ -106,6 +106,8 @@ make docker-build  # Build Docker image
 make docker-run    # Run Docker container
 make commit        # Interactive conventional commit
 make bump          # Bump version + update CHANGELOG
+make audit         # Check dependencies for known vulnerabilities (pip-audit)
+make sbom          # Generate CycloneDX SBOM → docs/sbom.json
 ```
 
 ## Architecture

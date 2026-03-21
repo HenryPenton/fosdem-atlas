@@ -179,7 +179,6 @@ Build an open-source tool that scrapes the FOSDEM schedule, stores it in DuckDB 
 - [x] Full README with screenshots
 - [x] Self-hosting guide
 - [x] CONTRIBUTING.md
-- [ ] Add SPDX licence identifier headers to source files
 
 ### 5.5 Self-Hosting Deploy Snippet
 

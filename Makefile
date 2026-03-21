@@ -1,4 +1,4 @@
-.PHONY: help venv dev install prod run test lint format audit clean commit bump patch minor major smoke-test load-test rate-limit-test cy-install cy-open cy-run cy-smoke cy-a11y
+.PHONY: help venv dev install prod run test lint format audit sbom clean commit bump patch minor major smoke-test load-test rate-limit-test cy-install cy-open cy-run cy-smoke cy-a11y
 
 PYTHON := python3
 VENV := venv
@@ -36,6 +36,10 @@ test: ## Run tests
 audit: ## Run pip-audit to check for known vulnerabilities in dependencies
 	$(BIN)/pip-audit
 
+sbom: ## Generate CycloneDX SBOM (JSON) from the current environment → docs/sbom.json
+	$(BIN)/cyclonedx-py environment --of JSON -o docs/sbom.json --output-reproducible
+	@echo "SBOM written to docs/sbom.json"
+
 lint: ## Run linting
 	$(BIN)/ruff check src tests
 	$(BIN)/ruff format --check src tests
@@ -58,6 +62,9 @@ _BUMP_FLAG  := $(if $(_BUMP_LEVEL),--increment $(shell echo $(_BUMP_LEVEL) | tr 
 
 bump: ## Bump version, update CHANGELOG.md, and tag (e.g. make bump [patch|minor|major])
 	$(BIN)/cz bump $(_BUMP_FLAG)
+	$(MAKE) sbom
+	git add docs/sbom.json
+	git commit --amend --no-edit
 
 patch minor major: ## Increment level selector for use with bump (e.g. make bump patch)
 	@true
