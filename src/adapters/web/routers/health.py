@@ -3,6 +3,7 @@
 import logging
 
 from fastapi import APIRouter, Response
+from fastapi.responses import PlainTextResponse
 
 from src.api.dtos import HealthDTO
 from src.application.services import ScheduleService
@@ -14,6 +15,10 @@ def create_health_page_router(
     settings: Settings,
 ) -> APIRouter:
     router = APIRouter(tags=["health"])
+
+    @router.get("/robots.txt", response_class=PlainTextResponse)
+    def robots_txt() -> str:
+        return "User-agent: *\nAllow: /\n"
 
     @router.get("/health")
     def health(response: Response) -> HealthDTO:

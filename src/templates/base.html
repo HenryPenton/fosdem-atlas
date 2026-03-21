@@ -6,6 +6,7 @@
     <meta name="theme-color" content="#1a56db">
     <title>{% block title %}{{ title }}{% endblock %}</title>
     <link rel="manifest" href="/static/manifest.json">
+    <link rel="icon" href="/static/icons/icon-192.png" type="image/png">
     <link rel="apple-touch-icon" href="/static/icons/icon-192.png">
 
     <!-- Apply saved theme before first paint to avoid flash -->
@@ -19,9 +20,10 @@
     </script>
 
     <!-- HTMX -->
-    <script src="https://unpkg.com/htmx.org@2.0.4/dist/htmx.min.js"
-            integrity="sha384-HGfztofotfshcF7+8n44JQL2oJmowVChPTg48S+jvZoztPfvwD79OC/LTtG6dMp+"
-            crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.8/dist/htmx.min.js"
+            integrity="sha384-/TgkGk7p307TH7EXJDuUlgG3Ce1UVolAOFopFekQkkXihi5u/6OCvVKyz1W+idaz"
+            crossorigin="anonymous"
+            defer></script>
 
     <!-- Styles -->
     <link rel="stylesheet" href="/static/css/style.css">
@@ -113,12 +115,20 @@
         })();
 
         // Grid hour toggle
-        function toggleHour(headerRow) {
+        function toggleHour(btn) {
+            var headerRow = btn.closest('tr.grid-hour-header');
             var hour = headerRow.getAttribute('data-hour');
             var contentRows = document.querySelectorAll('tr.grid-hour-content[data-hour="' + hour + '"]');
             var isOpen = headerRow.classList.toggle('grid-hour--open');
+            btn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
             contentRows.forEach(function (row) {
-                row.style.display = isOpen ? '' : 'none';
+                if (isOpen) {
+                    row.style.display = '';
+                    row.removeAttribute('inert');
+                } else {
+                    row.style.display = 'none';
+                    row.setAttribute('inert', '');
+                }
             });
         }
 
