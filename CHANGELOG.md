@@ -1,3 +1,9 @@
+## v2.1.1 (2026-03-21)
+
+### Feat
+
+- implement CSV sanitisation utilities and refactor export endpoints to use them
+
 ## v2.1.0 (2026-03-21)
 
 ### Feat
