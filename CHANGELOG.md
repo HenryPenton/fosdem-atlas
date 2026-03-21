@@ -1,3 +1,10 @@
+## v2.0.1 (2026-03-21)
+
+### Fix
+
+- update bump process to format SBOM and ensure proper line endings
+- refresh SBOM during version bump process
+
 ## v2.0.0 (2026-03-21)
 
 ### Feat
