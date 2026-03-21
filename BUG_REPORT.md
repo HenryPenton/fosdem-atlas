@@ -5,7 +5,7 @@ _249 Python tests passing · ruff + mypy clean · 28 a11y + 18 smoke Cypress tes
 
 ---
 
-### BUG-4: Missing `.catch()` on fetch calls in My Schedule
+### ~~BUG-4: Missing `.catch()` on fetch calls in My Schedule~~ ✅ Fixed
 
 **File:** `src/templates/my_schedule.html`
 
@@ -13,8 +13,8 @@ Two `fetch()` calls (schedule grid load ~line 118, conflict detection ~line 157)
 have no `.catch()` handler. Network errors silently leave the page in a broken
 or empty state with no user feedback.
 
-**Fix:** Add `.catch()` handlers that display an error toast via the existing
-`showToast()` helper.
+**Fix applied:** `.catch()` handlers added to both fetch calls, displaying an
+error toast via `showToast()` on network failure.
 
 ---
 

@@ -93,6 +93,9 @@
             .then(function (html) {
                 eventsDiv.innerHTML = html;
                 MySchedule.initBookmarkButtons();
+            })
+            .catch(function () {
+                showToast('Failed to load your schedule. Please try again.', 'error');
             });
 
         // Conflict detection via API
