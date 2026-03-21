@@ -123,5 +123,5 @@ fosdem.example.com {
 
 ## Important Notes
 
-- **Single worker only** — DuckDB is an embedded, single-process database. Do not run multiple app workers or replicas against the same database file.
+- **Single worker only** — DuckDB is an embedded, single-process database. Do not run multiple app workers or replicas against the same database file. Within a single worker, concurrent requests are safe: each thread gets its own DuckDB connection via `threading.local()`.
 - The scraper fetches from `https://fosdem.org/2026/schedule/xml`. No API key is required.

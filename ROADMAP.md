@@ -203,7 +203,7 @@ Build an open-source tool that scrapes the FOSDEM schedule, stores it in DuckDB 
 
 ### 6.2 Rate Limiting
 
-- [x] Add global rate limiting with slowapi (200 requests/minute)
+- [x] Add global rate limiting with slowapi
 - [x] Return 429 responses with `Retry-After` header
 
 ### 6.3 UI Fixes & Polish
@@ -213,19 +213,20 @@ Build an open-source tool that scrapes the FOSDEM schedule, stores it in DuckDB 
 
 ### 6.4 Performance: Caching
 
-See [docs/caching.md](docs/caching.md) for full analysis and caveat on `lru_cache` + instance methods.
-
 **Phase A — zero-argument calls (highest impact)**
+
 - [x] Cache `ScheduleService.get_overview()` (called on every homepage load)
 - [x] Cache `ScheduleService.get_all_tracks_with_counts()` (called on `/tracks`, CSV export, and API)
 - [x] Cache `SpeakerService.get_all_speakers()` (called on `/speakers`, CSV export, and API)
 
 **Phase B — small-key-space calls**
+
 - [x] Cache `ScheduleService.get_grid_data(day)` (most expensive computation; ~3 possible day keys)
 - [x] Cache `ScheduleService.get_day_detail(day)`
 - [x] Cache repository-level `get_unique_days/tracks/rooms()` (called on nearly every page load)
 
 **Phase C — bounded per-item caches (optional)**
+
 - [x] Cache `ScheduleService.get_event_detail(event_id)` with `maxsize=256`
 - [x] Cache `SpeakerService.get_speaker_detail(speaker_id)` with `maxsize=256`
 
@@ -278,15 +279,15 @@ See [docs/caching.md](docs/caching.md) for full analysis and caveat on `lru_cach
 
 ## Milestones
 
-| Version    | Phase   | Deliverable                        |
-| ---------- | ------- | ---------------------------------- |
-| **v0.1.0** | Phase 1 | Walking skeleton — list all events |
-| **v0.2.0** | Phase 2 | Search & filter, event details     |
-| **v0.3.0** | Phase 3 | Grid view, track/speaker browsers  |
-| **v0.4.0** | Phase 4 | Analytics dashboard                |
-| **v1.0.0** | Phase 5 | Personal schedule, polish, docs    |
+| Version    | Phase   | Deliverable                              |
+| ---------- | ------- | ---------------------------------------- |
+| **v0.1.0** | Phase 1 | Walking skeleton — list all events       |
+| **v0.2.0** | Phase 2 | Search & filter, event details           |
+| **v0.3.0** | Phase 3 | Grid view, track/speaker browsers        |
+| **v0.4.0** | Phase 4 | Analytics dashboard                      |
+| **v1.0.0** | Phase 5 | Personal schedule, polish, docs          |
 | **v1.1.0** | Phase 6 | PWA, rate limiting, UI fixes, a11y, i18n |
-| **v1.2.0** | Phase 7 | Push notifications                        |
+| **v1.2.0** | Phase 7 | Push notifications                       |
 
 ## Contributing
 
@@ -302,4 +303,7 @@ This project uses a **dual-license** approach:
 | FOSDEM schedule data | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) | `DATA_LICENSE.md` |
 
 Schedule data © FOSDEM. See Phase 0 for full attribution requirements.
+
+```
+
 ```
