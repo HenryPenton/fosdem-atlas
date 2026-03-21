@@ -17,7 +17,7 @@
 
     <section class="track-list">
         {% for track in tracks %}
-        <a href="/day/{{ day }}/track/{{ track }}" class="track-card">
+        <a href="/day/{{ day }}/track/{{ track | urlencode_path }}" class="track-card">
             <div class="track-info">
                 <span class="track-name">{{ track }}</span>
                 <span class="track-count">{{ track_events[track] }} talk{{ 's' if track_events[track] != 1 }}</span>

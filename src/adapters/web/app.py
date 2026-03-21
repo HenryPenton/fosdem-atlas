@@ -6,6 +6,7 @@ from collections.abc import Callable
 from contextlib import AbstractAsyncContextManager
 from pathlib import Path
 from typing import cast
+from urllib.parse import quote
 
 from fastapi import FastAPI, Request, Response
 from fastapi.responses import HTMLResponse, JSONResponse
@@ -57,6 +58,7 @@ def create_app(
 
     app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
     templates = Jinja2Templates(directory=TEMPLATES_DIR)
+    templates.env.filters["urlencode_path"] = lambda s: quote(str(s), safe="/")
 
     def _rate_limit_handler(request: Request, exc: Exception) -> Response:
         rate_exc = cast(RateLimitExceeded, exc)

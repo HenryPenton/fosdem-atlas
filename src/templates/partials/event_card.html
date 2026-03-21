@@ -12,7 +12,7 @@
             <span class="room">📍 {{ event.room }}</span>
             <span class="duration">⏱️ {{ event.duration_minutes }} min</span>
             {% if show_track is not defined or show_track %}
-            <a href="/track/{{ event.track }}" class="track-link">{{ event.track }}</a>
+            <a href="/track/{{ event.track | urlencode_path }}" class="track-link">{{ event.track }}</a>
             {% endif %}
         </div>
         {% if (show_abstract is not defined or show_abstract) and event.abstract %}

@@ -28,7 +28,7 @@
 
     <section class="track-list" id="tracks-list">
         {% for track in tracks %}
-        <a href="/track/{{ track }}" class="track-card" data-name="{{ track | lower }}">
+        <a href="/track/{{ track | urlencode_path }}" class="track-card" data-name="{{ track | lower }}">
             <div class="track-info">
                 <span class="track-name">{{ track }}</span>
                 <span class="track-count">{{ track_events[track] }} talk{{ 's' if track_events[track] != 1 }}</span>

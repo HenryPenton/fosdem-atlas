@@ -6,7 +6,7 @@
         <ol class="breadcrumb-list">
             <li><a href="/">Schedule</a></li>
             <li><a href="/day/{{ event.day }}">{{ event.day }}</a></li>
-            <li><a href="/day/{{ event.day }}/track/{{ event.track }}">{{ event.track }}</a></li>
+            <li><a href="/day/{{ event.day }}/track/{{ event.track | urlencode_path }}">{{ event.track }}</a></li>
             <li><span>{{ event.title }}</span></li>
         </ol>
     </nav>
@@ -72,7 +72,7 @@
                 </li>
                 {% endif %}
                 <li>
-                    <a href="/day/{{ event.day }}/track/{{ event.track }}" class="detail-link">
+                    <a href="/day/{{ event.day }}/track/{{ event.track | urlencode_path }}" class="detail-link">
                         ← Back to {{ event.track }} track
                     </a>
                 </li>
