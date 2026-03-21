@@ -113,6 +113,10 @@ jobs:
               echo '```'
             fi
           } >> $GITHUB_STEP_SUMMARY
+          if [ "$FINDINGS" -gt 0 ]; then
+            echo "::error::TruffleHog found $FINDINGS verified secret(s). See the job summary and downloaded artifact for details."
+            exit 1
+          fi
 
       - name: Upload TruffleHog report
         uses: actions/upload-artifact@v5
