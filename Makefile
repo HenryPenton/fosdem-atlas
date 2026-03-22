@@ -1,4 +1,4 @@
-.PHONY: help venv dev install prod run test lint format audit sbom clean commit bump patch minor major smoke-test load-test rate-limit-test cy-install cy-open cy-run cy-smoke cy-a11y build-js test-js watch-js
+.PHONY: help venv dev install prod run test lint format audit sbom clean commit bump patch minor major smoke-test load-test rate-limit-test cy-install cy-open cy-run cy-smoke cy-a11y cy-a11y-long build-js test-js watch-js
 
 PYTHON := python3
 VENV := venv
@@ -113,6 +113,11 @@ cy-a11y: cy-install ## Run Cypress accessibility tests only (server must be runn
 	@curl -sf $(BASE_URL)/health -o /dev/null || \
 	  { echo "ERROR: No server responding at $(BASE_URL) — start it first (e.g. make run)"; exit 1; }
 	cd cypress && npx cypress run --spec 'e2e/accessibility.cy.js'
+
+cy-a11y-long: cy-install ## Run full a11y audit on every dynamic page (server must be running)
+	@curl -sf $(BASE_URL)/health -o /dev/null || \
+	  { echo "ERROR: No server responding at $(BASE_URL) — start it first (e.g. make run)"; exit 1; }
+	cd cypress && npx cypress run --spec 'e2e/a11y-long.cy.js' --config defaultCommandTimeout=15000
 
 build-js: ## Compile TypeScript sources in scripts/ → src/static/js/
 	cd scripts && pnpm install --frozen-lockfile && pnpm build
