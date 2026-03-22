@@ -239,14 +239,13 @@ Build an open-source tool that scrapes the FOSDEM schedule, stores it in DuckDB 
 - [x] Search/filter on the Tracks page (client-side filter by track name)
 - [x] 404 pages use `Referer` header to show a context-aware back link
 
-### 6.6 Accessibility & i18n
+### 6.6 Accessibility
 
 - [ ] Accessibility audit (WCAG)
 - [ ] Fix heatmap colour-scale tooltip when all event counts are zero (shows misleading max of 1)
 
 ### 6.7 Schedule Grid Layout
 
-- [ ] Fix schedule grid layout
 - [ ] Use `CSS.escape()` in `toggleHour()` to handle time strings with CSS-special characters
 
 ### 6.8 Dependency & CI Hygiene
