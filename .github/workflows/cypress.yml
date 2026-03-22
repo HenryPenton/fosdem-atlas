@@ -13,33 +13,9 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - uses: pnpm/action-setup@v4
-        with:
-          version: latest
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "22"
-          cache: "pnpm"
-          cache-dependency-path: scripts/pnpm-lock.yaml
-
-      - name: Build JavaScript
-        working-directory: scripts
-        run: pnpm install --frozen-lockfile && pnpm build
-
-      - name: Set up Python
-        uses: actions/setup-python@v6
-        with:
-          python-version: "3.12"
-          cache: "pip"
-
-      - name: Install Python dependencies
-        run: pip install -e .
-
-      - name: Start application server
+      - name: Build and start application
         run: |
-          uvicorn src.main:app --host 0.0.0.0 --port 8001 &
+          docker compose up --build -d
           for i in $(seq 1 30); do
             curl -sf http://localhost:8001/health && break
             echo "Waiting for server... ($i)"
@@ -68,33 +44,9 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - uses: pnpm/action-setup@v4
-        with:
-          version: latest
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "22"
-          cache: "pnpm"
-          cache-dependency-path: scripts/pnpm-lock.yaml
-
-      - name: Build JavaScript
-        working-directory: scripts
-        run: pnpm install --frozen-lockfile && pnpm build
-
-      - name: Set up Python
-        uses: actions/setup-python@v6
-        with:
-          python-version: "3.12"
-          cache: "pip"
-
-      - name: Install Python dependencies
-        run: pip install -e .
-
-      - name: Start application server
+      - name: Build and start application
         run: |
-          uvicorn src.main:app --host 0.0.0.0 --port 8001 &
+          docker compose up --build -d
           for i in $(seq 1 30); do
             curl -sf http://localhost:8001/health && break
             echo "Waiting for server... ($i)"
