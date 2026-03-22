@@ -13,13 +13,16 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
+      - uses: pnpm/action-setup@v4
+        with:
+          version: latest
+
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: "22"
-
-      - name: Install pnpm
-        run: corepack enable && corepack prepare pnpm@latest --activate
+          cache: "pnpm"
+          cache-dependency-path: scripts/pnpm-lock.yaml
 
       - name: Build JavaScript
         working-directory: scripts
@@ -65,13 +68,16 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
+      - uses: pnpm/action-setup@v4
+        with:
+          version: latest
+
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: "22"
-
-      - name: Install pnpm
-        run: corepack enable && corepack prepare pnpm@latest --activate
+          cache: "pnpm"
+          cache-dependency-path: scripts/pnpm-lock.yaml
 
       - name: Build JavaScript
         working-directory: scripts
