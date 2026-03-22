@@ -1,3 +1,9 @@
+## v2.1.5 (2026-03-22)
+
+### Fix
+
+- use grid partial to help LCP/FCP
+
 ## v2.1.4 (2026-03-22)
 
 ### Fix
