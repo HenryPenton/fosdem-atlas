@@ -25,6 +25,8 @@
             crossorigin="anonymous"
             defer></script>
 
+    <!-- Theme flash prevention — must be inline to run synchronously before first paint -->
+
     <!-- Styles -->
     <link rel="stylesheet" href="/static/css/style.css">
 
@@ -77,125 +79,13 @@
         </div>
     </div>
 
-    <script src="/static/js/my-schedule.js"></script>
-    <script>
-        // Dark mode toggle
-        (function () {
-            var btn = document.getElementById('dark-mode-toggle');
-            function applyTheme(dark) {
-                if (dark) {
-                    document.documentElement.setAttribute('data-theme', 'dark');
-                    btn.textContent = '☀️';
-                    btn.title = 'Switch to light mode';
-                } else {
-                    document.documentElement.removeAttribute('data-theme');
-                    btn.textContent = '🌙';
-                    btn.title = 'Switch to dark mode';
-                }
-            }
-            var saved = localStorage.getItem('fosdem_theme');
-            var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-            applyTheme(saved === 'dark' || (!saved && prefersDark));
-            btn.addEventListener('click', function () {
-                var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-                localStorage.setItem('fosdem_theme', isDark ? 'light' : 'dark');
-                applyTheme(!isDark);
-            });
-        })();
-
-        // Mobile nav toggle
-        (function () {
-            var toggle = document.getElementById('nav-toggle');
-            var links = document.getElementById('nav-links');
-            toggle.addEventListener('click', function () {
-                var open = links.classList.toggle('nav-open');
-                toggle.classList.toggle('nav-open', open);
-                toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
-            });
-        })();
-
-        // Grid hour toggle
-        function toggleHour(btn) {
-            var headerRow = btn.closest('tr.grid-hour-header');
-            var hour = headerRow.getAttribute('data-hour');
-            var contentRows = document.querySelectorAll('tr.grid-hour-content[data-hour="' + hour + '"]');
-            var isOpen = headerRow.classList.toggle('grid-hour--open');
-            btn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
-            contentRows.forEach(function (row) {
-                if (isOpen) {
-                    row.style.display = '';
-                    row.removeAttribute('inert');
-                } else {
-                    row.style.display = 'none';
-                    row.setAttribute('inert', '');
-                }
-            });
-        }
-
-        // Toast notification helper
-        function showToast(message, type) {
-            var container = document.getElementById('toast-container');
-            var toast = document.createElement('div');
-            toast.className = 'toast' + (type === 'success' ? ' toast--success' : '');
-            toast.textContent = message;
-            container.appendChild(toast);
-            requestAnimationFrame(function () {
-                requestAnimationFrame(function () { toast.classList.add('toast--visible'); });
-            });
-            setTimeout(function () {
-                toast.classList.remove('toast--visible');
-                setTimeout(function () { toast.remove(); }, 300);
-            }, 4000);
-        }
-
-        // HTMX error handling
-        document.addEventListener('htmx:responseError', function (e) {
-            showToast('Request failed (' + e.detail.xhr.status + '). Please try again.', 'error');
-        });
-        document.addEventListener('htmx:sendError', function () {
-            showToast('Network error. Check your connection and try again.', 'error');
-        });
-
-        // Service Worker registration
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', function () {
-                navigator.serviceWorker.register('/static/sw.js', { scope: '/' }).catch(function () {});
-            });
-        }
-
-        // PWA install prompt
-        (function () {
-            var deferred = null;
-            var banner = document.getElementById('pwa-install-banner');
-            var installBtn = document.getElementById('pwa-install-btn');
-            var dismissBtn = document.getElementById('pwa-dismiss-btn');
-
-            if (localStorage.getItem('fosdem_pwa_dismissed')) return;
-
-            window.addEventListener('beforeinstallprompt', function (e) {
-                e.preventDefault();
-                deferred = e;
-                banner.hidden = false;
-            });
-
-            if (installBtn) {
-                installBtn.addEventListener('click', function () {
-                    banner.hidden = true;
-                    if (deferred) {
-                        deferred.prompt();
-                        deferred.userChoice.then(function () { deferred = null; });
-                    }
-                });
-            }
-
-            if (dismissBtn) {
-                dismissBtn.addEventListener('click', function () {
-                    banner.hidden = true;
-                    localStorage.setItem('fosdem_pwa_dismissed', '1');
-                });
-            }
-        })();
-    </script>
+    <script type="module" src="/static/js/my-schedule.js"></script>
+    <script type="module" src="/static/js/base.js"></script>
+    <script type="module" src="/static/js/copy-code.js"></script>
+    <script type="module" src="/static/js/tracks.js"></script>
+    <script type="module" src="/static/js/speakers.js"></script>
+    <script type="module" src="/static/js/analytics.js"></script>
+    <script type="module" src="/static/js/my-schedule-page.js"></script>
     {% block scripts %}{% endblock %}
 </body>
 </html>

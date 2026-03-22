@@ -51,5 +51,5 @@ class TestPWABaseHTML:
 
     def test_service_worker_registration_in_html(self, client: TestClient) -> None:
         response = client.get("/")
-        assert "serviceWorker" in response.text
-        assert "sw.js" in response.text
+        # SW registration is handled by base.js (extracted from inline script)
+        assert "/static/js/base.js" in response.text

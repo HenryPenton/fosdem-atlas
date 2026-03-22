@@ -1,4 +1,4 @@
-.PHONY: help venv dev install prod run test lint format audit sbom clean commit bump patch minor major smoke-test load-test rate-limit-test cy-install cy-open cy-run cy-smoke cy-a11y
+.PHONY: help venv dev install prod run test lint format audit sbom clean commit bump patch minor major smoke-test load-test rate-limit-test cy-install cy-open cy-run cy-smoke cy-a11y build-js test-js watch-js
 
 PYTHON := python3
 VENV := venv
@@ -20,6 +20,7 @@ dev: venv ## Install development dependencies
 	$(BIN)/pip install -e ".[dev]"
 	$(BIN)/pre-commit install
 	$(BIN)/pre-commit install --hook-type commit-msg
+	cd scripts && pnpm install && pnpm build
 
 prod: venv ## Install production dependencies (matches Docker build)
 	$(BIN)/pip install .
@@ -112,3 +113,12 @@ cy-a11y: cy-install ## Run Cypress accessibility tests only (server must be runn
 	@curl -sf $(BASE_URL)/health -o /dev/null || \
 	  { echo "ERROR: No server responding at $(BASE_URL) — start it first (e.g. make run)"; exit 1; }
 	cd cypress && npx cypress run --spec 'e2e/accessibility.cy.js'
+
+build-js: ## Compile TypeScript sources in scripts/ → src/static/js/
+	cd scripts && pnpm install --frozen-lockfile && pnpm build
+
+test-js: ## Run vitest test suite in scripts/
+	cd scripts && pnpm install --frozen-lockfile && pnpm test
+
+watch-js: ## Watch TypeScript sources and recompile on change
+	cd scripts && pnpm install --frozen-lockfile && pnpm watch

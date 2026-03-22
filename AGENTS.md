@@ -26,7 +26,8 @@ src/
   config.py      # Pydantic settings
   main.py        # App entry point
 templates/       # Jinja2 HTML templates
-static/          # CSS and JS assets
+static/          # CSS and JS assets (JS is compiled — do not edit by hand)
+scripts/         # TypeScript sources compiled to src/static/js/ via tsc
 tests/           # pytest test suite
 ```
 
@@ -38,11 +39,13 @@ application layers free of framework or I/O imports.
 ## Development Setup
 
 ```bash
-make dev       # Create venv, install deps, install pre-commit hooks
+make dev       # Create venv, install deps, install pre-commit hooks, build JS
 make run       # Run dev server on :8001
 make test      # Run pytest
 make lint      # ruff + mypy
 make format    # ruff --fix + ruff format
+make build-js  # Compile scripts/src/*.ts → src/static/js/
+make test-js   # Run vitest suite in scripts/
 ```
 
 DuckDB is single-process. Do not run multiple app workers against the same

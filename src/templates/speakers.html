@@ -38,23 +38,4 @@
         {% endfor %}
     </section>
 </div>
-
-<script>
-(function () {
-    var input = document.getElementById('speaker-filter');
-    var cards = document.querySelectorAll('#speakers-list .track-card');
-    var countEl = document.getElementById('speakers-count');
-    var total = cards.length;
-    input.addEventListener('input', function () {
-        var q = input.value.toLowerCase().trim();
-        var visible = 0;
-        cards.forEach(function (card) {
-            var match = !q || card.dataset.name.includes(q);
-            card.hidden = !match;
-            if (match) visible++;
-        });
-        countEl.textContent = visible + ' speaker' + (visible !== 1 ? 's' : '') + (q ? ' matching \u201c' + input.value + '\u201d' : ' at this year\'s conference');
-    });
-})();
-</script>
 {% endblock %}

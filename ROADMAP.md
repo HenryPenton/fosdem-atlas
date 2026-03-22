@@ -234,7 +234,7 @@ Build an open-source tool that scrapes the FOSDEM schedule, stores it in DuckDB 
 
 ### 6.5 Content & Discovery
 
-- [ ] Links - store the links section when scraping from FOSDEM and display under the links section in app
+- [x] Links - store the links section when scraping from FOSDEM and display under the links section in app
 - [x] Search/filter on the Speakers page (client-side filter by name)
 - [x] Search/filter on the Tracks page (client-side filter by track name)
 - [x] 404 pages use `Referer` header to show a context-aware back link

@@ -1,4 +1,18 @@
-# ── Builder stage ────────────────────────────────────────────────────────────
+# ── JS builder stage ──────────────────────────────────────────────────────────
+FROM node:22-slim AS js-builder
+
+WORKDIR /app/scripts
+
+RUN npm install -g pnpm@9.15.0
+
+COPY scripts/package.json scripts/pnpm-lock.yaml ./
+RUN pnpm install --frozen-lockfile
+
+COPY scripts/src ./src
+COPY scripts/tsconfig.json ./
+RUN pnpm build
+
+# ── Python builder stage ──────────────────────────────────────────────────────
 FROM python:3.12-slim AS builder
 
 WORKDIR /app
@@ -22,6 +36,7 @@ RUN useradd --create-home --shell /bin/bash app && \
 # Copy venv and source from builder — no build tools in the final image
 COPY --from=builder /app/venv /app/venv
 COPY src/ src/
+COPY --from=js-builder /app/src/static/js/ src/static/js/
 
 RUN chown -R app:app /app
 USER app

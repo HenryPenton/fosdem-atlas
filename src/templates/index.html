@@ -112,26 +112,4 @@ open http://localhost:8000</code></pre>
 {% endblock %}
 
 {% block scripts %}
-<script>
-(function () {
-    document.querySelectorAll('.copy-btn').forEach(function (btn) {
-        btn.addEventListener('click', function () {
-            var targetId = btn.getAttribute('data-copy-target');
-            var target = document.getElementById(targetId);
-            if (!target) return;
-            var text = target.textContent || '';
-            navigator.clipboard.writeText(text).then(function () {
-                btn.classList.add('copy-btn--copied');
-                btn.querySelector('.copy-btn-label').textContent = 'Copied!';
-                btn.querySelector('.copy-btn-icon').textContent = '✅';
-                setTimeout(function () {
-                    btn.classList.remove('copy-btn--copied');
-                    btn.querySelector('.copy-btn-label').textContent = 'Copy';
-                    btn.querySelector('.copy-btn-icon').textContent = '📋';
-                }, 2000);
-            });
-        });
-    });
-})();
-</script>
 {% endblock %}
