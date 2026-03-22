@@ -211,7 +211,8 @@ class ScheduleService:
         if event is None:
             return None
         speakers = self._repo.get_speakers_for_event(event_id)
-        result = dataclasses.replace(event, speakers=speakers)
+        links = self._repo.get_links_for_event(event_id)
+        result = dataclasses.replace(event, speakers=speakers, links=links)
         if len(self._event_detail_cache) >= 256:
             self._event_detail_cache.pop(next(iter(self._event_detail_cache)))
         self._event_detail_cache[event_id] = result

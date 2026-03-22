@@ -134,30 +134,18 @@ class DuckDBIngestionRepository:
             conn.execute("BEGIN")
             try:
                 conn.execute("DELETE FROM event_speakers")
+                conn.execute("DELETE FROM event_links")
                 conn.execute("DELETE FROM keywords")
                 conn.execute("DELETE FROM events")
                 conn.execute("DELETE FROM speakers")
 
                 for event in events:
-                    fosdem_url = next(
-                        (lk.href for lk in event.links if "fosdem.org" in lk.href), ""
-                    )
-                    _video_exts = {".mp4", ".webm", ".ogv", ".avi", ".mkv"}
-                    video_url = next(
-                        (
-                            lk.href
-                            for lk in event.links
-                            if "video.fosdem.org" in lk.href
-                            and any(lk.href.endswith(ext) for ext in _video_exts)
-                        ),
-                        "",
-                    )
                     conn.execute(
                         """
                         INSERT INTO events
                             (id, title, subtitle, abstract, start_time,
-                             duration_minutes, room, track, day, fosdem_url, video_url)
-                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                             duration_minutes, room, track, day)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
                         """,
                         [
                             event.id,
@@ -169,8 +157,6 @@ class DuckDBIngestionRepository:
                             event.room,
                             event.track,
                             event.day,
-                            fosdem_url,
-                            video_url,
                         ],
                     )
 
@@ -183,6 +169,13 @@ class DuckDBIngestionRepository:
                             "INSERT OR IGNORE INTO event_speakers (event_id, speaker_id) VALUES (?, ?)",
                             [event.id, speaker.id],
                         )
+
+                    for link in event.links:
+                        if link.href:
+                            conn.execute(
+                                "INSERT OR IGNORE INTO event_links (event_id, href, title) VALUES (?, ?, ?)",
+                                [event.id, link.href, link.title],
+                            )
 
                 self._extract_keywords(conn, events)
                 conn.execute("COMMIT")

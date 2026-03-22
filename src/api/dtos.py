@@ -7,6 +7,14 @@ from datetime import datetime
 
 
 @dataclass(frozen=True)
+class LinkDTO:
+    """A link associated with an event."""
+
+    href: str
+    title: str
+
+
+@dataclass(frozen=True)
 class EventSummaryDTO:
     """Event summary for list endpoints."""
 
@@ -56,8 +64,8 @@ class EventDetailDTO:
     room: str
     track: str
     day: str
-    fosdem_url: str
     speakers: list[SpeakerDTO] = field(default_factory=list)
+    links: list[LinkDTO] = field(default_factory=list)
 
 
 # ── Speaker DTOs ────────────────────────────────────────────

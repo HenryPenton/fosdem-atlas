@@ -75,12 +75,12 @@ class TestInsertEvents:
         assert count == 0
         assert events_repository.get_event_count() == 0
 
-    def test_vtt_link_not_stored_as_video_url(
+    def test_vtt_link_stored_in_event_links(
         self,
         ingestion_repository: DuckDBIngestionRepository,
         events_repository: DuckDBEventsRepository,
     ) -> None:
-        """Only recognised video formats (mp4, webm, etc.) are stored as video_url."""
+        """All links including .vtt are stored in event_links."""
         events = [
             Event(
                 id="20",
@@ -103,16 +103,18 @@ class TestInsertEvents:
             )
         ]
         ingestion_repository.insert_events(events)
-        detail = events_repository.get_event_by_id("20")
-        assert detail is not None
-        assert detail.video_url == "https://video.fosdem.org/2026/h1234/talk.webm"
+        links = events_repository.get_links_for_event("20")
+        assert len(links) == 2
+        hrefs = {lk.href for lk in links}
+        assert "https://video.fosdem.org/2026/h1234/talk.vtt" in hrefs
+        assert "https://video.fosdem.org/2026/h1234/talk.webm" in hrefs
 
-    def test_only_vtt_link_results_in_empty_video_url(
+    def test_only_vtt_link_stored_in_event_links(
         self,
         ingestion_repository: DuckDBIngestionRepository,
         events_repository: DuckDBEventsRepository,
     ) -> None:
-        """If no video.fosdem.org link has a known video extension, video_url is empty."""
+        """A .vtt-only event has exactly one event_link."""
         events = [
             Event(
                 id="21",
@@ -131,6 +133,6 @@ class TestInsertEvents:
             )
         ]
         ingestion_repository.insert_events(events)
-        detail = events_repository.get_event_by_id("21")
-        assert detail is not None
-        assert detail.video_url == ""
+        links = events_repository.get_links_for_event("21")
+        assert len(links) == 1
+        assert links[0].title == "Subtitles"

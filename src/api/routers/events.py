@@ -6,6 +6,7 @@ from src.api.dtos import (
     EventDetailDTO,
     EventSearchResultDTO,
     EventSummaryDTO,
+    LinkDTO,
     SpeakerDTO,
 )
 from src.application.services import ScheduleService
@@ -83,6 +84,6 @@ def _event_detail_dto(e: EventDetail) -> EventDetailDTO:
         room=e.room,
         track=e.track,
         day=e.day,
-        fosdem_url=e.fosdem_url,
         speakers=[SpeakerDTO(id=s.id, name=s.name) for s in e.speakers],
+        links=[LinkDTO(href=lk.href, title=lk.title) for lk in e.links],
     )

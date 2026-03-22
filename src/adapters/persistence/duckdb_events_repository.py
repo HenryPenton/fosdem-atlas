@@ -7,6 +7,7 @@ from src.domain.models import (
     EventDetail,
     EventSearchResult,
     EventSummary,
+    Link,
     Speaker,
 )
 
@@ -164,6 +165,19 @@ class DuckDBEventsRepository:
             for row in result
         ]
 
+    def get_links_for_event(self, event_id: str) -> list[Link]:
+        conn = self._db.get()
+        result = conn.execute(
+            """
+            SELECT href, title
+            FROM event_links
+            WHERE event_id = ?
+            ORDER BY rowid
+            """,
+            [event_id],
+        ).fetchall()
+        return [Link(href=str(row[0]), title=str(row[1])) for row in result]
+
     def get_speakers_for_event(self, event_id: str) -> list[Speaker]:
         conn = self._db.get()
         result = conn.execute(
@@ -183,7 +197,7 @@ class DuckDBEventsRepository:
         row = conn.execute(
             """
             SELECT id, title, subtitle, abstract, start_time,
-                   duration_minutes, room, track, day, fosdem_url, video_url
+                   duration_minutes, room, track, day
             FROM events
             WHERE id = ?
             """,
@@ -201,8 +215,6 @@ class DuckDBEventsRepository:
             room=str(row[6]),
             track=str(row[7]),
             day=str(row[8]),
-            fosdem_url=str(row[9]),
-            video_url=str(row[10] or ""),
         )
 
     def get_events_by_ids(self, event_ids: list[str]) -> list[EventDetail]:
@@ -213,7 +225,7 @@ class DuckDBEventsRepository:
         result = conn.execute(  # nosemgrep: python.lang.security.audit.formatted-sql-query.formatted-sql-query,python.sqlalchemy.security.sqlalchemy-execute-raw-query.sqlalchemy-execute-raw-query  # noqa: E501
             f"""
             SELECT id, title, subtitle, abstract, start_time,
-                   duration_minutes, room, track, day, fosdem_url, video_url
+                   duration_minutes, room, track, day
             FROM events
             WHERE id IN ({placeholders})
             ORDER BY day, start_time, room
@@ -231,8 +243,6 @@ class DuckDBEventsRepository:
                 room=str(row[6]),
                 track=str(row[7]),
                 day=str(row[8]),
-                fosdem_url=str(row[9]),
-                video_url=str(row[10] or ""),
             )
             for row in result
         ]

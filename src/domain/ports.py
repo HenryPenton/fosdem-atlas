@@ -8,6 +8,7 @@ from src.domain.models import (
     EventDetail,
     EventSearchResult,
     EventSummary,
+    Link,
     RoomStats,
     Speaker,
     SpeakerStats,
@@ -50,6 +51,8 @@ class EventsRepository(Protocol):
     def get_events_by_ids(self, event_ids: list[str]) -> list[EventDetail]: ...
 
     def get_speakers_for_event(self, event_id: str) -> list[Speaker]: ...
+
+    def get_links_for_event(self, event_id: str) -> list[Link]: ...
 
     def filter_events(
         self, q: str = "", track: str = "", room: str = "", day: str = ""

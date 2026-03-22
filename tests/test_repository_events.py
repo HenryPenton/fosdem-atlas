@@ -1,6 +1,8 @@
 """Tests for DuckDBEventsRepository — schedule browsing and search."""
 
 from src.adapters.persistence.duckdb_events_repository import DuckDBEventsRepository
+from src.adapters.persistence.duckdb_ingestion_repository import DuckDBIngestionRepository
+from src.domain.models import Link
 
 
 class TestGetAllEvents:
@@ -95,6 +97,36 @@ class TestGetSpeakersForEvent:
         assert seeded_events_repository.get_speakers_for_event("999") == []
 
 
+class TestGetLinksForEvent:
+    def test_returns_links(
+        self,
+        ingestion_repository: DuckDBIngestionRepository,
+        events_repository: DuckDBEventsRepository,
+    ) -> None:
+        from tests.conftest import _make_event
+
+        event = _make_event(
+            id="lnk1",
+            links=[
+                Link(href="https://fosdem.org/2026/schedule/event/lnk1/", title="FOSDEM page"),
+                Link(href="https://example.com/slides.pdf", title="Slides"),
+            ],
+        )
+        ingestion_repository.insert_events([event])
+        links = events_repository.get_links_for_event("lnk1")
+        assert len(links) == 2
+        assert links[0].href == "https://fosdem.org/2026/schedule/event/lnk1/"
+        assert links[1].title == "Slides"
+
+    def test_no_links_returns_empty(self, seeded_events_repository: DuckDBEventsRepository) -> None:
+        assert seeded_events_repository.get_links_for_event("1") == []
+
+    def test_nonexistent_event_returns_empty(
+        self, seeded_events_repository: DuckDBEventsRepository
+    ) -> None:
+        assert seeded_events_repository.get_links_for_event("999") == []
+
+
 class TestSearchEvents:
     def test_search_by_title(self, seeded_events_repository: DuckDBEventsRepository) -> None:
         results = seeded_events_repository.search_events("Rust")
@@ -186,7 +218,6 @@ class TestGetEventById:
             "room",
             "track",
             "day",
-            "fosdem_url",
         ):
             assert hasattr(event, field)
 

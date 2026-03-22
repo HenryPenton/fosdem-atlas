@@ -75,9 +75,7 @@ class DuckDBConnection:
                 duration_minutes INTEGER NOT NULL,
                 room VARCHAR NOT NULL,
                 track VARCHAR NOT NULL,
-                day DATE NOT NULL,
-                fosdem_url VARCHAR NOT NULL DEFAULT '',
-                video_url VARCHAR NOT NULL DEFAULT ''
+                day DATE NOT NULL
             )
         """
         )
@@ -106,6 +104,17 @@ class DuckDBConnection:
                 term VARCHAR NOT NULL,
                 count INTEGER NOT NULL,
                 PRIMARY KEY (term)
+            )
+        """
+        )
+
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS event_links (
+                event_id VARCHAR NOT NULL,
+                href VARCHAR NOT NULL,
+                title VARCHAR NOT NULL DEFAULT '',
+                PRIMARY KEY (event_id, href)
             )
         """
         )

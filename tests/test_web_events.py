@@ -83,11 +83,88 @@ class TestEventVideoLink:
     def test_shows_video_link(self, client_with_video: TestClient) -> None:
         response = client_with_video.get("/event/vid1")
         assert "video.fosdem.org" in response.text
-        assert "Watch recording" in response.text
+        assert "Video recording" in response.text
 
     def test_no_video_link_when_absent(self, client: TestClient) -> None:
         response = client.get("/event/1")
-        assert "Watch recording" not in response.text
+        assert "video.fosdem.org" not in response.text
+
+
+class TestEventLinks:
+    @pytest.fixture
+    def client_with_links(
+        self,
+        seeded_ingestion_repository: DuckDBIngestionRepository,
+        schedule_service: ScheduleService,
+        analytics_service: AnalyticsService,
+        speaker_service: SpeakerService,
+        settings: Settings,
+    ) -> TestClient:
+        from tests.conftest import _make_event
+
+        event = _make_event(
+            id="lnk1",
+            title="Talk With Links",
+            links=[
+                Link(href="https://fosdem.org/2026/schedule/event/lnk1/", title="FOSDEM page"),
+                Link(href="https://example.com/slides.pdf", title="Slides"),
+            ],
+        )
+        seeded_ingestion_repository.insert_events([event])
+        app = create_app(
+            schedule_service=schedule_service,
+            analytics_service=analytics_service,
+            speaker_service=speaker_service,
+            settings=settings,
+        )
+        return TestClient(app)
+
+    def test_shows_all_links(self, client_with_links: TestClient) -> None:
+        response = client_with_links.get("/event/lnk1")
+        assert "FOSDEM page" in response.text
+        assert "Slides" in response.text
+        assert "example.com/slides.pdf" in response.text
+
+    def test_no_links_shows_back_link_only(self, client: TestClient) -> None:
+        response = client.get("/event/1")
+        assert response.status_code == 200
+
+
+class TestApiV1EventDetailLinks:
+    @pytest.fixture
+    def client_with_links(
+        self,
+        seeded_ingestion_repository: DuckDBIngestionRepository,
+        schedule_service: ScheduleService,
+        analytics_service: AnalyticsService,
+        speaker_service: SpeakerService,
+        settings: Settings,
+    ) -> TestClient:
+        from tests.conftest import _make_event
+
+        event = _make_event(
+            id="api_lnk1",
+            title="API Link Talk",
+            links=[
+                Link(href="https://fosdem.org/2026/schedule/event/api_lnk1/", title="FOSDEM page"),
+                Link(href="https://example.com/code", title="Source code"),
+            ],
+        )
+        seeded_ingestion_repository.insert_events([event])
+        app = create_app(
+            schedule_service=schedule_service,
+            analytics_service=analytics_service,
+            speaker_service=speaker_service,
+            settings=settings,
+        )
+        return TestClient(app)
+
+    def test_event_detail_includes_links(self, client_with_links: TestClient) -> None:
+        data = client_with_links.get("/api/v1/events/api_lnk1").json()
+        assert "links" in data
+        assert len(data["links"]) == 2
+        hrefs = {lk["href"] for lk in data["links"]}
+        assert "https://example.com/code" in hrefs
 
 
 class TestEventDetailBookmark:

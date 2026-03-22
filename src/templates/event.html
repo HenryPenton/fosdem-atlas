@@ -55,22 +55,14 @@
         <section class="event-detail-links">
             <h2>Links</h2>
             <ul class="detail-links-list">
-                {% if event.fosdem_url %}
+                {% for link in event.links %}
                 <li>
-                    <a href="{{ event.fosdem_url }}" target="_blank" rel="noopener noreferrer"
-                       class="detail-link fosdem-link">
-                        🌐 View on FOSDEM.org
-                    </a>
-                </li>
-                {% endif %}
-                {% if event.video_url %}
-                <li>
-                    <a href="{{ event.video_url }}" target="_blank" rel="noopener noreferrer"
+                    <a href="{{ link.href }}" target="_blank" rel="noopener noreferrer"
                        class="detail-link">
-                        🎬 Watch recording
+                        {{ link.title }}
                     </a>
                 </li>
-                {% endif %}
+                {% endfor %}
                 <li>
                     <a href="/day/{{ event.day }}/track/{{ event.track | urlencode_path }}" class="detail-link">
                         ← Back to {{ event.track }} track
