@@ -152,6 +152,42 @@ describe('Accessibility — Dynamic pages', () => {
 });
 
 // ───────────────────────────────────────────────────────────────────
+// Abstract expand — check a11y with <details> open
+// ───────────────────────────────────────────────────────────────────
+describe('Accessibility — Expanded abstract', () => {
+  let track;
+
+  before(() => {
+    // Find a track that has at least one event card with an abstract toggle.
+    cy.request('/api/v1/tracks').then((res) => {
+      if (res.body.length) track = res.body[0].name;
+    });
+  });
+
+  ['light', 'dark'].forEach((theme) => {
+    it(`track page with abstract expanded (${theme} mode)`, function () {
+      if (!track) this.skip();
+      cy.visit(`/track/${encodeURIComponent(track)}`);
+      setTheme(theme);
+
+      // Skip gracefully if this track has no events with abstracts.
+      cy.get('body').then(($body) => {
+        if (!$body.find('.abstract-toggle').length) this.skip();
+      });
+
+      // Expand the first abstract.
+      cy.get('.abstract-toggle').first().as('toggle');
+      cy.get('@toggle').find('summary').click();
+      cy.get('@toggle').should('have.attr', 'open');
+      cy.get('@toggle').find('.abstract').should('be.visible');
+
+      // Audit with the abstract open.
+      injectAndCheck();
+    });
+  });
+});
+
+// ───────────────────────────────────────────────────────────────────
 // Colour-contrast-only audit (stricter — catches non-AA contrast)
 // ───────────────────────────────────────────────────────────────────
 describe('Colour contrast audit', () => {
