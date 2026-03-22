@@ -22,15 +22,27 @@ def create_schedule_router(
         day: str = Query(default="", max_length=20),
     ) -> HTMLResponse:
         overview = schedule_service.get_overview()
-        grid_data = schedule_service.get_grid_data(day=day)
+        selected_day = day if day in overview.days else (overview.days[0] if overview.days else "")
         return templates.TemplateResponse(
             request=request,
             name="index.html",
             context={
                 "title": "FOSDEM Explorer",
                 **dataclasses.asdict(overview),
-                **dataclasses.asdict(grid_data),
+                "selected_day": selected_day,
             },
+        )
+
+    @router.get("/grid", response_class=HTMLResponse)
+    def schedule_grid(
+        request: Request,
+        day: str = Query(default="", max_length=20),
+    ) -> HTMLResponse:
+        grid_data = schedule_service.get_grid_data(day=day)
+        return templates.TemplateResponse(
+            request=request,
+            name="partials/schedule_grid.html",
+            context=dataclasses.asdict(grid_data),
         )
 
     @router.get("/day/{day}", response_class=HTMLResponse)

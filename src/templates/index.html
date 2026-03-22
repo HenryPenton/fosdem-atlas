@@ -75,7 +75,13 @@
         </div>
     </div>
 
-    {% include "partials/schedule_grid.html" %}
+    <div id="schedule-grid-container"
+         hx-get="/grid?day={{ selected_day }}"
+         hx-trigger="load"
+         hx-swap="innerHTML"
+         hx-indicator="#grid-spinner">
+      <div id="grid-spinner" class="htmx-indicator" role="status" aria-label="Loading schedule"></div>
+    </div>
 
     {% else %}
     <div class="no-events">

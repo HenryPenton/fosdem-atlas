@@ -35,20 +35,12 @@ class TestIndexPage:
     def test_select_specific_day(self, client: TestClient) -> None:
         response = client.get("/?day=2026-02-08")
         assert response.status_code == 200
-        assert "DuckDB Internals" in response.text
+        assert "day=2026-02-08" in response.text
 
     def test_shows_rooms_as_columns(self, client: TestClient) -> None:
         response = client.get("/?day=2026-02-07")
         assert "Room A" in response.text
         assert "Room B" in response.text
-
-    def test_shows_time_slots(self, client: TestClient) -> None:
-        response = client.get("/?day=2026-02-07")
-        assert "10:00" in response.text
-
-    def test_events_link_to_detail(self, client: TestClient) -> None:
-        response = client.get("/?day=2026-02-07")
-        assert "/event/1" in response.text
 
     def test_shows_day_picker(self, client: TestClient) -> None:
         response = client.get("/")
@@ -60,13 +52,46 @@ class TestIndexPage:
         assert response.status_code == 200
         assert "Room A" in response.text
 
-    def test_grid_table_present(self, client: TestClient) -> None:
+    def test_grid_lazy_load_container_present(self, client: TestClient) -> None:
         response = client.get("/?day=2026-02-07")
+        assert "schedule-grid-container" in response.text
+        assert "/grid?day=2026-02-07" in response.text
+
+
+class TestScheduleGridPartial:
+    def test_returns_200(self, client: TestClient) -> None:
+        response = client.get("/grid?day=2026-02-07")
+        assert response.status_code == 200
+
+    def test_shows_grid_table(self, client: TestClient) -> None:
+        response = client.get("/grid?day=2026-02-07")
         assert "schedule-grid" in response.text
 
+    def test_shows_rooms_as_columns(self, client: TestClient) -> None:
+        response = client.get("/grid?day=2026-02-07")
+        assert "Room A" in response.text
+        assert "Room B" in response.text
+
+    def test_shows_time_slots(self, client: TestClient) -> None:
+        response = client.get("/grid?day=2026-02-07")
+        assert "10:00" in response.text
+
+    def test_events_link_to_detail(self, client: TestClient) -> None:
+        response = client.get("/grid?day=2026-02-07")
+        assert "/event/1" in response.text
+
+    def test_shows_events_for_selected_day(self, client: TestClient) -> None:
+        response = client.get("/grid?day=2026-02-08")
+        assert "DuckDB Internals" in response.text
+
     def test_has_bookmark_buttons(self, client: TestClient) -> None:
-        response = client.get("/")
+        response = client.get("/grid?day=2026-02-07")
         assert "data-bookmark-id" in response.text
+
+    def test_invalid_day_falls_back_to_first(self, client: TestClient) -> None:
+        response = client.get("/grid?day=invalid")
+        assert response.status_code == 200
+        assert "Room A" in response.text
 
 
 class TestDayPage:
