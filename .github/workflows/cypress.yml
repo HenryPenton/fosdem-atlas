@@ -17,7 +17,7 @@ jobs:
         run: |
           docker compose up --build -d
           for i in $(seq 1 30); do
-            curl -sf http://localhost:8001/health && break
+            curl -sf http://localhost:8000/health && break
             echo "Waiting for server... ($i)"
             sleep 2
           done
@@ -27,7 +27,7 @@ jobs:
         with:
           working-directory: cypress
           spec: e2e/smoke.cy.js
-          wait-on: "http://localhost:8001/health"
+          wait-on: "http://localhost:8000/health"
           wait-on-timeout: 60
 
       - name: Upload screenshots on failure
@@ -48,7 +48,7 @@ jobs:
         run: |
           docker compose up --build -d
           for i in $(seq 1 30); do
-            curl -sf http://localhost:8001/health && break
+            curl -sf http://localhost:8000/health && break
             echo "Waiting for server... ($i)"
             sleep 2
           done
@@ -58,7 +58,7 @@ jobs:
         with:
           working-directory: cypress
           spec: e2e/accessibility.cy.js
-          wait-on: "http://localhost:8001/health"
+          wait-on: "http://localhost:8000/health"
           wait-on-timeout: 60
 
       - name: Upload screenshots on failure

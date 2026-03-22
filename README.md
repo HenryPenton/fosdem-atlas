@@ -41,11 +41,11 @@ cd fosdem-explorer
 # Install dev dependencies (creates venv automatically)
 make dev
 
-# Run the application (auto-reload on :8001)
+# Run the application (auto-reload on :8000)
 make run
 ```
 
-Open <http://localhost:8001>.
+Open <http://localhost:8000>.
 
 ## Self-Hosting
 
@@ -96,7 +96,7 @@ docker-compose up -d
 make help          # Show all available commands
 make dev           # Create venv + install dev dependencies + pre-commit hooks
 make install       # Create venv + install production dependencies only
-make run           # Run with auto-reload on :8001
+make run           # Run with auto-reload on :8000
 make run-prod      # Run in production mode on :8000
 make test          # Run tests
 make lint          # Run ruff + mypy

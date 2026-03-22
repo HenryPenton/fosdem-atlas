@@ -25,7 +25,7 @@ export const options = {
   },
 };
 
-const BASE_URL = __ENV.BASE_URL || 'http://localhost:8001';
+const BASE_URL = __ENV.BASE_URL || 'http://localhost:8000';
 
 function pick(arr) {
   return arr[Math.floor(Math.random() * arr.length)];

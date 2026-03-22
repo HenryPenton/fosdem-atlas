@@ -40,7 +40,7 @@ application layers free of framework or I/O imports.
 
 ```bash
 make dev       # Create venv, install deps, install pre-commit hooks, build JS
-make run       # Run dev server on :8001
+make run       # Run dev server on :8000
 make test      # Run pytest
 make lint      # ruff + mypy
 make format    # ruff --fix + ruff format

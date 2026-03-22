@@ -26,7 +26,7 @@ prod: venv ## Install production dependencies (matches Docker build)
 	$(BIN)/pip install .
 
 run: ## Run the application
-	$(BIN)/uvicorn src.main:app --reload --host 0.0.0.0 --port 8001
+	$(BIN)/uvicorn src.main:app --reload --host 0.0.0.0 --port 8000
 
 run-prod: ## Run in production mode (single worker — DuckDB is single-process)
 	$(BIN)/uvicorn src.main:app --host 0.0.0.0 --port 8000
@@ -78,7 +78,7 @@ docker-build: ## Build Docker image
 docker-run: ## Run Docker container
 	docker run -p 8000:8000 -v $(PWD)/data:/app/data fosdem-explorer:latest
 
-BASE_URL ?= http://localhost:8001
+BASE_URL ?= http://localhost:8000
 
 smoke-test: ## Run k6 smoke test (requires k6; server must be running at BASE_URL)
 	@curl -sf $(BASE_URL)/health -o /dev/null || \

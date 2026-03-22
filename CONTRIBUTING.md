@@ -17,7 +17,7 @@ Thanks for your interest in contributing! This guide covers everything you need 
    ```
 4. Run the app locally to verify everything works:
    ```bash
-   make run        # Dev server on :8001 with auto-reload
+   make run        # Dev server on :8000 with auto-reload
    make test       # Run the test suite
    make lint       # Linting + type checking
    ```

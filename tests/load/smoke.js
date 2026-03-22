@@ -19,7 +19,7 @@ export const options = {
   },
 };
 
-const BASE_URL = __ENV.BASE_URL || 'http://localhost:8001';
+const BASE_URL = __ENV.BASE_URL || 'http://localhost:8000';
 
 function encodePath(s) {
   return s
