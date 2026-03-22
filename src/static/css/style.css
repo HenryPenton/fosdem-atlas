@@ -1106,6 +1106,11 @@ footer p {
     -webkit-appearance: none;
 }
 
+.search-input::placeholder {
+    color: var(--text-muted);
+    opacity: 1;
+}
+
 .search-input:focus {
     border-color: var(--primary-color);
     box-shadow: 0 0 0 3px var(--primary-light);

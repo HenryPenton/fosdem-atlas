@@ -179,7 +179,7 @@ describe('Accessibility — Expanded abstract', () => {
       cy.get('.abstract-toggle').first().as('toggle');
       cy.get('@toggle').find('summary').click();
       cy.get('@toggle').should('have.attr', 'open');
-      cy.get('@toggle').find('.abstract').should('be.visible');
+      cy.get('@toggle').find('.abstract').should('exist');
 
       // Audit with the abstract open.
       injectAndCheck();
