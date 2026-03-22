@@ -22,6 +22,15 @@ jobs:
             sleep 2
           done
 
+      - name: Wait for initial data scrape
+        run: |
+          for i in $(seq 1 30); do
+            count=$(curl -sf http://localhost:8000/api/v1/events | python3 -c "import sys,json; print(len(json.load(sys.stdin)))" 2>/dev/null || echo 0)
+            [ "$count" -gt 0 ] && echo "Data ready ($count events)" && break
+            echo "Waiting for scrape... ($i)"
+            sleep 5
+          done
+
       - name: Cypress smoke run
         uses: cypress-io/github-action@v7
         with:
@@ -51,6 +60,15 @@ jobs:
             curl -sf http://localhost:8000/health && break
             echo "Waiting for server... ($i)"
             sleep 2
+          done
+
+      - name: Wait for initial data scrape
+        run: |
+          for i in $(seq 1 30); do
+            count=$(curl -sf http://localhost:8000/api/v1/events | python3 -c "import sys,json; print(len(json.load(sys.stdin)))" 2>/dev/null || echo 0)
+            [ "$count" -gt 0 ] && echo "Data ready ($count events)" && break
+            echo "Waiting for scrape... ($i)"
+            sleep 5
           done
 
       - name: Cypress a11y run
