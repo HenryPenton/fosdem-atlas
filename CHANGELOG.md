@@ -1,3 +1,9 @@
+## v2.1.4 (2026-03-22)
+
+### Fix
+
+- remove scheduled trigger from accessibility audit workflow
+
 ## v2.1.3 (2026-03-22)
 
 ### Feat

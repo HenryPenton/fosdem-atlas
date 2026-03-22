@@ -1216,7 +1216,7 @@
       "version": "2.1.2"
     },
     {
-      "bom-ref": "BomRef.7331098901273245.15440646826898197",
+      "bom-ref": "BomRef.5093182743799152.23205649132607564",
       "description": "A DuckDB-powered web application for exploring and analyzing the FOSDEM schedule",
       "externalReferences": [
         {
