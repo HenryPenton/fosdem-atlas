@@ -1,3 +1,20 @@
+## v2.1.3 (2026-03-22)
+
+### Feat
+
+- add event links management and update event detail structure
+
+### Fix
+
+- accessibility tests
+- add wait step for initial data scrape in Cypress workflows
+- update application to use port 8000 instead of 8001
+- update workflow to use latest pnpm version and adjust caching strategy
+
+### Refactor
+
+- move scripts to a testable pnpm package
+
 ## v2.1.2 (2026-03-21)
 
 ### Feat
