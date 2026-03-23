@@ -5,7 +5,6 @@ Wires together all adapters and starts the application.
 
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
-from datetime import datetime
 
 from apscheduler.schedulers.background import BackgroundScheduler
 from fastapi import FastAPI
@@ -60,13 +59,14 @@ async def _lifespan(_app: FastAPI) -> AsyncGenerator[None, None]:
     _db.get()
     print("Database connected")
 
+    _run_scrape()
+
     scheduler = BackgroundScheduler()
     scheduler.add_job(
         _run_scrape,
         "interval",
         minutes=settings.scrape_interval_minutes,
         id="scrape",
-        next_run_time=datetime.now(),
     )
     scheduler.start()
     print(f"Scheduler started (every {settings.scrape_interval_minutes} minutes)")
