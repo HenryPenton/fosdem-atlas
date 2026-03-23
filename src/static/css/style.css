@@ -1863,6 +1863,9 @@ footer p {
     padding: 0.4rem 0;
     border-bottom: 1px solid #f0e6b8;
 }
+.conflict-item a {
+    color: var(--primary-color);
+}
 .conflict-item:last-child {
     border-bottom: none;
 }

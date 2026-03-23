@@ -192,3 +192,50 @@ describe('Full a11y audit — expanded abstracts', { defaultCommandTimeout: 1500
     });
   });
 });
+
+// ───────────────────────────────────────────────────────────────────
+describe('Full a11y audit — My Schedule with conflicts', { defaultCommandTimeout: 15000 }, () => {
+  const conflictEvents = [
+    {
+      id: 'c1',
+      title: 'Talk One',
+      start_time: '2026-02-01T10:00:00',
+      duration_minutes: 60,
+      room: 'Room A',
+      day: '2026-02-01',
+    },
+    {
+      id: 'c2',
+      title: 'Talk Two',
+      start_time: '2026-02-01T10:30:00',
+      duration_minutes: 60,
+      room: 'Room B',
+      day: '2026-02-01',
+    },
+  ];
+
+  ['light', 'dark'].forEach((theme) => {
+    it(`has no a11y violations (${theme})`, () => {
+      cy.intercept('GET', '/api/v1/events/by-ids*', { body: conflictEvents });
+      cy.intercept('GET', '/my-schedule/grid*', { body: '<p>Schedule grid</p>' });
+      cy.visit('/my-schedule', {
+        onBeforeLoad(win) {
+          win.localStorage.setItem('fosdem_my_schedule', JSON.stringify(['c1', 'c2']));
+        },
+      });
+      setTheme(theme);
+      cy.get('#schedule-conflicts').should('be.visible');
+      cy.injectAxe();
+      const failed = [];
+      cy.checkA11y(null, axeOptions, (violations) => {
+        if (violations.length) {
+          failed.push({
+            path: '/my-schedule (with conflicts)',
+            rules: violations.map((v) => `${v.id} (${v.impact})`),
+          });
+        }
+      }, true);
+      cy.then(() => reportFailures('my-schedule-with-conflicts', failed));
+    });
+  });
+});

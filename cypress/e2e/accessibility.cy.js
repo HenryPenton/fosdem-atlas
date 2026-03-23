@@ -188,6 +188,57 @@ describe('Accessibility — Expanded abstract', () => {
 });
 
 // ───────────────────────────────────────────────────────────────────
+// My Schedule — with conflicts
+// ───────────────────────────────────────────────────────────────────
+const scheduleConflictEvents = [
+  {
+    id: 'c1',
+    title: 'Talk One',
+    start_time: '2026-02-01T10:00:00',
+    duration_minutes: 60,
+    room: 'Room A',
+    day: '2026-02-01',
+  },
+  {
+    id: 'c2',
+    title: 'Talk Two',
+    start_time: '2026-02-01T10:30:00',
+    duration_minutes: 60,
+    room: 'Room B',
+    day: '2026-02-01',
+  },
+];
+
+function visitWithConflicts(theme) {
+  cy.intercept('GET', '/api/v1/events/by-ids*', { body: scheduleConflictEvents });
+  cy.intercept('GET', '/my-schedule/grid*', { body: '<p>Schedule grid</p>' });
+  cy.visit('/my-schedule', {
+    onBeforeLoad(win) {
+      win.localStorage.setItem('fosdem_my_schedule', JSON.stringify(['c1', 'c2']));
+    },
+  });
+  setTheme(theme);
+  cy.get('#schedule-conflicts').should('be.visible');
+}
+
+describe('Accessibility — My Schedule with conflicts', () => {
+  ['light', 'dark'].forEach((theme) => {
+    it(`has no a11y violations (${theme} mode)`, () => {
+      visitWithConflicts(theme);
+      injectAndCheck();
+    });
+
+    it(`passes colour-contrast (${theme} mode)`, () => {
+      visitWithConflicts(theme);
+      cy.injectAxe();
+      cy.checkAccessibility(null, {
+        runOnly: { type: 'rule', values: ['color-contrast'] },
+      });
+    });
+  });
+});
+
+// ───────────────────────────────────────────────────────────────────
 // Colour-contrast-only audit (stricter — catches non-AA contrast)
 // ───────────────────────────────────────────────────────────────────
 describe('Colour contrast audit', () => {
