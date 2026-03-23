@@ -12,6 +12,11 @@ from src.domain.models import (
 )
 
 
+def _escape_ilike(q: str) -> str:
+    """Escape ILIKE wildcard characters in a user-supplied search term."""
+    return q.replace("!", "!!").replace("%", "!%").replace("_", "!_")
+
+
 class DuckDBEventsRepository:
     """DuckDB implementation of EventsRepository — schedule browsing and search."""
 
@@ -255,8 +260,8 @@ class DuckDBEventsRepository:
         params: list[str] = []
 
         if q:
-            conditions.append("(title ILIKE ? OR abstract ILIKE ?)")
-            pattern = f"%{q}%"
+            conditions.append("(title ILIKE ? ESCAPE '!' OR abstract ILIKE ? ESCAPE '!')")
+            pattern = f"%{_escape_ilike(q)}%"
             params.extend([pattern, pattern])
 
         if track:
@@ -298,12 +303,12 @@ class DuckDBEventsRepository:
 
     def search_events(self, q: str) -> list[EventSearchResult]:
         conn = self._db.get()
-        pattern = f"%{q}%"
+        pattern = f"%{_escape_ilike(q)}%"
         result = conn.execute(
             """
             SELECT id, title, abstract, start_time, duration_minutes, room, track, day
             FROM events
-            WHERE title ILIKE ? OR abstract ILIKE ?
+            WHERE title ILIKE ? ESCAPE '!' OR abstract ILIKE ? ESCAPE '!'
             ORDER BY start_time, room
             LIMIT 100
             """,

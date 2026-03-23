@@ -1,8 +1,44 @@
 """Tests for DuckDBEventsRepository — schedule browsing and search."""
 
-from src.adapters.persistence.duckdb_events_repository import DuckDBEventsRepository
+from src.adapters.persistence.duckdb_events_repository import (
+    DuckDBEventsRepository,
+    _escape_ilike,
+)
 from src.adapters.persistence.duckdb_ingestion_repository import DuckDBIngestionRepository
 from src.domain.models import Link
+
+
+class TestEscapeIlike:
+    def test_escapes_percent(self) -> None:
+        assert _escape_ilike("100%") == "100!%"
+
+    def test_escapes_underscore(self) -> None:
+        assert _escape_ilike("foo_bar") == "foo!_bar"
+
+    def test_escapes_bang(self) -> None:
+        assert _escape_ilike("a!b") == "a!!b"
+
+    def test_plain_string_unchanged(self) -> None:
+        assert _escape_ilike("rust") == "rust"
+
+    def test_percent_does_not_match_everything(
+        self, seeded_events_repository: DuckDBEventsRepository
+    ) -> None:
+        # A bare '%' without escaping would match all rows; with escaping it matches none
+        results = seeded_events_repository.search_events("%")
+        assert results == []
+
+    def test_underscore_does_not_act_as_wildcard(
+        self, seeded_events_repository: DuckDBEventsRepository
+    ) -> None:
+        results = seeded_events_repository.search_events("_")
+        assert results == []
+
+    def test_filter_percent_does_not_match_everything(
+        self, seeded_events_repository: DuckDBEventsRepository
+    ) -> None:
+        results = seeded_events_repository.filter_events(q="%")
+        assert results == []
 
 
 class TestGetAllEvents:

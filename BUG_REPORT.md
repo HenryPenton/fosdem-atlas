@@ -50,17 +50,19 @@ buttons with their panels.
 
 ---
 
-### BUG-3: ILIKE wildcards in user search input not escaped
+### ~~BUG-3: ILIKE wildcards in user search input not escaped~~ ✅ Fixed
 
 **File:** `src/adapters/persistence/duckdb_events_repository.py`
 
-`filter_events()` and `search_events()` use `f"%{q}%"` for ILIKE matching.
-User input containing `%` or `_` is treated as SQL wildcards, producing
+`filter_events()` and `search_events()` used `f"%{q}%"` for ILIKE matching.
+User input containing `%` or `_` was treated as SQL wildcards, producing
 incorrect search results (e.g. searching for `100%` matches everything).
 
 Not a SQL injection risk (queries are parameterised), but a correctness bug.
 
-**Fix:** Escape `%` and `_` in the search term before wrapping with `%…%`.
+**Fix applied:** Added `_escape_ilike()` helper that escapes `%`, `_`, and `!`
+before wrapping with `%…%`. Both methods now use `ILIKE ? ESCAPE '!'`. Tests
+added to `tests/test_repository_events.py`.
 
 ---
 
