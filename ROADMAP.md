@@ -265,15 +265,11 @@ Build an open-source tool that scrapes the FOSDEM schedule, stores it in DuckDB 
 
 ## Phase 7: Push Notifications
 
-**Goal:** Notify users about upcoming talks from their personal schedule.
+**Goal:** Notify users about upcoming talks from their personal schedule via a privately hosted ntfy server.
 
-### 7.1 Push Server
+This phase has its own detailed roadmap: see [NTFY_ROADMAP.md](NTFY_ROADMAP.md).
 
-- [ ] Push notifications via NTFY
-- [ ] Notify users before talks on their personal schedule start
-- [ ] Self-hosted NTFY server option documented in SELF_HOSTING.md
-
-**🎯 Deliverable:** Users receive push notifications for upcoming saved talks.
+**🎯 Deliverable:** Subscribers receive per-event, per-track, and per-speaker push notifications with rich actions and schedule-change alerts.
 
 ---
 
@@ -302,7 +298,7 @@ Build an open-source tool that scrapes the FOSDEM schedule, stores it in DuckDB 
 | **v0.4.0** | Phase 4 | Analytics dashboard                      |
 | **v1.0.0** | Phase 5 | Personal schedule, polish, docs          |
 | **v1.1.0** | Phase 6 | PWA, rate limiting, UI fixes, a11y, i18n |
-| **v1.2.0** | Phase 7 | Push notifications                       |
+| **v1.2.0** | Phase 7 | Push notifications (see [NTFY_ROADMAP.md](NTFY_ROADMAP.md)) |
 
 ## Contributing
 
