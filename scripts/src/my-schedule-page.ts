@@ -2,12 +2,6 @@
 import { MySchedule } from './my-schedule.js';
 import { showToast } from './base.js';
 
-function esc(s: string | number): string {
-    const d = document.createElement('div');
-    d.appendChild(document.createTextNode(String(s)));
-    return d.innerHTML;
-}
-
 function initMySchedulePage(): void {
     const controls = document.getElementById('schedule-controls');
     const eventsDiv = document.getElementById('schedule-events');
@@ -23,8 +17,15 @@ function initMySchedulePage(): void {
         const ids = MySchedule.getIds();
         if (ids.length === 0) {
             controls!.hidden = true;
-            eventsDiv!.innerHTML =
-                '<p class="empty-state">No events saved yet. Browse the <a href="/">schedule</a> and click the bookmark icon to add events.</p>';
+            const empty = document.createElement('p');
+            empty.className = 'empty-state';
+            empty.textContent = 'No events saved yet. Browse the ';
+            const link = document.createElement('a');
+            link.href = '/';
+            link.textContent = 'schedule';
+            empty.appendChild(link);
+            empty.appendChild(document.createTextNode(' and click the bookmark icon to add events.'));
+            eventsDiv!.replaceChildren(empty);
             return;
         }
         controls!.hidden = false;
@@ -34,7 +35,9 @@ function initMySchedulePage(): void {
         fetch('/my-schedule/grid?ids=' + encodeURIComponent(ids.join(',')))
             .then((r) => r.text())
             .then((html) => {
-                eventsDiv!.innerHTML = html;
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                eventsDiv!.replaceChildren(...Array.from(doc.body.childNodes));
                 MySchedule.initBookmarkButtons();
             })
             .catch(() => {
@@ -47,17 +50,22 @@ function initMySchedulePage(): void {
                 const conflicts = MySchedule.detectConflicts(events);
                 if (conflicts.length > 0) {
                     conflictsDiv.hidden = false;
-                    conflictList.innerHTML = conflicts
-                        .map(
-                            (c) =>
-                                `<li class="conflict-item">` +
-                                `<a href="/event/${esc(c.a.id)}">${esc(c.a.title)}</a>` +
-                                ` conflicts with ` +
-                                `<a href="/event/${esc(c.b.id)}">${esc(c.b.title)}</a>` +
-                                ` <span class="conflict-detail">(${esc(c.a.room)} / ${esc(c.b.room)})</span>` +
-                                `</li>`,
-                        )
-                        .join('');
+                    const items = conflicts.map((c) => {
+                        const li = document.createElement('li');
+                        li.className = 'conflict-item';
+                        const linkA = document.createElement('a');
+                        linkA.href = `/event/${c.a.id}`;
+                        linkA.textContent = c.a.title;
+                        const linkB = document.createElement('a');
+                        linkB.href = `/event/${c.b.id}`;
+                        linkB.textContent = c.b.title;
+                        const detail = document.createElement('span');
+                        detail.className = 'conflict-detail';
+                        detail.textContent = `(${c.a.room} / ${c.b.room})`;
+                        li.append(linkA, ' conflicts with ', linkB, ' ', detail);
+                        return li;
+                    });
+                    conflictList.replaceChildren(...items);
                 }
             });
     }
