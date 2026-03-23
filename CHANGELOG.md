@@ -1,3 +1,15 @@
+## v2.1.6 (2026-03-23)
+
+### Fix
+
+- escape ILIKE wildcards in user search input to prevent incorrect results
+- document intentional exclusion of speakers without events in SQL query
+- call _run_scrape in lifespan
+
+### Refactor
+
+- improve event handling and DOM manipulation in initMySchedulePage
+
 ## v2.1.5 (2026-03-22)
 
 ### Fix
