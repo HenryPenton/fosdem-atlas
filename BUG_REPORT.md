@@ -66,16 +66,16 @@ Not a SQL injection risk (queries are parameterised), but a correctness bug.
 
 ## Low
 
-### BUG-4: Speakers without events excluded from speakers listing
+### ~~BUG-4: Speakers without events excluded from speakers listing~~ ✅ Fixed
 
 **File:** `src/adapters/persistence/duckdb_speakers_repository.py`
 
 `get_all_speakers()` uses `JOIN event_speakers`, so speakers with zero
-associated events are silently dropped. This may be intentional but is
-undocumented.
+associated events are silently dropped.
 
-**Fix:** Document the decision, or use `LEFT JOIN` if orphaned speakers should
-appear.
+**Fix applied:** The `INNER JOIN` is intentional — speakers with no scheduled
+events are excluded by design. Added an inline comment to document this
+decision.
 
 ---
 

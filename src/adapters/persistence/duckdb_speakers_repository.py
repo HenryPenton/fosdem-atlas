@@ -18,6 +18,7 @@ class DuckDBSpeakersRepository:
             """
             SELECT s.id, s.name, COUNT(es.event_id) AS talk_count
             FROM speakers s
+            -- INNER JOIN intentionally excludes speakers with no scheduled events
             JOIN event_speakers es ON es.speaker_id = s.id
             GROUP BY s.id, s.name
             ORDER BY s.name
