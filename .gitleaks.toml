@@ -1,3 +1,38 @@
+title = "FOSDEM Explorer Gitleaks Config"
+
+[extend]
+useDefault = true
+
+[[rules]]
+description = "Committed .env file"
+id = "env-file"
+path = '''(?i)(^|/)[\w.-]*\.env(\.\w+)?$'''
+message = "Potential .env file committed to repository"
+
+[[rules]]
+description = "Generic high-entropy token assignment"
+id = "generic-token-assignment"
+regex = '''(?i)(?:token|secret|key|password|passwd|pwd|credential)[_-]?\w*\s*=\s*['\"]?([A-Za-z0-9+/]{32,}={0,2})['\"]?'''
+entropy = 3.5
+message = "Generic high-entropy secret assignment"
+
+[[rules]]
+description = "UK mobile phone number"
+id = "uk-mobile"
+regex = '''(?:(?:\+44|0044)\s?7\d{3}|07\d{3})\s?\d{3}\s?\d{3}\b'''
+message = "UK mobile phone number detected"
+
+[[rules]]
+description = "UK postcode (address indicator)"
+id = "uk-postcode"
+regex = '''[A-Z]{1,2}[0-9]{1,2}[A-Z]?\s[0-9][ABD-HJLNP-UW-Z]{2}\b'''
+message = "UK postcode detected — potential address PII"
+
 [[allowlists]]
-description = "fake/example secrets used in tests or docs"
-paths = ['''src/fake_secrets\.env''']
+description = "fake/example secrets used in tests, fixtures, or docs"
+paths = [
+  '''(^|/)tests/fixtures/fake_secrets\.env$''',
+  '''(^|/)src/fake_secrets\.env$''',
+  '''(^|/)fake-secrets\.env$''',
+  '''(^|/)\.env\.example$''',
+]
