@@ -99,3 +99,9 @@ src/static/js/
 # Project specific
 logs/
 *.log
+
+# security tool reports
+reports/
+
+# zap working files
+.zap/*.yaml

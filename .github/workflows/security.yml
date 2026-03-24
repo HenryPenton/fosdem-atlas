@@ -93,3 +93,52 @@ jobs:
         with:
           name: trivy-report
           path: trivy-report.txt
+
+  gitleaks:
+    name: Gitleaks Secret Scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Run Gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  zap:
+    name: ZAP DAST Baseline Scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install . --quiet
+
+      - name: Start application
+        run: |
+          uvicorn src.main:app --host 0.0.0.0 --port 8000 &
+          sleep 5
+          curl -sf http://localhost:8000/health || exit 1
+
+      - name: Run ZAP Baseline Scan
+        uses: zaproxy/action-baseline@v0.15.0
+        with:
+          target: "http://localhost:8000"
+          rules_file_name: ".zap/rules.tsv"
+          fail_action: false
+          artifact_name: zap-report
+
+      - name: Write ZAP summary
+        if: always()
+        run: |
+          if [ -f report_html.html ]; then
+            echo "## ZAP DAST Baseline Results" >> $GITHUB_STEP_SUMMARY
+            echo "See the uploaded **zap-report** artifact for full details." >> $GITHUB_STEP_SUMMARY
+          fi

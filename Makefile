@@ -1,4 +1,4 @@
-.PHONY: help venv dev install prod run test lint format audit sbom clean commit bump patch minor major smoke-test load-test rate-limit-test cy-install cy-open cy-run cy-smoke cy-a11y cy-a11y-long build-js test-js watch-js
+.PHONY: help venv dev install prod run test lint format audit gitleaks zap sbom clean commit bump patch minor major smoke-test load-test rate-limit-test cy-install cy-open cy-run cy-smoke cy-a11y cy-a11y-long build-js test-js watch-js
 
 PYTHON := python3
 VENV := venv
@@ -36,6 +36,20 @@ test: ## Run tests
 
 audit: ## Run pip-audit to check for known vulnerabilities in dependencies
 	$(BIN)/pip-audit
+
+gitleaks: ## Scan git history for hardcoded secrets (requires Docker)
+	@mkdir -p reports
+	docker run --rm -v $(PWD):/repo ghcr.io/gitleaks/gitleaks:latest detect --source /repo -v \
+	  --report-format json --report-path /repo/reports/gitleaks.json
+
+zap: ## Run ZAP baseline scan against running app (requires Docker; server must be running at BASE_URL)
+	@curl -sf $(BASE_URL)/health -o /dev/null || \
+	  { echo "ERROR: No server responding at $(BASE_URL) — start it first (e.g. make run)"; exit 1; }
+	@mkdir -p reports
+	docker run --rm -v $(PWD)/.zap:/zap/wrk -v $(PWD)/reports:/zap/wrk/reports \
+	  ghcr.io/zaproxy/zaproxy:stable zap-baseline.py \
+	  -t $(subst localhost,host.docker.internal,$(BASE_URL)) -c rules.tsv \
+	  -J reports/zap-report.json -r reports/zap-report.html -I
 
 sbom: ## Generate CycloneDX SBOM (JSON) from the current environment → docs/sbom.json
 	$(BIN)/cyclonedx-py environment --of JSON -o docs/sbom.json --output-reproducible
