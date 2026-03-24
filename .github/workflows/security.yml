@@ -124,8 +124,20 @@ jobs:
       - name: Start application
         run: |
           uvicorn src.main:app --host 0.0.0.0 --port 8000 &
-          sleep 5
-          curl -sf http://localhost:8000/health || exit 1
+          for i in $(seq 1 30); do
+            curl -sf http://localhost:8000/health && break
+            echo "Waiting for server... ($i)"
+            sleep 2
+          done
+
+      - name: Wait for initial data scrape
+        run: |
+          for i in $(seq 1 30); do
+            count=$(curl -sf http://localhost:8000/api/v1/events | python3 -c "import sys,json; print(len(json.load(sys.stdin)))" 2>/dev/null || echo 0)
+            [ "$count" -gt 0 ] && echo "Data ready ($count events)" && break
+            echo "Waiting for scrape... ($i)"
+            sleep 5
+          done
 
       - name: Run ZAP Baseline Scan
         uses: zaproxy/action-baseline@v0.15.0
