@@ -43,7 +43,7 @@ export function showToast(message: string, type?: string): void {
 window.showToast = showToast;
 
 // ── Init (runs on first load + every hx-boost page swap) ──────────────────
-function initBase(): void {
+export function initBase(): void {
     // Grid hour toggle
     document.querySelectorAll<HTMLElement>('tr.grid-hour-header').forEach((row) => {
         if ((row as HTMLElement & { _bound?: boolean })._bound) return;

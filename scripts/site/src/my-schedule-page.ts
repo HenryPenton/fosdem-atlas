@@ -1,6 +1,6 @@
 /* my-schedule-page.ts — page-specific logic for /my-schedule */
 import { MySchedule } from './my-schedule.js';
-import { showToast } from './base.js';
+import { showToast, initBase } from './base.js';
 
 function initMySchedulePage(): void {
     const controls = document.getElementById('schedule-controls');
@@ -38,6 +38,7 @@ function initMySchedulePage(): void {
                 const parser = new DOMParser();
                 const doc = parser.parseFromString(html, 'text/html');
                 eventsDiv!.replaceChildren(...Array.from(doc.body.childNodes));
+                initBase();
                 MySchedule.initBookmarkButtons();
             })
             .catch(() => {
