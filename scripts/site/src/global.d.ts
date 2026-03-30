@@ -3,10 +3,8 @@ export {};
 
 declare global {
     interface Window {
-        toggleHour: (btn: HTMLElement) => void;
         showToast: (message: string, type?: string) => void;
         removeAndRefresh: (id: string) => void;
-        downloadCsv: (url: string, filename: string) => void;
         MySchedule: MyScheduleAPI;
     }
 }

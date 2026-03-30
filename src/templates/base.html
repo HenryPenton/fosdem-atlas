@@ -10,7 +10,7 @@
     <link rel="apple-touch-icon" href="/static/icons/icon-192.png">
 
     <!-- Apply saved theme before first paint to avoid flash -->
-    <script>
+    <script nonce="{{ request.state.csp_nonce }}">
         (function () {
             var t = localStorage.getItem('fosdem_theme');
             if (t === 'dark' || (!t && window.matchMedia('(prefers-color-scheme: dark)').matches)) {

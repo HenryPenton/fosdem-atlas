@@ -1,6 +1,6 @@
 /* analytics.ts — CSV download, tab switcher, dual-range keyword filter */
 
-// ── CSV download (called from HTML onclick) ────────────────────────────────
+// ── CSV download ───────────────────────────────────────────────────────────
 export function downloadCsv(url: string, filename: string): void {
     fetch(url)
         .then((r) => r.blob())
@@ -14,10 +14,20 @@ export function downloadCsv(url: string, filename: string): void {
             URL.revokeObjectURL(a.href);
         });
 }
-window.downloadCsv = downloadCsv;
 
 // ── Init (runs on first load + every hx-boost page swap) ───────────────────
 function initAnalytics(): void {
+    // CSV download buttons
+    document.querySelectorAll<HTMLElement>('[data-csv-url]').forEach((btn) => {
+        if ((btn as HTMLElement & { _bound?: boolean })._bound) return;
+        (btn as HTMLElement & { _bound?: boolean })._bound = true;
+        btn.addEventListener('click', () => {
+            const url = btn.dataset.csvUrl;
+            const filename = btn.dataset.csvFilename;
+            if (url && filename) downloadCsv(url, filename);
+        });
+    });
+
     // Tab switcher
     const buttons = document.querySelectorAll<HTMLElement>('[role="tab"]');
     buttons.forEach((btn) => {

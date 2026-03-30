@@ -13,3 +13,6 @@
 10096	WARN	(Timestamp Disclosure)
 10098	WARN	(Cross-Domain Misconfiguration)
 10109	WARN	(Modern Web Application)
+10027	WARN	(Information Disclosure - Suspicious Comments)
+10031	WARN	(User Controllable HTML Element Attribute (Potential XSS))
+10099	WARN	(Source Code Disclosure - SQL)

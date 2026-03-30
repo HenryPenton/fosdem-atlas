@@ -19,7 +19,7 @@
             {% set slot_key = slot.strftime('%H:%M') %}
             {% set hour_events = grid.get(slot_key, {}) %}
             {% set total_events = hour_events.values() | map('length') | sum %}
-            <tr class="grid-hour-header" data-hour="{{ slot_key }}" onclick="toggleHour(this)">
+            <tr class="grid-hour-header" data-hour="{{ slot_key }}">
                 <th class="grid-time" scope="row">
                     <span class="grid-hour-toggle">▶</span>
                     {{ slot_key }}

@@ -1,6 +1,6 @@
 /* base.ts — UI shell: dark mode, nav, grid helpers, toast, SW, PWA banner */
 
-// ── Grid hour toggle (called from HTML onclick) ────────────────────────────
+// ── Grid hour toggle ───────────────────────────────────────────────────────
 export function toggleHour(btn: HTMLElement): void {
     const headerRow = btn.closest('tr.grid-hour-header') as HTMLTableRowElement;
     const hour = headerRow.getAttribute('data-hour') ?? '';
@@ -19,7 +19,6 @@ export function toggleHour(btn: HTMLElement): void {
         }
     });
 }
-window.toggleHour = toggleHour;
 
 // ── Toast notification ─────────────────────────────────────────────────────
 export function showToast(message: string, type?: string): void {
@@ -45,6 +44,13 @@ window.showToast = showToast;
 
 // ── Init (runs on first load + every hx-boost page swap) ──────────────────
 function initBase(): void {
+    // Grid hour toggle
+    document.querySelectorAll<HTMLElement>('tr.grid-hour-header').forEach((row) => {
+        if ((row as HTMLElement & { _bound?: boolean })._bound) return;
+        (row as HTMLElement & { _bound?: boolean })._bound = true;
+        row.addEventListener('click', () => toggleHour(row));
+    });
+
     // Dark mode toggle
     const btn = document.getElementById('dark-mode-toggle') as HTMLButtonElement | null;
     if (btn && !(btn as HTMLElement & { _bound?: boolean })._bound) {
