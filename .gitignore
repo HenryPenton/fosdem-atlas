@@ -93,11 +93,12 @@ cypress/screenshots/
 cypress/videos/
 cypress/downloads/
 
-# Compiled JS (built from scripts/src/*.ts via make build-js)
+# Compiled JS (built from scripts/site/src/*.ts via make build-js)
 src/static/js/
 
 # Project specific
 logs/
+fake_schedule.xml
 *.log
 
 # security tool reports

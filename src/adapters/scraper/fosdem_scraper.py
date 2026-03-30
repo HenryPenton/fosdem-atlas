@@ -2,6 +2,8 @@
 
 import re
 from datetime import datetime
+from pathlib import Path
+from urllib.parse import urlparse
 
 import httpx
 import nh3
@@ -19,6 +21,8 @@ class FosdemScheduleFetcher:
         return self._parse(xml_content)
 
     def _fetch(self, url: str) -> bytes:
+        if urlparse(url).scheme == "file":
+            return Path(urlparse(url).path).read_bytes()
         response = httpx.get(url, timeout=30.0, follow_redirects=True)
         response.raise_for_status()
         content: bytes = response.content
