@@ -1,7 +1,11 @@
 """Speaker service – speaker queries and detail views."""
 
+import logging
+
 from src.domain.models import SpeakerDetail, SpeakerSummary
 from src.domain.ports import SpeakersRepository
+
+logger = logging.getLogger(__name__)
 
 
 class SpeakerService:
@@ -13,6 +17,7 @@ class SpeakerService:
         self._speaker_detail_cache: dict[str, SpeakerDetail] = {}
 
     def invalidate_cache(self) -> None:
+        logger.debug("Invalidating speaker caches")
         self._speakers_cache = None
         self._speaker_detail_cache.clear()
 

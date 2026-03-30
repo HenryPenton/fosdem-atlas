@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 from collections.abc import Callable
 from contextlib import AbstractAsyncContextManager
 from pathlib import Path
@@ -34,6 +35,8 @@ STATIC_DIR = BASE_DIR / "static"
 CACHE_MAX_AGE = 20
 RATE_LIMIT = "10000/minute"
 
+logger = logging.getLogger(__name__)
+
 limiter = Limiter(
     key_func=lambda *_args, **_kwargs: "global",
     default_limits=[RATE_LIMIT],
@@ -62,6 +65,7 @@ def create_app(
 
     def _rate_limit_handler(request: Request, exc: Exception) -> Response:
         rate_exc = cast(RateLimitExceeded, exc)
+        logger.warning("Rate limit exceeded: %s %s", request.method, request.url.path)
         accept = request.headers.get("accept", "")
         response: Response
         if "text/html" in accept:

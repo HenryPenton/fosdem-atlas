@@ -9,6 +9,8 @@ from src.api.dtos import HealthDTO
 from src.application.services import ScheduleService
 from src.config import Settings
 
+logger = logging.getLogger(__name__)
+
 
 def create_health_page_router(
     schedule_service: ScheduleService,
@@ -25,7 +27,7 @@ def create_health_page_router(
         try:
             event_count = schedule_service.get_event_count()
         except Exception:
-            logging.exception("Health check failed")
+            logger.exception("Health check failed")
             response.status_code = 503
             return HealthDTO(status="unhealthy", version=settings.version, events=-1)
         return HealthDTO(status="healthy", version=settings.version, events=event_count)

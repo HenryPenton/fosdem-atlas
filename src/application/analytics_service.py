@@ -1,7 +1,11 @@
 """Analytics service – conference analytics and statistics."""
 
+import logging
+
 from src.domain.models import AnalyticsData
 from src.domain.ports import AnalyticsRepository
+
+logger = logging.getLogger(__name__)
 
 
 class AnalyticsService:
@@ -12,6 +16,7 @@ class AnalyticsService:
         self._cache: AnalyticsData | None = None
 
     def invalidate_cache(self) -> None:
+        logger.debug("Invalidating analytics cache")
         self._cache = None
 
     def get_analytics(self) -> AnalyticsData:

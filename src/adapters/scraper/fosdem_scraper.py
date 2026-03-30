@@ -1,5 +1,6 @@
 """FOSDEM schedule fetcher - adapter implementing the ScheduleFetcher port."""
 
+import logging
 import re
 from datetime import datetime
 from pathlib import Path
@@ -11,14 +12,20 @@ from lxml import etree
 
 from src.domain.models import Event, Link, Speaker
 
+logger = logging.getLogger(__name__)
+
 
 class FosdemScheduleFetcher:
     """Fetches and parses the FOSDEM Pentabarf XML schedule."""
 
     def fetch_and_parse(self, url: str) -> list[Event]:
         """Fetch the schedule XML and parse it into domain events."""
+        logger.info("Fetching schedule XML from %s", url)
         xml_content = self._fetch(url)
-        return self._parse(xml_content)
+        logger.debug("Received %d bytes of XML", len(xml_content))
+        events = self._parse(xml_content)
+        logger.info("Parsed %d events from schedule", len(events))
+        return events
 
     def _fetch(self, url: str) -> bytes:
         if urlparse(url).scheme == "file":

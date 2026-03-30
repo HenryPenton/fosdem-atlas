@@ -57,9 +57,9 @@ class TestHealthEndpointUnhealthy:
         assert data["status"] == "unhealthy"
 
     def test_logs_exception(self, broken_client: TestClient) -> None:
-        with patch("src.adapters.web.routers.health.logging") as mock_logging:
+        with patch("src.adapters.web.routers.health.logger") as mock_logger:
             broken_client.get("/health")
-            mock_logging.exception.assert_called_once()
+            mock_logger.exception.assert_called_once()
 
 
 class TestCacheControl:

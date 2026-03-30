@@ -1,10 +1,13 @@
 """DuckDB connection management."""
 
 import contextlib
+import logging
 import threading
 from pathlib import Path
 
 import duckdb
+
+logger = logging.getLogger(__name__)
 
 
 class DuckDBConnection:
@@ -58,6 +61,7 @@ class DuckDBConnection:
     def close(self) -> None:
         """Close all open per-thread connections."""
         with self._lock:
+            logger.info("Closing %d DuckDB connection(s)", len(self._all_connections))
             for conn in self._all_connections:
                 with contextlib.suppress(Exception):
                     conn.close()

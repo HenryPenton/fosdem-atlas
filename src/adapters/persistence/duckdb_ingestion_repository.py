@@ -2,11 +2,15 @@
 
 from __future__ import annotations
 
+import logging
+
 import duckdb
 import yake
 
 from src.adapters.persistence.duckdb_connection import DuckDBConnection
 from src.domain.models import Event
+
+logger = logging.getLogger(__name__)
 
 _TOPIC_STOPWORDS = {
     # ── HTML / URL artefacts ──────────────────────────────────────────────
@@ -138,6 +142,7 @@ class DuckDBIngestionRepository:
                 conn.execute("DELETE FROM keywords")
                 conn.execute("DELETE FROM events")
                 conn.execute("DELETE FROM speakers")
+                logger.debug("Cleared existing data, inserting %d events", len(events))
 
                 for event in events:
                     conn.execute(
@@ -179,8 +184,10 @@ class DuckDBIngestionRepository:
 
                 self._extract_keywords(conn, events)
                 conn.execute("COMMIT")
+                logger.info("Committed %d events to database", len(events))
             except Exception:
                 conn.execute("ROLLBACK")
+                logger.exception("Event insertion failed, rolled back")
                 raise
 
         return len(events)

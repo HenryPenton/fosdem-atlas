@@ -1,6 +1,7 @@
 """Schedule service – browsing and querying the conference schedule."""
 
 import dataclasses
+import logging
 from collections import defaultdict
 from datetime import datetime, timedelta, timezone
 
@@ -20,6 +21,8 @@ from src.domain.models import (
 )
 from src.domain.ports import EventsRepository
 
+logger = logging.getLogger(__name__)
+
 
 class ScheduleService:
     """Browsing and querying the conference schedule."""
@@ -36,6 +39,7 @@ class ScheduleService:
         self._event_detail_cache: dict[str, EventDetail] = {}
 
     def invalidate_cache(self) -> None:
+        logger.debug("Invalidating schedule caches")
         self._overview_cache = None
         self._tracks_cache = None
         self._grid_cache.clear()

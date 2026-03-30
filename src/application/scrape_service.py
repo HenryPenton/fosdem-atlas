@@ -1,6 +1,10 @@
 """Scrape service – orchestrates fetching and storing the FOSDEM schedule."""
 
+import logging
+
 from src.domain.ports import IngestionRepository, ScheduleFetcher
+
+logger = logging.getLogger(__name__)
 
 
 class ScrapeService:
@@ -12,5 +16,9 @@ class ScrapeService:
 
     def run(self, url: str) -> int:
         """Fetch the schedule and store it. Returns the number of events stored."""
+        logger.info("Fetching schedule from %s", url)
         events = self._fetcher.fetch_and_parse(url)
-        return self._repository.insert_events(events)
+        logger.debug("Parsed %d events from feed", len(events))
+        count = self._repository.insert_events(events)
+        logger.info("Stored %d events", count)
+        return count

@@ -3,6 +3,7 @@
 Wires together all adapters and starts the application.
 """
 
+import logging
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 
@@ -22,7 +23,10 @@ from src.application.services import (
     ScrapeService,
     SpeakerService,
 )
-from src.config import settings
+from src.config import configure_logging, settings
+
+configure_logging()
+logger = logging.getLogger(__name__)
 
 # Wire adapters
 _db = DuckDBConnection(settings.database_path)
@@ -41,23 +45,23 @@ _speaker_service = SpeakerService(_speakers_repository)
 
 def _run_scrape() -> None:
     """Scheduled scrape job with error handling."""
-    print(f"Scheduled scrape: fetching {settings.fosdem_schedule_url}")
+    logger.info("Scheduled scrape: fetching %s", settings.fosdem_schedule_url)
     try:
         count = _scrape_service.run(settings.fosdem_schedule_url)
-        print(f"Scheduled scrape complete: {count} events stored")
+        logger.info("Scheduled scrape complete: %d events stored", count)
         _analytics_service.invalidate_cache()
         _schedule_service.invalidate_cache()
         _speaker_service.invalidate_cache()
-    except Exception as exc:
-        print(f"Scheduled scrape failed: {exc}")
+    except Exception:
+        logger.exception("Scheduled scrape failed")
 
 
 @asynccontextmanager
 async def _lifespan(_app: FastAPI) -> AsyncGenerator[None, None]:
-    print(f"Starting FOSDEM Explorer v{settings.version}")
-    print(f"Database: {settings.database_path}")
+    logger.info("Starting FOSDEM Explorer v%s", settings.version)
+    logger.info("Database: %s", settings.database_path)
     _db.get()
-    print("Database connected")
+    logger.info("Database connected")
 
     _run_scrape()
 
@@ -69,15 +73,15 @@ async def _lifespan(_app: FastAPI) -> AsyncGenerator[None, None]:
         id="scrape",
     )
     scheduler.start()
-    print(f"Scheduler started (every {settings.scrape_interval_minutes} minutes)")
+    logger.info("Scheduler started (every %d minutes)", settings.scrape_interval_minutes)
 
     yield
 
     scheduler.shutdown(wait=False)
-    print("Scheduler stopped")
-    print("Shutting down FOSDEM Explorer")
+    logger.info("Scheduler stopped")
+    logger.info("Shutting down FOSDEM Explorer")
     _db.close()
-    print("Database connection closed")
+    logger.info("Database connection closed")
 
 
 app = create_app(
