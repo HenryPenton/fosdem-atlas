@@ -1,3 +1,18 @@
+## v2.2.1 (2026-03-30)
+
+### Feat
+
+- update docs and use version 3.13 of python
+
+### Fix
+
+- remove dead styles
+- more dast issues
+- gitleaks toml config
+- issues out of dast scan
+- use gitleaks.toml
+- try something else to label github issue from action
+
 ## v2.2.0 (2026-03-30)
 
 ### Feat
