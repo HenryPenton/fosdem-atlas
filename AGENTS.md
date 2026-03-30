@@ -27,7 +27,8 @@ src/
   main.py        # App entry point
 templates/       # Jinja2 HTML templates
 static/          # CSS and JS assets (JS is compiled — do not edit by hand)
-scripts/         # TypeScript sources compiled to src/static/js/ via tsc
+scripts/         # Utility scripts (Python, etc.) and site JS toolchain
+  scripts/site/  # TypeScript sources compiled to src/static/js/ via tsc
 tests/           # pytest test suite
 ```
 
@@ -44,8 +45,8 @@ make run       # Run dev server on :8000
 make test      # Run pytest
 make lint      # ruff + mypy
 make format    # ruff --fix + ruff format
-make build-js  # Compile scripts/src/*.ts → src/static/js/
-make test-js   # Run vitest suite in scripts/
+make build-js  # Compile scripts/site/src/*.ts → src/static/js/
+make test-js   # Run vitest suite in scripts/site/
 ```
 
 DuckDB is single-process. Do not run multiple app workers against the same

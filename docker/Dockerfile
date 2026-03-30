@@ -1,15 +1,15 @@
 # ── JS builder stage ──────────────────────────────────────────────────────────
 FROM node:22-slim AS js-builder
 
-WORKDIR /app/scripts
+WORKDIR /app/scripts/site
 
 RUN npm install -g pnpm@9.15.0
 
-COPY scripts/package.json scripts/pnpm-lock.yaml ./
+COPY scripts/site/package.json scripts/site/pnpm-lock.yaml ./
 RUN pnpm install --frozen-lockfile
 
-COPY scripts/src ./src
-COPY scripts/tsconfig.json ./
+COPY scripts/site/src ./src
+COPY scripts/site/tsconfig.json ./
 RUN pnpm build
 
 # ── Python builder stage ──────────────────────────────────────────────────────

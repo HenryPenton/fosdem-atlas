@@ -1,4 +1,4 @@
-.PHONY: help venv dev install prod run test lint format audit gitleaks zap sbom clean commit bump patch minor major smoke-test load-test rate-limit-test cy-install cy-open cy-run cy-smoke cy-a11y cy-a11y-long build-js test-js watch-js
+.PHONY: help venv dev install prod run test lint format audit gitleaks zap sbom clean commit bump patch minor major smoke-test load-test rate-limit-test cy-install cy-open cy-run cy-smoke cy-a11y cy-a11y-long build-js test-js watch-js fake
 
 PYTHON := python3
 VENV := venv
@@ -20,7 +20,7 @@ dev: venv ## Install development dependencies
 	$(BIN)/pip install -e ".[dev]"
 	$(BIN)/pre-commit install
 	$(BIN)/pre-commit install --hook-type commit-msg
-	cd scripts && pnpm install && pnpm build
+	cd scripts/site && pnpm install && pnpm build
 
 prod: venv ## Install production dependencies (matches Docker build)
 	$(BIN)/pip install .
@@ -56,13 +56,13 @@ sbom: ## Generate CycloneDX SBOM (JSON) from the current environment → docs/sb
 	@echo "SBOM written to docs/sbom.json"
 
 lint: ## Run linting
-	$(BIN)/ruff check src tests
-	$(BIN)/ruff format --check src tests
-	$(BIN)/mypy src
+	$(BIN)/ruff check src tests scripts
+	$(BIN)/ruff format --check src tests scripts
+	$(BIN)/mypy src scripts
 
 format: ## Format code
-	$(BIN)/ruff check --fix src tests
-	$(BIN)/ruff format src tests
+	$(BIN)/ruff check --fix src tests scripts
+	$(BIN)/ruff format src tests scripts
 
 clean: ## Clean up
 	rm -rf $(VENV) __pycache__ .pytest_cache .mypy_cache .ruff_cache htmlcov .coverage
@@ -133,11 +133,14 @@ cy-a11y-long: cy-install ## Run full a11y audit on every dynamic page (server mu
 	  { echo "ERROR: No server responding at $(BASE_URL) — start it first (e.g. make run)"; exit 1; }
 	cd cypress && npx cypress run --spec 'e2e/a11y-long.cy.js' --config defaultCommandTimeout=15000
 
-build-js: ## Compile TypeScript sources in scripts/ → src/static/js/
-	cd scripts && pnpm install --frozen-lockfile && pnpm build
+build-js: ## Compile TypeScript sources in scripts/site/ → src/static/js/
+	cd scripts/site && pnpm install --frozen-lockfile && pnpm build
 
-test-js: ## Run vitest test suite in scripts/
-	cd scripts && pnpm install --frozen-lockfile && pnpm test
+test-js: ## Run vitest test suite in scripts/site/
+	cd scripts/site && pnpm install --frozen-lockfile && pnpm test
 
 watch-js: ## Watch TypeScript sources and recompile on change
-	cd scripts && pnpm install --frozen-lockfile && pnpm watch
+	cd scripts/site && pnpm install --frozen-lockfile && pnpm watch
+
+fake: ## Generate fake two-day FOSDEM schedule XML → fake_schedule.xml
+	$(BIN)/python scripts/generate_fake_schedule.py
