@@ -284,77 +284,6 @@ main {
     opacity: 0.7;
 }
 
-/* Day Picker */
-.day-picker {
-    text-align: center;
-}
-
-.day-picker h2 {
-    margin-bottom: 2rem;
-    color: var(--text-color);
-    font-size: 1.4rem;
-    font-weight: 700;
-}
-
-.day-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-    gap: 1.5rem;
-    max-width: 700px;
-    margin: 0 auto;
-}
-
-.day-card {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    padding: 1.75rem 2rem;
-    background: var(--card-background);
-    border-radius: 16px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
-    text-decoration: none;
-    color: var(--text-color);
-    border: 1px solid var(--border-color);
-    transition: all 0.25s ease;
-}
-
-.day-card:hover {
-    box-shadow: 0 10px 25px rgba(26, 86, 219, 0.12);
-    border-color: var(--primary-color);
-    transform: translateY(-3px);
-}
-
-.day-icon {
-    font-size: 2rem;
-    flex-shrink: 0;
-}
-
-.day-label {
-    font-size: 1.15rem;
-    font-weight: 700;
-    color: var(--text-color);
-}
-
-.day-count {
-    font-size: 0.85rem;
-    color: var(--text-muted);
-    margin-left: auto;
-    white-space: nowrap;
-}
-
-.day-arrow {
-    color: var(--primary-color);
-    font-size: 1.2rem;
-    font-weight: 700;
-    opacity: 0;
-    transition: opacity 0.2s, transform 0.2s;
-}
-
-.day-card:hover .day-arrow {
-    opacity: 1;
-    transform: translateX(3px);
-}
-
 /* Track List */
 .track-list {
     display: grid;
@@ -577,29 +506,6 @@ main {
 [data-theme="dark"] .sort-btn--active {
     background: #2563eb;
     border-color: #2563eb;
-}
-
-/* Day section grouping */
-.day-section {
-    margin-bottom: 2.5rem;
-}
-
-.day-heading {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    font-size: 1.2rem;
-    font-weight: 700;
-    color: var(--text-color);
-    margin-bottom: 1rem;
-    padding-bottom: 0.5rem;
-    border-bottom: 2px solid var(--border-color);
-}
-
-.day-heading-count {
-    font-size: 0.85rem;
-    font-weight: 500;
-    color: var(--text-muted);
 }
 
 /* Schedule Grid */
@@ -876,13 +782,6 @@ footer p {
     opacity: 1;
 }
 
-/* Loading spinner */
-.loading {
-    text-align: center;
-    padding: 2rem;
-    color: var(--text-muted);
-}
-
 /* Responsive */
 @media (max-width: 768px) {
     .nav-links {
@@ -904,10 +803,6 @@ footer p {
 
     .stat-number {
         font-size: 1.8rem;
-    }
-
-    .day-grid {
-        grid-template-columns: 1fr;
     }
 
     .event-card {
@@ -1358,10 +1253,6 @@ footer p {
     text-decoration: underline;
 }
 
-.fosdem-link {
-    font-size: 1rem;
-}
-
 /* Analytics */
 .stats-grid {
     display: grid;
@@ -1429,17 +1320,6 @@ footer p {
     font-size: 0.9rem;
     color: var(--text-muted);
     font-weight: 500;
-}
-
-.analytics-section {
-    margin-bottom: 3rem;
-}
-
-.analytics-section h2 {
-    font-size: 1.3rem;
-    font-weight: 600;
-    margin-bottom: 1.25rem;
-    color: var(--text-color);
 }
 
 .bar-chart {
@@ -1973,10 +1853,6 @@ footer p {
     align-items: center;
     gap: 0.75rem;
 }
-.schedule-events .event-card-body {
-    flex: 1;
-    min-width: 0;
-}
 .schedule-events .event-card-title {
     font-weight: 600;
     text-decoration: none;
@@ -1985,13 +1861,6 @@ footer p {
 .schedule-events .event-card-title:hover {
     text-decoration: underline;
 }
-.schedule-events .event-card-meta {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.4rem;
-    margin-top: 0.3rem;
-}
-
 /* Dark mode toggle button */
 .dark-mode-toggle {
     background: none;
