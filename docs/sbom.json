@@ -1200,7 +1200,7 @@
       "version": "3.25.2"
     },
     {
-      "bom-ref": "fosdem-explorer==2.1.6",
+      "bom-ref": "fosdem-explorer==2.1.7",
       "description": "A DuckDB-powered web application for exploring and analyzing the FOSDEM schedule",
       "licenses": [
         {
@@ -1211,18 +1211,18 @@
         }
       ],
       "name": "fosdem-explorer",
-      "purl": "pkg:pypi/fosdem-explorer@2.1.6",
+      "purl": "pkg:pypi/fosdem-explorer@2.1.7",
       "type": "library",
-      "version": "2.1.6"
+      "version": "2.1.7"
     },
     {
-      "bom-ref": "BomRef.5941749249329991.9862586021744721",
+      "bom-ref": "BomRef.6505666190867488.28028052246297286",
       "description": "A DuckDB-powered web application for exploring and analyzing the FOSDEM schedule",
       "externalReferences": [
         {
           "comment": "PackageSource: Local",
           "type": "distribution",
-          "url": "file:///Users/henrypenton/projects/fosdem-explorer"
+          "url": "file:///Users/henry/projects/fosdem-explorer"
         }
       ],
       "licenses": [
@@ -1235,7 +1235,7 @@
       ],
       "name": "fosdem-explorer",
       "type": "library",
-      "version": "2.1.6"
+      "version": "2.1.7"
     },
     {
       "bom-ref": "fqdn==1.5.1",
@@ -3240,7 +3240,7 @@
       "version": "0.30.0"
     },
     {
-      "bom-ref": "ruff==0.15.6",
+      "bom-ref": "ruff==0.15.7",
       "description": "An extremely fast Python linter and code formatter, written in Rust.",
       "externalReferences": [
         {
@@ -3273,9 +3273,9 @@
         }
       ],
       "name": "ruff",
-      "purl": "pkg:pypi/ruff@0.15.6",
+      "purl": "pkg:pypi/ruff@0.15.7",
       "type": "library",
-      "version": "0.15.6"
+      "version": "0.15.7"
     },
     {
       "bom-ref": "segtok==1.5.11",
@@ -4124,7 +4124,7 @@
         "pytest-cov==7.0.0",
         "pytest==9.0.2",
         "requests==2.32.5",
-        "ruff==0.15.6"
+        "ruff==0.15.7"
       ],
       "ref": "CacheControl==0.14.4"
     },
@@ -4174,7 +4174,7 @@
       "dependsOn": [
         "coverage==7.13.5",
         "mypy==1.19.1",
-        "ruff==0.15.6"
+        "ruff==0.15.7"
       ],
       "ref": "argcomplete==3.6.3"
     },
@@ -4330,12 +4330,12 @@
         "pytest-xdist==3.8.0",
         "pytest==9.0.2",
         "python-multipart==0.0.22",
-        "ruff==0.15.6",
+        "ruff==0.15.7",
         "slowapi==0.1.9",
         "uvicorn==0.42.0",
         "yake==0.7.3"
       ],
-      "ref": "fosdem-explorer==2.1.6"
+      "ref": "fosdem-explorer==2.1.7"
     },
     {
       "ref": "fqdn==1.5.1"
@@ -4373,7 +4373,7 @@
       "dependsOn": [
         "mypy==1.19.1",
         "pytest==9.0.2",
-        "ruff==0.15.6"
+        "ruff==0.15.7"
       ],
       "ref": "idna==3.11"
     },
@@ -4430,7 +4430,7 @@
         "boolean.py==5.0",
         "pytest-xdist==3.8.0",
         "pytest==9.0.2",
-        "ruff==0.15.6"
+        "ruff==0.15.7"
       ],
       "ref": "license-expression==30.4.4"
     },
@@ -4555,7 +4555,7 @@
         "pytest==9.0.2",
         "requests==2.32.5",
         "rich==14.3.3",
-        "ruff==0.15.6",
+        "ruff==0.15.7",
         "tomli==2.4.0",
         "tomli_w==1.2.0"
       ],
@@ -4744,7 +4744,7 @@
       "ref": "rpds-py==0.30.0"
     },
     {
-      "ref": "ruff==0.15.6"
+      "ref": "ruff==0.15.7"
     },
     {
       "dependsOn": [
@@ -4886,7 +4886,7 @@
         "numpy==2.4.3",
         "pytest-cov==7.0.0",
         "pytest==9.0.2",
-        "ruff==0.15.6",
+        "ruff==0.15.7",
         "segtok==1.5.11",
         "tabulate==0.10.0"
       ],

@@ -1,3 +1,15 @@
+## v2.2.0 (2026-03-30)
+
+### Feat
+
+- add logging
+
+### Fix
+
+- simplify issue closing in ZAP scan and add locking mechanism
+- move scripts to site/scripts and add new fake data generator
+- improve server readiness checks and data scrape wait logic in security workflow
+
 ## v2.1.7 (2026-03-23)
 
 ## v2.1.6 (2026-03-23)
