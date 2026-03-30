@@ -80,7 +80,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: "3.13"
 
       - name: Generate requirements.txt for Trivy
         run: pip install -e ".[dev]" --quiet && pip freeze > requirements.txt
@@ -141,7 +141,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
+          python-version: "3.13"
 
       - name: Install dependencies
         run: pip install . --quiet

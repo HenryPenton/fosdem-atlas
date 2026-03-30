@@ -13,7 +13,7 @@ COPY scripts/site/tsconfig.json ./
 RUN pnpm build
 
 # ── Python builder stage ──────────────────────────────────────────────────────
-FROM python:3.12-slim AS builder
+FROM python:3.13-slim AS builder
 
 WORKDIR /app
 
@@ -24,7 +24,7 @@ COPY pyproject.toml .
 RUN pip install --upgrade pip && pip install --no-cache-dir .
 
 # ── Runtime stage ─────────────────────────────────────────────────────────────
-FROM python:3.12-slim
+FROM python:3.13-slim
 
 WORKDIR /app
 

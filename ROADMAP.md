@@ -252,7 +252,7 @@ Build an open-source tool that scrapes the FOSDEM schedule, stores it in DuckDB 
 
 - [ ] Public roadmap page
 - [ ] Pin production dependencies to narrow version ranges for reproducible builds
-- [ ] Add Python 3.11 to CI test matrix to verify declared `>=3.11` compatibility
+- [ ] Add additional Python versions to CI test matrix to verify forward compatibility
 - [ ] Set up Dependabot or Renovate for automated dependency updates
 
 ### 6.9 i18n support

@@ -31,12 +31,13 @@ The project follows a **ports-and-adapters (hexagonal)** architecture:
 | **Domain** | `src/domain/` | Pure models and abstract port interfaces — no I/O or framework imports |
 | **Application** | `src/application/` | Use-case services — depend only on domain ports |
 | **Adapters** | `src/adapters/` | Concrete implementations (DuckDB repos, scraper, FastAPI web) |
+| **API** | `src/api/` | REST API DTOs and routers |
 
 When adding a new feature, start with the domain model and port, then the application service, then the adapter.
 
 ## Code Standards
 
-- **Python 3.11+** — use modern syntax (`X | Y` unions, `match`, etc.)
+- **Python 3.13+** — use modern syntax (`X | Y` unions, `match`, etc.)
 - **Type annotations** required on all public functions and methods
 - **Strict mypy** — do not add `# type: ignore` without an explanatory comment
 - **ruff** handles linting and formatting (`line-length = 100`)

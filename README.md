@@ -87,14 +87,14 @@ docker-compose up -d
 
 ### Prerequisites
 
-- Python 3.11+ (edit `PYTHON` in the Makefile if your binary is named differently)
+- Python 3.13+ (edit `PYTHON` in the Makefile if your binary is named differently)
 - Make
 
 ### Commands
 
 ```bash
 make help          # Show all available commands
-make dev           # Create venv + install dev dependencies + pre-commit hooks
+make dev           # Create venv + install dev dependencies + pre-commit hooks + build JS
 make install       # Create venv + install production dependencies only
 make run           # Run with auto-reload on :8000
 make run-prod      # Run in production mode on :8000
@@ -108,6 +108,9 @@ make commit        # Interactive conventional commit
 make bump          # Bump version + update CHANGELOG
 make audit         # Check dependencies for known vulnerabilities (pip-audit)
 make sbom          # Generate CycloneDX SBOM → docs/sbom.json
+make build-js      # Compile TypeScript sources → src/static/js/
+make test-js       # Run vitest test suite
+make fake          # Generate fake schedule XML for testing
 ```
 
 ## Architecture
@@ -124,11 +127,13 @@ src/
 │   ├── persistence/     # DuckDB repository implementations
 │   ├── scraper/         # FOSDEM XML schedule scraper
 │   └── web/             # FastAPI app, routes, middleware
-├── api/                 # API DTOs and router
+├── api/                 # API DTOs and routers
 ├── config.py            # Pydantic settings
 └── main.py              # Application entry point
 templates/               # Jinja2 HTML templates
 static/                  # CSS and JS assets
+scripts/
+└── site/                # TypeScript sources compiled to static/js/
 tests/                   # pytest test suite
 ```
 
@@ -170,21 +175,6 @@ This project uses a **dual-license** approach:
 | FOSDEM schedule data | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)     |
 
 Schedule data © [FOSDEM](https://fosdem.org). See [DATA_LICENSE.md](DATA_LICENSE.md) for details.
-
-## License
-
-This project uses a dual-license approach:
-
-| Component | License |
-|-----------|---------|
-| Application code | [MIT License](LICENSE) |
-| FOSDEM schedule data | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) |
-
-Schedule data © [FOSDEM](https://fosdem.org). See [DATA_LICENSE.md](DATA_LICENSE.md) for details.
-
-## Contributing
-
-See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
 ## Acknowledgments
 

@@ -23,6 +23,7 @@ src/
     persistence/ # DuckDB repository implementation
     scraper/     # FOSDEM XML scraper
     web/         # FastAPI app + Jinja2 routes
+  api/           # REST API DTOs and routers
   config.py      # Pydantic settings
   main.py        # App entry point
 templates/       # Jinja2 HTML templates
@@ -56,7 +57,7 @@ database file.
 
 ## Coding Conventions
 
-- **Python 3.11+** — use modern syntax (`X | Y` unions, `match`, etc.)
+- **Python 3.13+** — use modern syntax (`X | Y` unions, `match`, etc.)
 - **Type annotations** on all public functions and methods
 - **Strict mypy** — do not add `# type: ignore` without a comment explaining
   why

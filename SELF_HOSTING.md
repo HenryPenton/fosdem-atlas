@@ -102,7 +102,7 @@ docker-compose up -d
 The app exposes a `/health` endpoint that returns JSON:
 
 ```json
-{"status": "healthy", "version": "0.7.0", "events": 842}
+{"status": "healthy", "version": "2.2.0", "events": 842}
 ```
 
 Docker's built-in health check calls this endpoint every 30 seconds. Monitor status with:
