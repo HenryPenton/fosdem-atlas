@@ -142,5 +142,5 @@ test-js: ## Run vitest test suite in scripts/site/
 watch-js: ## Watch TypeScript sources and recompile on change
 	cd scripts/site && pnpm install --frozen-lockfile && pnpm watch
 
-fake: ## Generate fake two-day FOSDEM schedule XML → fake_schedule.xml
+fake: ## Generate fake two-day FOSDEM schedule XML for the next two days for testing → fake_schedule.xml
 	$(BIN)/python scripts/generate_fake_schedule.py
