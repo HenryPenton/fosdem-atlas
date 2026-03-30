@@ -178,11 +178,11 @@ jobs:
           GH_REPO: ${{ github.repository }}
         run: |
           gh issue list --state open \
-            --search "ZAP Scan Baseline Report in:title" \
-            --json number --jq '.[].number' | \
+            --json number,title \
+            --jq '.[] | select(.title | contains("ZAP Scan Baseline Report")) | .number' | \
           while read -r num; do
-            gh issue edit "$num" --add-label "ci-auto-generated-security-report" 2>/dev/null || true
-            gh issue lock "$num" --reason resolved 2>/dev/null || true
+            gh issue edit "$num" --add-label "ci-auto-generated-security-report"
+            gh issue lock "$num" --reason resolved
           done
 
       - name: Write ZAP summary
