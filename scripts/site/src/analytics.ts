@@ -91,11 +91,11 @@ function initAnalytics(): void {
 
         barRows.forEach((row) => {
             const c = parseInt(row.dataset.keywordCount ?? '0', 10);
-            row.style.display = c >= lo && c <= hi ? '' : 'none';
+            row.classList.toggle('hidden', c < lo || c > hi);
         });
         cloudTerms.forEach((term) => {
             const c = parseInt(term.dataset.keywordCount ?? '0', 10);
-            term.style.display = c >= lo && c <= hi ? '' : 'none';
+            term.classList.toggle('hidden', c < lo || c > hi);
         });
     }
 

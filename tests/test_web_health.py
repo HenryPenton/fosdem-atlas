@@ -62,20 +62,6 @@ class TestHealthEndpointUnhealthy:
             mock_logger.exception.assert_called_once()
 
 
-class TestCacheControl:
-    def test_page_has_cache_header(self, client: TestClient) -> None:
-        response = client.get("/")
-        assert response.headers["Cache-Control"] == "public, max-age=20"
-
-    def test_api_has_cache_header(self, client: TestClient) -> None:
-        response = client.get("/api/v1/events")
-        assert response.headers["Cache-Control"] == "public, max-age=20"
-
-    def test_health_has_no_cache_header(self, client: TestClient) -> None:
-        response = client.get("/health")
-        assert "Cache-Control" not in response.headers
-
-
 class TestNavMyScheduleLink:
     def test_nav_has_my_schedule_link(self, client: TestClient) -> None:
         resp = client.get("/")

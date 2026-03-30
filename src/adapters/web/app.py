@@ -32,8 +32,6 @@ from src.config import Settings
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 TEMPLATES_DIR = BASE_DIR / "templates"
 STATIC_DIR = BASE_DIR / "static"
-
-CACHE_MAX_AGE = 20
 RATE_LIMIT = "10000/minute"
 
 logger = logging.getLogger(__name__)
@@ -106,7 +104,7 @@ def create_app(
         response.headers["Content-Security-Policy"] = (
             f"default-src 'self'; "
             f"script-src 'self' 'nonce-{nonce}' https://cdn.jsdelivr.net; "
-            f"style-src 'self' 'unsafe-inline'; "
+            f"style-src 'self'; "
             f"img-src 'self' data:; "
             f"font-src 'self'; "
             f"connect-src 'self'; "
@@ -115,13 +113,6 @@ def create_app(
             f"form-action 'self'; "
             f"worker-src 'self'"
         )
-        return response
-
-    @app.middleware("http")
-    async def add_cache_control(request: Request, call_next: RequestResponseEndpoint) -> Response:
-        response: Response = await call_next(request)
-        if request.url.path != "/health" and request.method == "GET":
-            response.headers["Cache-Control"] = f"public, max-age={CACHE_MAX_AGE}"
         return response
 
     # JSON API

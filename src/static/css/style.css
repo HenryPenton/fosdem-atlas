@@ -1717,6 +1717,7 @@ footer p {
     font-size: calc(0.75rem + var(--weight, 50) * 0.025rem);
     font-weight: calc(400 + var(--weight, 50) * 3);
     color: hsl(220, calc(40% + var(--weight, 50) * 0.4%), calc(55% - var(--weight, 50) * 0.15%));
+    text-decoration: none;
     transition: transform 0.15s, opacity 0.15s;
     cursor: default;
 }
@@ -2408,4 +2409,25 @@ footer p {
     border-radius: 6px;
     font-size: 0.85rem;
     cursor: pointer;
+}
+
+/* Utility: inline-block back button used on error / offline pages */
+.back-btn {
+    display: inline-block;
+    margin-top: 1rem;
+}
+
+/* Utility: section heading with top spacing */
+.section-heading--spaced {
+    margin-top: 2rem;
+}
+
+/* Utility: hidden row (schedule grid hour content) */
+.grid-hour-content--hidden {
+    display: none;
+}
+
+/* Utility: generic hide */
+.hidden {
+    display: none;
 }

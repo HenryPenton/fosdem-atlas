@@ -28,7 +28,7 @@
                     <span class="grid-hour-count">{{ total_events }} event{{ 's' if total_events != 1 else '' }}</span>
                 </td>
             </tr>
-            <tr class="grid-hour-content" data-hour="{{ slot_key }}" style="display: none;">
+            <tr class="grid-hour-content grid-hour-content--hidden" data-hour="{{ slot_key }}">
                 <td class="grid-time-spacer"></td>
                 {% for room in rooms %}
                 <td class="grid-cell{% if hour_events.get(room) %} grid-cell--filled{% endif %}">

@@ -11,10 +11,10 @@ export function toggleHour(btn: HTMLElement): void {
     btn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
     contentRows.forEach((row) => {
         if (isOpen) {
-            row.style.display = '';
+            row.classList.remove('grid-hour-content--hidden');
             row.removeAttribute('inert');
         } else {
-            row.style.display = 'none';
+            row.classList.add('grid-hour-content--hidden');
             row.setAttribute('inert', '');
         }
     });

@@ -126,7 +126,7 @@
         </div>
 
         {% if speaker_stats.multi_track_speakers %}
-        <h2 style="margin-top: 2rem;">Speakers Across Multiple Tracks</h2>
+        <h2 class="section-heading--spaced">Speakers Across Multiple Tracks</h2>
         <div class="table-scroll-wrapper">
         <table class="speakers-table">
             <thead>
@@ -196,13 +196,13 @@
         </div>
 
         {% if topic_stats.keywords %}
-        <h2 style="margin-top: 2rem;">Word Cloud</h2>
+        <h2 class="section-heading--spaced">Word Cloud</h2>
         <div class="word-cloud" id="keyword-word-cloud">
             {% for item in topic_stats.keywords %}
             {% set weight = (item.count / max_topic * 100) | round | int %}
             <a href="/keyword/{{ item.term | urlencode }}" class="word-cloud-term"
                data-keyword-count="{{ item.count }}"
-               style="--weight: {{ weight }}; text-decoration: none;">{{ item.term }}</a>
+               style="--weight: {{ weight }}">{{ item.term }}</a>
             {% endfor %}
         </div>
         {% endif %}
