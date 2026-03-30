@@ -29,8 +29,7 @@ jobs:
             --label ci-auto-generated-security-report \
             --json number --jq '.[].number' | \
           while read -r num; do
-            gh issue close "$num" \
-              --comment "Auto-closed: superseded by security scan run ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+            gh issue close "$num"
           done
 
   semgrep:
@@ -172,16 +171,18 @@ jobs:
           fail_action: false
           artifact_name: zap-report
 
-      - name: Label ZAP issue
+      - name: Label and lock ZAP issue
         if: always()
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_REPO: ${{ github.repository }}
         run: |
-          gh issue list --state open --author "app/github-actions" \
-            --search "ZAP Scan Baseline Report" --json number --jq '.[].number' | \
+          gh issue list --state open \
+            --search "ZAP Scan Baseline Report in:title" \
+            --json number --jq '.[].number' | \
           while read -r num; do
             gh issue edit "$num" --add-label "ci-auto-generated-security-report" 2>/dev/null || true
+            gh issue lock "$num" --reason resolved 2>/dev/null || true
           done
 
       - name: Write ZAP summary
