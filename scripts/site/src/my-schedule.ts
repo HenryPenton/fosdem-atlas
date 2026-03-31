@@ -68,7 +68,22 @@ export function detectConflicts(events: EventData[]): Conflict[] {
         for (let j = i + 1; j < parsed.length; j++) {
             if (parsed[j].start >= parsed[i].end) break;
             if (parsed[i].room !== parsed[j].room) {
-                conflicts.push({ a: parsed[i], b: parsed[j] });
+                const overlapStart = new Date(
+                    Math.max(parsed[i].start.getTime(), parsed[j].start.getTime()),
+                );
+                const overlapEnd = new Date(
+                    Math.min(parsed[i].end.getTime(), parsed[j].end.getTime()),
+                );
+                const overlapMinutes = Math.round(
+                    (overlapEnd.getTime() - overlapStart.getTime()) / 60000,
+                );
+                conflicts.push({
+                    a: parsed[i],
+                    b: parsed[j],
+                    overlapMinutes,
+                    overlapStart,
+                    overlapEnd,
+                });
             }
         }
     }

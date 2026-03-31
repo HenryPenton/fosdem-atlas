@@ -20,6 +20,9 @@ export interface EventData {
 export interface Conflict {
     a: ParsedEvent;
     b: ParsedEvent;
+    overlapMinutes: number;
+    overlapStart: Date;
+    overlapEnd: Date;
 }
 
 export interface ParsedEvent {

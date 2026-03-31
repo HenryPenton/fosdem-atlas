@@ -1,6 +1,119 @@
 /* my-schedule-page.ts — page-specific logic for /my-schedule */
+import type { Conflict } from './global.js';
 import { MySchedule } from './my-schedule.js';
 import { showToast, initBase } from './base.js';
+
+function fmtTime(d: Date): string {
+    return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
+}
+
+/** Build a visual timeline card for a conflict pair. */
+function buildConflictCard(c: Conflict): HTMLLIElement {
+    const li = document.createElement('li');
+    li.className = 'conflict-card';
+
+    const rangeStart = Math.min(c.a.start.getTime(), c.b.start.getTime());
+    const rangeEnd = Math.max(c.a.end.getTime(), c.b.end.getTime());
+    const totalMs = rangeEnd - rangeStart;
+
+    const pct = (ms: number): string => ((ms / totalMs) * 100).toFixed(1) + '%';
+
+    // Header: overlap badge + time range
+    const header = document.createElement('div');
+    header.className = 'conflict-card-header';
+    const badge = document.createElement('span');
+    badge.className = 'conflict-overlap-badge';
+    badge.textContent = `${c.overlapMinutes} min overlap`;
+    const timeRange = document.createElement('span');
+    timeRange.className = 'conflict-overlap-time';
+    timeRange.textContent = `${fmtTime(c.overlapStart)}–${fmtTime(c.overlapEnd)}`;
+    header.append(badge, timeRange);
+
+    // Timeline container
+    const timeline = document.createElement('div');
+    timeline.className = 'conflict-timeline';
+
+    // Overlap zone (background stripe)
+    const overlapZone = document.createElement('div');
+    overlapZone.className = 'conflict-overlap-zone';
+    overlapZone.style.left = pct(c.overlapStart.getTime() - rangeStart);
+    overlapZone.style.width = pct(c.overlapEnd.getTime() - c.overlapStart.getTime());
+    timeline.appendChild(overlapZone);
+
+    // Bar for event A
+    const barA = buildEventBar(c.a, rangeStart, totalMs, 'conflict-bar--a');
+    // Bar for event B
+    const barB = buildEventBar(c.b, rangeStart, totalMs, 'conflict-bar--b');
+    timeline.append(barA, barB);
+
+    // Time axis labels
+    const axis = document.createElement('div');
+    axis.className = 'conflict-axis';
+    const times = [
+        { t: rangeStart, label: fmtTime(new Date(rangeStart)) },
+        { t: rangeEnd, label: fmtTime(new Date(rangeEnd)) },
+    ];
+    for (const { t, label } of times) {
+        const tick = document.createElement('span');
+        tick.className = 'conflict-axis-tick';
+        tick.style.left = pct(t - rangeStart);
+        tick.textContent = label;
+        axis.appendChild(tick);
+    }
+
+    li.append(header, timeline, axis);
+    return li;
+}
+
+function buildEventBar(
+    ev: { id: string; title: string; room: string; start: Date; end: Date },
+    rangeStart: number,
+    totalMs: number,
+    modifier: string,
+): HTMLDivElement {
+    const pct = (ms: number): string => ((ms / totalMs) * 100).toFixed(1) + '%';
+    const track = document.createElement('div');
+    track.className = 'conflict-bar-track';
+
+    const bar = document.createElement('div');
+    bar.className = `conflict-bar ${modifier}`;
+    bar.style.left = pct(ev.start.getTime() - rangeStart);
+    bar.style.width = pct(ev.end.getTime() - ev.start.getTime());
+
+    const link = document.createElement('a');
+    link.href = `/event/${ev.id}`;
+    link.className = 'conflict-bar-label';
+    link.textContent = ev.title;
+    link.title = `${ev.title} · ${ev.room} · ${fmtTime(ev.start)}–${fmtTime(ev.end)}`;
+
+    const time = document.createElement('span');
+    time.className = 'conflict-bar-time';
+    time.textContent = `${fmtTime(ev.start)}–${fmtTime(ev.end)}`;
+
+    const room = document.createElement('span');
+    room.className = 'conflict-bar-room';
+    room.textContent = ev.room;
+
+    bar.append(link, time, room);
+    track.appendChild(bar);
+    return track;
+}
+
+/** Add visual conflict markers to event cards already in the schedule grid. */
+function markConflictingEvents(conflicts: Conflict[]): void {
+    const conflictIds = new Set<string>();
+    for (const c of conflicts) {
+        conflictIds.add(c.a.id);
+        conflictIds.add(c.b.id);
+    }
+    for (const id of conflictIds) {
+        const btn = document.querySelector(`[data-bookmark-id="${CSS.escape(id)}"]`);
+        const wrapper = btn?.closest('.grid-event-wrapper');
+        if (wrapper) {
+            wrapper.classList.add('grid-event-wrapper--conflict');
+        }
+    }
+}
 
 function initMySchedulePage(): void {
     const controls = document.getElementById('schedule-controls');
@@ -51,22 +164,8 @@ function initMySchedulePage(): void {
                 const conflicts = MySchedule.detectConflicts(events);
                 if (conflicts.length > 0) {
                     conflictsDiv.hidden = false;
-                    const items = conflicts.map((c) => {
-                        const li = document.createElement('li');
-                        li.className = 'conflict-item';
-                        const linkA = document.createElement('a');
-                        linkA.href = `/event/${c.a.id}`;
-                        linkA.textContent = c.a.title;
-                        const linkB = document.createElement('a');
-                        linkB.href = `/event/${c.b.id}`;
-                        linkB.textContent = c.b.title;
-                        const detail = document.createElement('span');
-                        detail.className = 'conflict-detail';
-                        detail.textContent = `(${c.a.room} / ${c.b.room})`;
-                        li.append(linkA, ' conflicts with ', linkB, ' ', detail);
-                        return li;
-                    });
-                    conflictList.replaceChildren(...items);
+                    conflictList.replaceChildren(...conflicts.map(buildConflictCard));
+                    markConflictingEvents(conflicts);
                 }
             });
     }

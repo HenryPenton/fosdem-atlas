@@ -123,6 +123,9 @@ describe('detectConflicts', () => {
         expect(conflicts).toHaveLength(1);
         expect(conflicts[0].a.id).toBe('1');
         expect(conflicts[0].b.id).toBe('2');
+        expect(conflicts[0].overlapMinutes).toBe(60);
+        expect(conflicts[0].overlapStart).toEqual(new Date(base));
+        expect(conflicts[0].overlapEnd).toEqual(new Date('2026-02-01T11:00:00'));
     });
 
     it('does not flag overlap in the same room', () => {
@@ -147,6 +150,9 @@ describe('detectConflicts', () => {
             { id: '2', title: 'B', start_time: '2026-02-01T10:30:00', duration_minutes: 60, room: 'H.2' },
         ]);
         expect(conflicts).toHaveLength(1);
+        expect(conflicts[0].overlapMinutes).toBe(30);
+        expect(conflicts[0].overlapStart).toEqual(new Date('2026-02-01T10:30:00'));
+        expect(conflicts[0].overlapEnd).toEqual(new Date('2026-02-01T11:00:00'));
     });
 
     it('skips events missing start_time or duration_minutes', () => {
