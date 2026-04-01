@@ -1,3 +1,17 @@
+## v2.2.2 (2026-04-01)
+
+### Feat
+
+- time collisions more readable
+
+### Fix
+
+- unbreak non-opening personal schedule
+
+### Refactor
+
+- copy-code functionality and introduce DOM utility functions
+
 ## v2.2.1 (2026-03-30)
 
 ### Feat

@@ -1194,7 +1194,7 @@
       "version": "3.25.2"
     },
     {
-      "bom-ref": "fosdem-explorer==2.2.0",
+      "bom-ref": "fosdem-explorer==2.2.1",
       "description": "A DuckDB-powered web application for exploring and analyzing the FOSDEM schedule",
       "licenses": [
         {
@@ -1205,12 +1205,12 @@
         }
       ],
       "name": "fosdem-explorer",
-      "purl": "pkg:pypi/fosdem-explorer@2.2.0",
+      "purl": "pkg:pypi/fosdem-explorer@2.2.1",
       "type": "library",
-      "version": "2.2.0"
+      "version": "2.2.1"
     },
     {
-      "bom-ref": "BomRef.028223565205035217.6191547045411706",
+      "bom-ref": "BomRef.8399335650337094.24674870270106686",
       "description": "A DuckDB-powered web application for exploring and analyzing the FOSDEM schedule",
       "externalReferences": [
         {
@@ -1229,7 +1229,7 @@
       ],
       "name": "fosdem-explorer",
       "type": "library",
-      "version": "2.2.0"
+      "version": "2.2.1"
     },
     {
       "bom-ref": "fqdn==1.5.1",
@@ -4324,7 +4324,7 @@
         "uvicorn==0.42.0",
         "yake==0.7.3"
       ],
-      "ref": "fosdem-explorer==2.2.0"
+      "ref": "fosdem-explorer==2.2.1"
     },
     {
       "ref": "fqdn==1.5.1"
