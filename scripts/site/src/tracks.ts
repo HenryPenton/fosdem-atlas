@@ -1,26 +1,49 @@
 /* tracks.ts — client-side filter for the tracks list */
+import { alreadyBound, markBound, filterCards } from './dom-utils.js';
+
+function getTrackFilterInput(): HTMLInputElement | null {
+    return document.getElementById('track-filter') as HTMLInputElement | null;
+}
+
+function getTrackCards(): NodeListOf<HTMLElement> {
+    return document.querySelectorAll<HTMLElement>('#tracks-list .track-card');
+}
+
+function getTracksCountEl(): HTMLElement | null {
+    return document.getElementById('tracks-count');
+}
+
+function formatTrackCount(visible: number, rawQuery: string): string {
+    const suffix = visible !== 1 ? 's' : '';
+    const context = rawQuery
+        ? ` matching \u201c${rawQuery}\u201d`
+        : ' across the conference';
+    return `${visible} track${suffix}${context}`;
+}
+
+function updateTracksCount(countEl: HTMLElement | null, visible: number, rawQuery: string): void {
+    if (countEl) {
+        countEl.textContent = formatTrackCount(visible, rawQuery);
+    }
+}
+
+function handleTrackFilterInput(
+    input: HTMLInputElement,
+    cards: NodeListOf<HTMLElement>,
+    countEl: HTMLElement | null,
+): void {
+    const q = input.value.toLowerCase().trim();
+    const visible = filterCards(cards, q);
+    updateTracksCount(countEl, visible, q ? input.value : '');
+}
+
 function initTrackFilter(): void {
-    const input = document.getElementById('track-filter') as HTMLInputElement | null;
-    if (!input || (input as HTMLElement & { _bound?: boolean })._bound) return;
-    (input as HTMLElement & { _bound?: boolean })._bound = true;
-    const cards = document.querySelectorAll<HTMLElement>('#tracks-list .track-card');
-    const countEl = document.getElementById('tracks-count');
-    input.addEventListener('input', () => {
-        const q = input.value.toLowerCase().trim();
-        let visible = 0;
-        cards.forEach((card) => {
-            const match = !q || (card.dataset.name ?? '').includes(q);
-            card.hidden = !match;
-            if (match) visible++;
-        });
-        if (countEl) {
-            countEl.textContent =
-                visible +
-                ' track' +
-                (visible !== 1 ? 's' : '') +
-                (q ? ` matching \u201c${input.value}\u201d` : ' across the conference');
-        }
-    });
+    const input = getTrackFilterInput();
+    if (!input || alreadyBound(input)) return;
+    markBound(input);
+    const cards = getTrackCards();
+    const countEl = getTracksCountEl();
+    input.addEventListener('input', () => handleTrackFilterInput(input, cards, countEl));
 }
 
 initTrackFilter();
