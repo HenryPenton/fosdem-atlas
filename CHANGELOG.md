@@ -1,3 +1,15 @@
+## v2.2.3 (2026-04-04)
+
+### Fix
+
+- close overlaps box when no overlaps
+- upgrade cypress and fix a11y issue
+
+### Refactor
+
+- no more dast scan issue publishing
+- rename to fosdem atlas
+
 ## v2.2.2 (2026-04-01)
 
 ### Feat
