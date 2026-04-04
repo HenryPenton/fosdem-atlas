@@ -195,23 +195,26 @@ function updateIcalLink(icalLink: HTMLAnchorElement, ids: string[]): void {
     icalLink.href = '/my-schedule/export.ics?ids=' + buildIdsParam(ids);
 }
 
-function fetchAndRenderGrid(eventsDiv: HTMLElement, ids: string[]): void {
+function fetchAndRenderGrid(eventsDiv: HTMLElement, ids: string[], onBookmarkToggled: () => void): void {
     fetch('/my-schedule/grid?ids=' + buildIdsParam(ids))
         .then((r) => r.text())
         .then((html) => {
-            insertGridHtml(eventsDiv, html);
+            insertGridHtml(eventsDiv, html, onBookmarkToggled);
         })
         .catch(() => {
             showToast('Failed to load your schedule. Please try again.', 'error');
         });
 }
 
-function insertGridHtml(eventsDiv: HTMLElement, html: string): void {
+function insertGridHtml(eventsDiv: HTMLElement, html: string, onBookmarkToggled: () => void): void {
     const parser = new DOMParser();
     const doc = parser.parseFromString(html, 'text/html');
     eventsDiv.replaceChildren(...Array.from(doc.body.childNodes));
     initBase();
     MySchedule.initBookmarkButtons();
+    eventsDiv.querySelectorAll<HTMLElement>('[data-bookmark-id]').forEach((btn) => {
+        btn.addEventListener('click', () => setTimeout(onBookmarkToggled, 0));
+    });
 }
 
 function fetchAndShowConflicts(conflictsDiv: HTMLElement, conflictList: HTMLElement, ids: string[]): void {
@@ -228,8 +231,8 @@ function renderConflicts(
     events: Parameters<typeof MySchedule.detectConflicts>[0],
 ): void {
     const conflicts = MySchedule.detectConflicts(events);
+    conflictsDiv.hidden = conflicts.length === 0;
     if (conflicts.length > 0) {
-        conflictsDiv.hidden = false;
         conflictList.replaceChildren(...conflicts.map(buildConflictCard));
         markConflictingEvents(conflicts);
     }
@@ -251,13 +254,14 @@ function initMySchedulePage(): void {
         const ids = MySchedule.getIds();
         if (ids.length === 0) {
             controls!.hidden = true;
+            conflictsDiv.hidden = true;
             eventsDiv!.replaceChildren(buildEmptyState());
             return;
         }
         controls!.hidden = false;
         updateScheduleCount(countSpan, ids);
         updateIcalLink(icalLink, ids);
-        fetchAndRenderGrid(eventsDiv!, ids);
+        fetchAndRenderGrid(eventsDiv!, ids, loadGrid);
         fetchAndShowConflicts(conflictsDiv, conflictList, ids);
     }
 
