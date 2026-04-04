@@ -1,5 +1,5 @@
 services:
-  fosdem-explorer:
+  fosdem-atlas:
     build:
       context: .
       dockerfile: docker/Dockerfile

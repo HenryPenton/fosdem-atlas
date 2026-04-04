@@ -1,4 +1,4 @@
-# FOSDEM Explorer Roadmap
+# FOSDEM Atlas Roadmap
 
 A DuckDB-powered web application for exploring, searching, and analyzing the FOSDEM 2026 schedule.
 

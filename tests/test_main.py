@@ -18,4 +18,4 @@ def test_health_endpoint(client: TestClient) -> None:
 def test_index_page(client: TestClient) -> None:
     response = client.get("/")
     assert response.status_code == 200
-    assert "FOSDEM Explorer" in response.text
+    assert "FOSDEM Atlas" in response.text

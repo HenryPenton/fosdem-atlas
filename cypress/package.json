@@ -1,6 +1,6 @@
 {
   "private": true,
-  "description": "Cypress E2E and accessibility tests for FOSDEM Explorer",
+  "description": "Cypress E2E and accessibility tests for FOSDEM Atlas",
   "scripts": {
     "cy:open": "cypress open",
     "cy:run": "cypress run",

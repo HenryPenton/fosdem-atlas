@@ -1,4 +1,4 @@
-# FOSDEM Explorer
+# FOSDEM Atlas
 
 A DuckDB-powered web application for exploring, searching, and analyzing the FOSDEM 2026 schedule.
 
@@ -24,8 +24,8 @@ A DuckDB-powered web application for exploring, searching, and analyzing the FOS
 ### Using Docker (recommended)
 
 ```bash
-git clone https://github.com/HenryPenton/fosdem-explorer.git
-cd fosdem-explorer
+git clone https://github.com/HenryPenton/fosdem-atlas.git
+cd fosdem-atlas
 docker-compose up -d
 ```
 
@@ -35,8 +35,8 @@ Open <http://localhost:8000>. The schedule will be fetched automatically on firs
 
 ```bash
 # Clone the repository
-git clone https://github.com/HenryPenton/fosdem-explorer.git
-cd fosdem-explorer
+git clone https://github.com/HenryPenton/fosdem-atlas.git
+cd fosdem-atlas
 
 # Install dev dependencies (creates venv automatically)
 make dev
@@ -55,8 +55,8 @@ See the [Self-Hosting Guide](SELF_HOSTING.md) for detailed deployment instructio
 
 ```yaml
 services:
-  fosdem-explorer:
-    image: ghcr.io/henrypenton/fosdem-explorer:latest
+  fosdem-atlas:
+    image: ghcr.io/henrypenton/fosdem-atlas:latest
     ports:
       - "8000:8000"
     volumes:

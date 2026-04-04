@@ -23,7 +23,7 @@ Tells users how to responsibly disclose vulnerabilities. Suggested content:
 ## Reporting a Vulnerability
 
 Please do not open a public GitHub issue for security vulnerabilities.
-Email [your-email] with the subject "FOSDEM Explorer Security Report".
+Email [your-email] with the subject "FOSDEM Atlas Security Report".
 You can expect a response within 72 hours.
 ```
 
@@ -33,7 +33,7 @@ The repository/homepage URLs are missing from the package metadata. Add:
 
 ```toml
 [project.urls]
-Repository = "https://github.com/<your-username>/fosdem-explorer"
+Repository = "https://github.com/<your-username>/fosdem-atlas"
 ```
 
 ### 4. Add `Strict-Transport-Security` header

@@ -6,7 +6,7 @@ Rules and conventions for AI agents working in this repository.
 
 ## Project Overview
 
-FOSDEM Explorer is a DuckDB-powered web app for browsing the FOSDEM conference
+FOSDEM Atlas is a DuckDB-powered web app for browsing the FOSDEM conference
 schedule. Stack: Python + FastAPI + DuckDB + HTMX + Jinja2. See
 [ROADMAP.md](ROADMAP.md) for feature phases and [README.md](README.md) for
 setup.

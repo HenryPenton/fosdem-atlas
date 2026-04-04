@@ -1,7 +1,7 @@
 # FOSDEM Notifier — NTFY Roadmap
 
 A privately hosted [ntfy](https://ntfy.sh) instance powering push notifications
-for the FOSDEM Explorer app. One authorised publisher (the backend); everyone
+for the FOSDEM Atlas app. One authorised publisher (the backend); everyone
 else is a read-only subscriber.
 
 ---
@@ -433,7 +433,7 @@ recoverable.
 
 ### 10.1 Health & liveness
 
-- [ ] Poll ntfy `/v1/health` from the FOSDEM Explorer health check
+- [ ] Poll ntfy `/v1/health` from the FOSDEM Atlas health check
 - [ ] If ntfy is unreachable, the scheduler logs a warning but does not crash
 - [ ] Health surfaced on `/health` as `ntfy: ok | degraded | unavailable`
 

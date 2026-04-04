@@ -22,7 +22,7 @@ def create_analytics_page_router(
             request=request,
             name="analytics.html",
             context={
-                "title": "FOSDEM Explorer — Analytics",
+                "title": "FOSDEM Atlas — Analytics",
                 **dataclasses.asdict(data),
             },
         )

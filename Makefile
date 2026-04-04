@@ -87,10 +87,10 @@ patch minor major: ## Increment level selector for use with bump (e.g. make bump
 	@true
 
 docker-build: ## Build Docker image
-	docker build -t fosdem-explorer:latest -f docker/Dockerfile .
+	docker build -t fosdem-atlas:latest -f docker/Dockerfile .
 
 docker-run: ## Run Docker container
-	docker run -p 8000:8000 -v $(PWD)/data:/app/data fosdem-explorer:latest
+	docker run -p 8000:8000 -v $(PWD)/data:/app/data fosdem-atlas:latest
 
 BASE_URL ?= http://localhost:8000
 

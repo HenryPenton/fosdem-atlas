@@ -1,4 +1,4 @@
-"""FOSDEM Explorer - composition root.
+"""FOSDEM Atlas - composition root.
 
 Wires together all adapters and starts the application.
 """
@@ -58,7 +58,7 @@ def _run_scrape() -> None:
 
 @asynccontextmanager
 async def _lifespan(_app: FastAPI) -> AsyncGenerator[None, None]:
-    logger.info("Starting FOSDEM Explorer v%s", settings.version)
+    logger.info("Starting FOSDEM Atlas v%s", settings.version)
     logger.info("Database: %s", settings.database_path)
     _db.get()
     logger.info("Database connected")
@@ -79,7 +79,7 @@ async def _lifespan(_app: FastAPI) -> AsyncGenerator[None, None]:
 
     scheduler.shutdown(wait=False)
     logger.info("Scheduler stopped")
-    logger.info("Shutting down FOSDEM Explorer")
+    logger.info("Shutting down FOSDEM Atlas")
     _db.close()
     logger.info("Database connection closed")
 

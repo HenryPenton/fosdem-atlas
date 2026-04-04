@@ -1,4 +1,4 @@
-title = "FOSDEM Explorer Gitleaks Config"
+title = "FOSDEM Atlas Gitleaks Config"
 
 [extend]
 useDefault = true
@@ -24,3 +24,7 @@ paths = [
   '''(^|/)fake-secrets\.env$''',
   '''(^|/)\.env\.example$''',
 ]
+
+[[allowlists]]
+description = "test commit used to verify gitleaks was working — not a real secret"
+commits = ["57e235ce47b1f70eea9ef59c219fc58e1c7c820e"]

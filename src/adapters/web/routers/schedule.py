@@ -27,7 +27,7 @@ def create_schedule_router(
             request=request,
             name="index.html",
             context={
-                "title": "FOSDEM Explorer",
+                "title": "FOSDEM Atlas",
                 **dataclasses.asdict(overview),
                 "selected_day": selected_day,
             },
@@ -52,7 +52,7 @@ def create_schedule_router(
             request=request,
             name="day.html",
             context={
-                "title": f"FOSDEM Explorer — {day}",
+                "title": f"FOSDEM Atlas — {day}",
                 **dataclasses.asdict(data),
             },
         )
@@ -66,7 +66,7 @@ def create_schedule_router(
                 request=request,
                 name="404.html",
                 context={
-                    "title": "FOSDEM Explorer — Not Found",
+                    "title": "FOSDEM Atlas — Not Found",
                     "message": "No events found for that track.",
                     "back_url": url,
                     "back_label": label,
@@ -77,7 +77,7 @@ def create_schedule_router(
             request=request,
             name="track.html",
             context={
-                "title": f"FOSDEM Explorer — {track}",
+                "title": f"FOSDEM Atlas — {track}",
                 "day": day,
                 "track": track,
                 "events": events,
@@ -91,7 +91,7 @@ def create_schedule_router(
             request=request,
             name="tracks.html",
             context={
-                "title": "FOSDEM Explorer — Tracks",
+                "title": "FOSDEM Atlas — Tracks",
                 **dataclasses.asdict(data),
             },
         )
@@ -105,7 +105,7 @@ def create_schedule_router(
                 request=request,
                 name="404.html",
                 context={
-                    "title": "FOSDEM Explorer — Not Found",
+                    "title": "FOSDEM Atlas — Not Found",
                     "message": "That track doesn't exist or has no events.",
                     "back_url": url,
                     "back_label": label,
@@ -116,7 +116,7 @@ def create_schedule_router(
             request=request,
             name="track.html",
             context={
-                "title": f"FOSDEM Explorer — {track}",
+                "title": f"FOSDEM Atlas — {track}",
                 "day": None,
                 "track": track,
                 "events": events,
@@ -132,7 +132,7 @@ def create_schedule_router(
                 request=request,
                 name="404.html",
                 context={
-                    "title": "FOSDEM Explorer — Not Found",
+                    "title": "FOSDEM Atlas — Not Found",
                     "message": "That event doesn't exist or may have been removed.",
                     "back_url": url,
                     "back_label": label,
@@ -143,7 +143,7 @@ def create_schedule_router(
             request=request,
             name="event.html",
             context={
-                "title": f"FOSDEM Explorer — {result.title}",
+                "title": f"FOSDEM Atlas — {result.title}",
                 "event": result,
                 "speakers": result.speakers,
             },
@@ -156,7 +156,7 @@ def create_schedule_router(
             request=request,
             name="keyword.html",
             context={
-                "title": f"FOSDEM Explorer — {term}",
+                "title": f"FOSDEM Atlas — {term}",
                 "term": term,
                 "events": events,
             },
@@ -167,7 +167,7 @@ def create_schedule_router(
         return templates.TemplateResponse(
             request=request,
             name="my_schedule.html",
-            context={"title": "FOSDEM Explorer — My Schedule"},
+            context={"title": "FOSDEM Atlas — My Schedule"},
         )
 
     @router.get("/my-schedule/grid", response_class=HTMLResponse)
@@ -188,7 +188,7 @@ def create_schedule_router(
         return templates.TemplateResponse(
             request=request,
             name="offline.html",
-            context={"title": "FOSDEM Explorer — Offline"},
+            context={"title": "FOSDEM Atlas — Offline"},
         )
 
     return router

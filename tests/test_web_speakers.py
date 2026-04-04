@@ -46,7 +46,7 @@ class TestSpeakerDetailPage:
         response = client.get("/speaker/nonexistent")
         assert response.status_code == 404
         assert "Not found" in response.text
-        assert "FOSDEM Explorer" in response.text
+        assert "FOSDEM Atlas" in response.text
 
     def test_404_default_back_link(self, client: TestClient) -> None:
         response = client.get("/speaker/nonexistent")

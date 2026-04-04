@@ -1194,7 +1194,7 @@
       "version": "3.25.2"
     },
     {
-      "bom-ref": "fosdem-explorer==2.2.1",
+      "bom-ref": "fosdem-atlas==2.2.1",
       "description": "A DuckDB-powered web application for exploring and analyzing the FOSDEM schedule",
       "licenses": [
         {
@@ -1204,8 +1204,8 @@
           }
         }
       ],
-      "name": "fosdem-explorer",
-      "purl": "pkg:pypi/fosdem-explorer@2.2.1",
+      "name": "fosdem-atlas",
+      "purl": "pkg:pypi/fosdem-atlas@2.2.1",
       "type": "library",
       "version": "2.2.1"
     },
@@ -1216,7 +1216,7 @@
         {
           "comment": "PackageSource: Local",
           "type": "distribution",
-          "url": "file:///Users/henry/projects/fosdem-explorer"
+          "url": "file:///Users/henry/projects/fosdem-atlas"
         }
       ],
       "licenses": [
@@ -1227,7 +1227,7 @@
           }
         }
       ],
-      "name": "fosdem-explorer",
+      "name": "fosdem-atlas",
       "type": "library",
       "version": "2.2.1"
     },
@@ -4324,7 +4324,7 @@
         "uvicorn==0.42.0",
         "yake==0.7.3"
       ],
-      "ref": "fosdem-explorer==2.2.1"
+      "ref": "fosdem-atlas==2.2.1"
     },
     {
       "ref": "fqdn==1.5.1"

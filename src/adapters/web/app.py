@@ -52,7 +52,7 @@ def create_app(
 ) -> FastAPI:
     """Create and configure the FastAPI application."""
     app = FastAPI(
-        title="FOSDEM Explorer",
+        title="FOSDEM Atlas",
         description="A DuckDB-powered web application for exploring the FOSDEM schedule",
         version=settings.version,
         lifespan=lifespan,
@@ -70,7 +70,7 @@ def create_app(
         if "text/html" in accept:
             response = HTMLResponse(
                 content=templates.get_template("rate_limit.html").render(
-                    {"request": request, "title": "FOSDEM Explorer — Too Many Requests"}
+                    {"request": request, "title": "FOSDEM Atlas — Too Many Requests"}
                 ),
                 status_code=429,
             )

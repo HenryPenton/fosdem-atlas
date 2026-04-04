@@ -1,5 +1,5 @@
 /**
- * Exhaustive accessibility audit for FOSDEM Explorer.
+ * Exhaustive accessibility audit for FOSDEM Atlas.
  *
  * Discovers EVERY dynamic page via the JSON API (events, speakers, tracks,
  * days, keywords) and runs axe-core in both light and dark mode.  Also

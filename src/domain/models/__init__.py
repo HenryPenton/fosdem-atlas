@@ -1,4 +1,4 @@
-"""Domain models for FOSDEM Explorer."""
+"""Domain models for FOSDEM Atlas."""
 
 from src.domain.models.analytics import (
     ConferenceStats,

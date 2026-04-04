@@ -349,7 +349,7 @@ class ScheduleService:
         lines = [
             "BEGIN:VCALENDAR",
             "VERSION:2.0",
-            "PRODID:-//FOSDEM Explorer//EN",
+            "PRODID:-//FOSDEM Atlas//EN",
             "CALSCALE:GREGORIAN",
             "METHOD:PUBLISH",
         ]
@@ -359,7 +359,7 @@ class ScheduleService:
                 continue
             duration = ev.duration_minutes
             end = start + timedelta(minutes=duration)
-            uid = f"{ev.id}@fosdem-explorer"
+            uid = f"{ev.id}@fosdem-atlas"
             now = datetime.now(tz=timezone.utc).strftime("%Y%m%dT%H%M%SZ")  # noqa: UP017
             lines.extend(
                 [

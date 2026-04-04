@@ -4,7 +4,7 @@
 <div class="container">
     <section class="hero">
         <div class="hero-icon">🎪</div>
-        <h1>FOSDEM Explorer</h1>
+        <h1>FOSDEM Atlas</h1>
         <p class="hero-subtitle">Explore the FOSDEM 2026 schedule</p>
         {% if event_count > 0 %}
         <div class="hero-stats">
@@ -93,7 +93,7 @@
 
     <section class="deploy-section">
         <h2 class="deploy-heading">🚀 Deploy it yourself</h2>
-        <p class="deploy-description">Run your own FOSDEM Explorer in seconds with Docker Compose:</p>
+        <p class="deploy-description">Run your own FOSDEM Atlas in seconds with Docker Compose:</p>
         <div class="code-block">
             <div class="code-block-header">
                 <span class="code-block-lang">bash</span>
@@ -103,8 +103,8 @@
                 </button>
             </div>
             <pre class="code-block-body" id="deploy-snippet"><code><span class="code-comment"># Clone the repository</span>
-git clone https://github.com/HenryPenton/fosdem-explorer.git
-cd fosdem-explorer
+git clone https://github.com/HenryPenton/fosdem-atlas.git
+cd fosdem-atlas
 
 <span class="code-comment"># Start the app</span>
 docker-compose up -d
@@ -112,7 +112,7 @@ docker-compose up -d
 <span class="code-comment"># Open in your browser</span>
 open http://localhost:8000</code></pre>
         </div>
-        <p class="deploy-link">See the <a href="https://github.com/HenryPenton/fosdem-explorer/blob/main/SELF_HOSTING.md">Self-Hosting Guide</a> for environment variables, volumes, and production tips.</p>
+        <p class="deploy-link">See the <a href="https://github.com/HenryPenton/fosdem-atlas/blob/main/SELF_HOSTING.md">Self-Hosting Guide</a> for environment variables, volumes, and production tips.</p>
     </section>
 </div>
 {% endblock %}

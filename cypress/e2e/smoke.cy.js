@@ -1,5 +1,5 @@
 /**
- * E2E smoke test suite for FOSDEM Explorer.
+ * E2E smoke test suite for FOSDEM Atlas.
  *
  * Checks that every significant page loads, renders key content, and
  * that primary user journeys are functional.

@@ -1,6 +1,6 @@
 # Self-Hosting Guide
 
-Run your own instance of FOSDEM Explorer with Docker Compose.
+Run your own instance of FOSDEM Atlas with Docker Compose.
 
 ## Prerequisites
 
@@ -9,9 +9,8 @@ Run your own instance of FOSDEM Explorer with Docker Compose.
 ## Quick Start
 
 ```bash
-git clone https://github.com/HenryPenton/fosdem-explorer.git
-cd fosdem-explorer
-docker-compose up -d
+git clone https://github.com/HenryPenton/fosdem-atlas.git
+cd fosdem-atlas
 ```
 
 The app is available at <http://localhost:8000>. The FOSDEM schedule will be scraped automatically on startup and refreshed every 5 minutes.
@@ -22,7 +21,7 @@ The repository ships a ready-to-use `docker-compose.yml`:
 
 ```yaml
 services:
-  fosdem-explorer:
+  fosdem-atlas:
     build:
       context: .
       dockerfile: docker/Dockerfile
@@ -51,8 +50,8 @@ To skip building locally, point at the published container image:
 
 ```yaml
 services:
-  fosdem-explorer:
-    image: ghcr.io/henrypenton/fosdem-explorer:latest
+  fosdem-atlas:
+    image: ghcr.io/henrypenton/fosdem-atlas:latest
     ports:
       - "8000:8000"
     volumes:
@@ -79,13 +78,13 @@ The DuckDB database is stored inside the `fosdem-data` Docker volume (mounted at
 To back up the database:
 
 ```bash
-docker cp $(docker-compose ps -q fosdem-explorer):/app/data/fosdem.duckdb ./fosdem-backup.duckdb
+docker cp $(docker-compose ps -q fosdem-atlas):/app/data/fosdem.duckdb ./fosdem-backup.duckdb
 ```
 
 ## Updating
 
 ```bash
-cd fosdem-explorer
+cd fosdem-atlas
 git pull
 docker-compose up -d --build
 ```
@@ -108,7 +107,7 @@ The app exposes a `/health` endpoint that returns JSON:
 Docker's built-in health check calls this endpoint every 30 seconds. Monitor status with:
 
 ```bash
-docker inspect --format='{{.State.Health.Status}}' $(docker-compose ps -q fosdem-explorer)
+docker inspect --format='{{.State.Health.Status}}' $(docker-compose ps -q fosdem-atlas)
 ```
 
 ## Reverse Proxy
@@ -117,7 +116,7 @@ When running behind nginx, Caddy, or Traefik, proxy requests to port 8000. Examp
 
 ```
 fosdem.example.com {
-    reverse_proxy fosdem-explorer:8000
+    reverse_proxy fosdem-atlas:8000
 }
 ```
 

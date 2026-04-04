@@ -1,1 +1,1 @@
-"""API routes for FOSDEM Explorer."""
+"""API routes for FOSDEM Atlas."""

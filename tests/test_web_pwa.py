@@ -19,7 +19,7 @@ class TestStaticPWAAssets:
         assert response.status_code == 200
         assert response.headers["content-type"].startswith("application/json")
         data = response.json()
-        assert data["name"] == "FOSDEM Explorer"
+        assert data["name"] == "FOSDEM Atlas"
         assert data["start_url"] == "/"
         assert len(data["icons"]) >= 2
 

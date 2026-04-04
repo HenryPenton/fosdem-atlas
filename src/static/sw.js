@@ -1,5 +1,5 @@
 /**
- * FOSDEM Explorer Service Worker
+ * FOSDEM Atlas Service Worker
  *
  * Strategy:
  *  - App shell (top-level pages, CSS, JS, icons, manifest): Cache-First with

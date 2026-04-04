@@ -1,1 +1,1 @@
-"""Tests for FOSDEM Explorer."""
+"""Tests for FOSDEM Atlas."""

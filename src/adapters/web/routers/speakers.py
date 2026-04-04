@@ -21,7 +21,7 @@ def create_speakers_page_router(
             request=request,
             name="speakers.html",
             context={
-                "title": "FOSDEM Explorer — Speakers",
+                "title": "FOSDEM Atlas — Speakers",
                 "speakers": speakers,
             },
         )
@@ -37,7 +37,7 @@ def create_speakers_page_router(
                 request=request,
                 name="404.html",
                 context={
-                    "title": "FOSDEM Explorer — Not Found",
+                    "title": "FOSDEM Atlas — Not Found",
                     "message": "That speaker doesn't exist or may have been removed.",
                     "back_url": url,
                     "back_label": label,
@@ -48,7 +48,7 @@ def create_speakers_page_router(
             request=request,
             name="speaker.html",
             context={
-                "title": f"FOSDEM Explorer — {result.name}",
+                "title": f"FOSDEM Atlas — {result.name}",
                 "speaker": result,
                 "events": result.events,
             },

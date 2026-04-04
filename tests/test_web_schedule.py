@@ -10,7 +10,7 @@ class TestIndexPage:
 
     def test_contains_title(self, client: TestClient) -> None:
         response = client.get("/")
-        assert "FOSDEM Explorer" in response.text
+        assert "FOSDEM Atlas" in response.text
 
     def test_shows_event_count(self, client: TestClient) -> None:
         response = client.get("/")
@@ -140,7 +140,7 @@ class TestEventDetail:
         response = client.get("/event/nonexistent")
         assert response.status_code == 404
         assert "Not found" in response.text
-        assert "FOSDEM Explorer" in response.text
+        assert "FOSDEM Atlas" in response.text
 
 
 class TestApiEvents:

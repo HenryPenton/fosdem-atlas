@@ -1,4 +1,4 @@
-# Contributing to FOSDEM Explorer
+# Contributing to FOSDEM Atlas
 
 Thanks for your interest in contributing! This guide covers everything you need to get started.
 
@@ -7,8 +7,8 @@ Thanks for your interest in contributing! This guide covers everything you need 
 1. Fork the repository
 2. Clone your fork and create a branch:
    ```bash
-   git clone https://github.com/<your-user>/fosdem-explorer.git
-   cd fosdem-explorer
+   git clone https://github.com/<your-user>/fosdem-atlas.git
+   cd fosdem-atlas
    git checkout -b feat/your-feature
    ```
 3. Install dev dependencies (creates a virtualenv automatically):
