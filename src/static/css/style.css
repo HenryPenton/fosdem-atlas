@@ -1727,6 +1727,7 @@ footer p {
 .sort-btn--danger {
     border-color: #c00;
     color: #c00;
+    background-color: #fff;
 }
 .sort-btn--danger:hover {
     background: #fff0f0;
@@ -2139,6 +2140,11 @@ footer p {
 [data-theme="dark"] .sort-btn--danger {
     border-color: #f87171;
     color: #f87171;
+    background-color: #1e293b;
+}
+
+[data-theme="dark"] .conflict-overlap-badge {
+    background: #991b1b;
 }
 
 [data-theme="dark"] .sort-btn--danger:hover {

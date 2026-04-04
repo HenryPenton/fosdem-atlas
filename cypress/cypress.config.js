@@ -10,6 +10,7 @@ module.exports = defineConfig({
     downloadsFolder: 'downloads',
     video: false,
     screenshotOnRunFailure: true,
+    allowCypressEnv: false,
     defaultCommandTimeout: 10000,
     viewportWidth: 1280,
     viewportHeight: 800,
