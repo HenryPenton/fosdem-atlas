@@ -63,6 +63,7 @@ describe('track filter integration', () => {
         cards: NodeListOf<HTMLElement>;
         countEl: HTMLElement;
     } {
+        // nosemgrep: javascript.browser.security.insecure-document-method.insecure-document-method
         document.body.innerHTML = `
             <input id="track-filter" type="text" />
             <span id="tracks-count"></span>
@@ -98,6 +99,7 @@ describe('speaker filter integration', () => {
         cards: NodeListOf<HTMLElement>;
         countEl: HTMLElement;
     } {
+        // nosemgrep: javascript.browser.security.insecure-document-method.insecure-document-method
         document.body.innerHTML = `
             <input id="speaker-filter" type="text" />
             <span id="speakers-count"></span>
