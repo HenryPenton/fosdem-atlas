@@ -13,25 +13,6 @@ permissions:
   contents: read
 
 jobs:
-  close-stale-issues:
-    name: Close Previous Scan Issues
-    runs-on: ubuntu-latest
-    permissions:
-      issues: write
-    steps:
-      - name: Close previous security scan issues
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GH_REPO: ${{ github.repository }}
-        run: |
-          gh issue list \
-            --state open \
-            --label ci-auto-generated-security-report \
-            --json number --jq '.[].number' | \
-          while read -r num; do
-            gh issue close "$num"
-          done
-
   semgrep:
     name: Semgrep SAST
     runs-on: ubuntu-latest
@@ -130,11 +111,9 @@ jobs:
 
   zap:
     name: ZAP DAST Baseline Scan
-    needs: [close-stale-issues]
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      issues: write
     steps:
       - uses: actions/checkout@v6
 
@@ -172,20 +151,7 @@ jobs:
           rules_file_name: ".zap/rules.tsv"
           fail_action: false
           artifact_name: zap-report
-
-      - name: Label and lock ZAP issue
-        if: always()
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GH_REPO: ${{ github.repository }}
-        run: |
-          gh issue list --state open \
-            --json number,title \
-            --jq '.[] | select(.title | contains("ZAP Scan Baseline Report")) | .number' | \
-          while read -r num; do
-            gh issue edit "$num" --add-label "ci-auto-generated-security-report"
-            gh issue lock "$num" --reason resolved
-          done
+          issue_title: ""
 
       - name: Write ZAP summary
         if: always()
