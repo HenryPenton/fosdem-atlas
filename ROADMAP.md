@@ -241,21 +241,17 @@ Build an open-source tool that scrapes the FOSDEM schedule, stores it in DuckDB 
 
 ### 6.6 Accessibility
 
-- [ ] Accessibility audit (WCAG)
+- [x] Accessibility audit (WCAG)
 - [ ] Fix heatmap colour-scale tooltip when all event counts are zero (shows misleading max of 1)
 
-### 6.7 Schedule Grid Layout
-
-- [ ] Use `CSS.escape()` in `toggleHour()` to handle time strings with CSS-special characters
-
-### 6.8 Dependency & CI Hygiene
+### 6.7 Dependency & CI Hygiene
 
 - [ ] Public roadmap page
 - [ ] Pin production dependencies to narrow version ranges for reproducible builds
 - [ ] Add additional Python versions to CI test matrix to verify forward compatibility
 - [ ] Set up Dependabot or Renovate for automated dependency updates
 
-### 6.9 i18n support
+### 6.8 i18n support
 
 - [ ] i18n support
 
