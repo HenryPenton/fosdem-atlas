@@ -17,6 +17,10 @@ _TOPIC_STOPWORDS = {
     "href",
     "https",
     "strong",
+    "rel",
+    "noopener",
+    "noreferrer",
+    "noopener noreferrer",
     "'ll",
     "\u2019ll",
     # ── Conference-specific ───────────────────────────────────────────────
