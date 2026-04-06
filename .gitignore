@@ -107,3 +107,4 @@ reports/
 # zap working files
 .zap/*.yaml
 !.zap/zap.yaml
+!.zap/zap-active.yaml

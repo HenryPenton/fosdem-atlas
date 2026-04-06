@@ -144,18 +144,28 @@ jobs:
             sleep 5
           done
 
-      - name: Run ZAP DAST Scan
-        uses: zaproxy/action-af-scan@v0.4.0
+      - name: Run ZAP Baseline Scan
+        run: |
+          mkdir -p reports
+          # Rewrite target URL for CI (no host.docker.internal needed on Linux)
+          sed 's|host\.docker\.internal|172.17.0.1|g' .zap/zap.yaml > .zap/zap-ci.yaml
+          docker run --rm \
+            -v ${{ github.workspace }}/.zap:/zap/wrk:rw \
+            -v ${{ github.workspace }}/reports:/zap/wrk/reports \
+            ghcr.io/zaproxy/zaproxy:stable \
+            zap.sh -cmd -autorun /zap/wrk/zap-ci.yaml || true
+
+      - name: Upload ZAP report
+        uses: actions/upload-artifact@v5
+        if: always()
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          plan_file: ".zap/zap.yaml"
-          fail_action: false
-          artifact_name: zap-report
+          name: zap-report
+          path: reports/zap-report.*
 
       - name: Write ZAP summary
         if: always()
         run: |
           if [ -f reports/zap-report.html ]; then
-            echo "## ZAP DAST Results" >> $GITHUB_STEP_SUMMARY
+            echo "## ZAP DAST Baseline Results" >> $GITHUB_STEP_SUMMARY
             echo "See the uploaded **zap-report** artifact for full details." >> $GITHUB_STEP_SUMMARY
           fi

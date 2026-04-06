@@ -1,4 +1,4 @@
-.PHONY: help venv dev install prod run test lint format audit gitleaks zap sbom clean commit bump patch minor major smoke-test load-test rate-limit-test cy-install cy-open cy-run cy-smoke cy-a11y cy-a11y-long build-js test-js watch-js fake
+.PHONY: help venv dev install prod run test lint format audit gitleaks zap zap-active sbom clean commit bump patch minor major smoke-test load-test rate-limit-test cy-install cy-open cy-run cy-smoke cy-a11y cy-a11y-long build-js test-js watch-js fake
 
 PYTHON := python3
 VENV := venv
@@ -48,6 +48,13 @@ zap: ## Run ZAP baseline scan against running app (requires Docker; server must 
 	@mkdir -p reports
 	docker run --rm -v $(PWD)/.zap:/zap/wrk:rw -v $(PWD)/reports:/zap/wrk/reports \
 	  ghcr.io/zaproxy/zaproxy:stable zap.sh -cmd -autorun /zap/wrk/zap.yaml
+
+zap-active: ## Run ZAP active scan against running app (requires Docker; server must be running at BASE_URL)
+	@curl -sf $(BASE_URL)/health -o /dev/null || \
+	  { echo "ERROR: No server responding at $(BASE_URL) — start it first (e.g. make run)"; exit 1; }
+	@mkdir -p reports
+	docker run --rm -v $(PWD)/.zap:/zap/wrk:rw -v $(PWD)/reports:/zap/wrk/reports \
+	  ghcr.io/zaproxy/zaproxy:stable zap.sh -cmd -autorun /zap/wrk/zap-active.yaml
 
 sbom: ## Generate CycloneDX SBOM (JSON) from the current environment → docs/sbom.json
 	$(BIN)/cyclonedx-py environment --of JSON -o docs/sbom.json --output-reproducible
