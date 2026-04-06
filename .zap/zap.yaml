@@ -1,0 +1,152 @@
+env:
+  contexts:
+  - excludePaths: []
+    name: baseline
+    urls:
+    - http://host.docker.internal:8000
+  parameters:
+    failOnError: true
+    progressToStdout: false
+jobs:
+- parameters:
+    enableTags: false
+    maxAlertsPerRule: 10
+  type: passiveScan-config
+- parameters:
+    maxDuration: 1
+    url: http://host.docker.internal:8000
+  type: spider
+- parameters:
+    maxDuration: 0
+  type: passiveScan-wait
+- alertFilters:
+    # 10099 - Source Code Disclosure - SQL
+    # False positive: "SELECT statement from the moment you hit" is DuckDB
+    # marketing copy in talk abstracts, not leaked application SQL.
+    - ruleId: 10099
+      newRisk: "False Positive"
+      url: http://host.docker.internal:8000/day/2026-01-31/track/Databases
+      urlRegex: false
+    - ruleId: 10099
+      newRisk: "False Positive"
+      url: http://host.docker.internal:8000/event/9479
+      urlRegex: false
+    - ruleId: 10099
+      newRisk: "False Positive"
+      url: http://host.docker.internal:8000/keyword/CRA
+      urlRegex: false
+    - ruleId: 10099
+      newRisk: "False Positive"
+      url: http://host.docker.internal:8000/keyword/Rust
+      urlRegex: false
+    - ruleId: 10099
+      newRisk: "False Positive"
+      url: http://host.docker.internal:8000/keyword/performance
+      urlRegex: false
+    - ruleId: 10099
+      newRisk: "False Positive"
+      url: http://host.docker.internal:8000/track/Databases
+      urlRegex: false
+    # 10096 - Timestamp Disclosure - Unix
+    # False positive: all Unix timestamps on this site are FOSDEM event
+    # schedule data (start/end times). Public and intentional.
+    - ruleId: 10096
+      newRisk: "False Positive"
+      url: .*
+      urlRegex: true
+    # 10049 - Storable and Cacheable Content
+    # False positive: entire site is a public read-only schedule — all pages
+    # are intentionally cacheable.
+    - ruleId: 10049
+      newRisk: "False Positive"
+      url: .*
+      urlRegex: true
+    # 10031 - User Controllable HTML Element Attribute (Potential XSS)
+    # False positive: day/room/track params appear in <option value=""> attributes.
+    # Jinja2 auto-escapes all template variables; no XSS is possible.
+    - ruleId: 10031
+      newRisk: "False Positive"
+      url: .*
+      urlRegex: true
+    # 10109 - Modern Web Application
+    # Informational only: site uses JS-driven links. No action required.
+    - ruleId: 10109
+      newRisk: "False Positive"
+      url: .*
+      urlRegex: true
+  parameters:
+    deleteGlobalAlerts: false
+  type: alertFilter
+- parameters:
+    format: Long
+    summaryFile: /home/zap/zap_out.json
+  rules:
+  - action: WARN
+    customMessage: ''
+    id: 10003
+  - action: WARN
+    customMessage: ''
+    id: 10010
+  - action: WARN
+    customMessage: ''
+    id: 10011
+  - action: WARN
+    customMessage: ''
+    id: 10015
+  - action: WARN
+    customMessage: ''
+    id: 10017
+  - action: WARN
+    customMessage: ''
+    id: 10020
+  - action: WARN
+    customMessage: ''
+    id: 10021
+  - action: WARN
+    customMessage: ''
+    id: 10035
+  - action: WARN
+    customMessage: ''
+    id: 10038
+  - action: WARN
+    customMessage: ''
+    id: 10049
+  - action: WARN
+    customMessage: ''
+    id: 10054
+  - action: WARN
+    customMessage: ''
+    id: 10055
+  - action: IGNORE
+    customMessage: ''
+    id: 10096
+  - action: WARN
+    customMessage: ''
+    id: 10098
+  - action: IGNORE
+    customMessage: ''
+    id: 10109
+  - action: WARN
+    customMessage: ''
+    id: 10027
+  - action: IGNORE
+    customMessage: ''
+    id: 10031
+  - action: WARN
+    customMessage: ''
+    id: 10099
+  type: outputSummary
+- parameters:
+    reportDescription: ''
+    reportDir: /zap/wrk/
+    reportFile: reports/zap-report.html
+    reportTitle: ZAP Scanning Report
+    template: traditional-html
+  type: report
+- parameters:
+    reportDescription: ''
+    reportDir: /zap/wrk/
+    reportFile: reports/zap-report.json
+    reportTitle: ZAP Scanning Report
+    template: traditional-json
+  type: report
