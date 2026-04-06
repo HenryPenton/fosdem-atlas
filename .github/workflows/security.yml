@@ -44,7 +44,7 @@ jobs:
         continue-on-error: true
 
       - name: Upload Semgrep report
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: semgrep-report
@@ -88,7 +88,7 @@ jobs:
           } >> $GITHUB_STEP_SUMMARY
 
       - name: Upload Trivy report
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: trivy-report
@@ -156,7 +156,7 @@ jobs:
             zap.sh -cmd -autorun /zap/wrk/zap-ci.yaml || true
 
       - name: Upload ZAP report
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: zap-report
