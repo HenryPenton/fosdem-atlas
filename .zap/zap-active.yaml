@@ -20,8 +20,9 @@ jobs:
     maxDuration: 0
   type: passiveScan-wait
 - parameters:
-    maxRuleDurationInMins: 0
+    maxRuleDurationInMins: 2
     maxScanDurationInMins: 5
+    threadPerHost: 2
     policy: ''
   type: activeScan
 - alertFilters:
