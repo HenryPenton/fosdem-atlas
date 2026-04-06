@@ -156,9 +156,6 @@ jobs:
             -v ${{ github.workspace }}/.zap:/zap/wrk:rw \
             ghcr.io/zaproxy/zaproxy:stable \
             zap.sh -cmd -autorun /zap/wrk/zap-ci.yaml
-          # Debug: show what ZAP wrote
-          echo "=== Files in .zap/reports/ ==="
-          ls -la .zap/reports/ || true
           # Copy reports to workspace reports/
           cp -f .zap/reports/zap-report.* reports/ 2>/dev/null || true
 
