@@ -46,10 +46,8 @@ zap: ## Run ZAP baseline scan against running app (requires Docker; server must 
 	@curl -sf $(BASE_URL)/health -o /dev/null || \
 	  { echo "ERROR: No server responding at $(BASE_URL) — start it first (e.g. make run)"; exit 1; }
 	@mkdir -p reports
-	docker run --rm -v $(PWD)/.zap:/zap/wrk -v $(PWD)/reports:/zap/wrk/reports \
-	  ghcr.io/zaproxy/zaproxy:stable zap-baseline.py \
-	  -t $(subst localhost,host.docker.internal,$(BASE_URL)) -c rules.tsv \
-	  -J reports/zap-report.json -r reports/zap-report.html -I
+	docker run --rm -v $(PWD)/.zap:/zap/wrk:rw -v $(PWD)/reports:/zap/wrk/reports \
+	  ghcr.io/zaproxy/zaproxy:stable zap.sh -cmd -autorun /zap/wrk/zap.yaml
 
 sbom: ## Generate CycloneDX SBOM (JSON) from the current environment → docs/sbom.json
 	$(BIN)/cyclonedx-py environment --of JSON -o docs/sbom.json --output-reproducible
