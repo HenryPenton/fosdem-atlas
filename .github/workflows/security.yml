@@ -148,14 +148,18 @@ jobs:
 
       - name: Run ZAP Baseline Scan
         run: |
-          mkdir -p reports
+          mkdir -p reports .zap/reports
+          chmod -R 777 .zap/reports
           # Rewrite target URL for CI (no host.docker.internal needed on Linux)
           sed 's|host\.docker\.internal|172.17.0.1|g' .zap/zap.yaml > .zap/zap-ci.yaml
           docker run --rm \
             -v ${{ github.workspace }}/.zap:/zap/wrk:rw \
             ghcr.io/zaproxy/zaproxy:stable \
-            zap.sh -cmd -autorun /zap/wrk/zap-ci.yaml || true
-          # Copy reports from .zap/reports/ to workspace reports/
+            zap.sh -cmd -autorun /zap/wrk/zap-ci.yaml
+          # Debug: show what ZAP wrote
+          echo "=== Files in .zap/reports/ ==="
+          ls -la .zap/reports/ || true
+          # Copy reports to workspace reports/
           cp -f .zap/reports/zap-report.* reports/ 2>/dev/null || true
 
       - name: Upload ZAP report
