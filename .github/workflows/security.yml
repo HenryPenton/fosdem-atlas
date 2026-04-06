@@ -151,16 +151,19 @@ jobs:
           sed 's|host\.docker\.internal|172.17.0.1|g' .zap/zap.yaml > .zap/zap-ci.yaml
           docker run --rm \
             -v ${{ github.workspace }}/.zap:/zap/wrk:rw \
-            -v ${{ github.workspace }}/reports:/zap/wrk/reports \
             ghcr.io/zaproxy/zaproxy:stable \
             zap.sh -cmd -autorun /zap/wrk/zap-ci.yaml || true
+          # Copy reports from .zap/reports/ to workspace reports/
+          cp -f .zap/reports/zap-report.* reports/ 2>/dev/null || true
 
       - name: Upload ZAP report
         uses: actions/upload-artifact@v7
         if: always()
         with:
           name: zap-report
-          path: reports/zap-report.*
+          path: |
+            reports/zap-report.*
+            .zap/reports/zap-report.*
 
       - name: Write ZAP summary
         if: always()
