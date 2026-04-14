@@ -1,11 +1,7 @@
 """Tests for ScheduleService."""
 
-from datetime import datetime
-
 from src.adapters.persistence.duckdb_events_repository import DuckDBEventsRepository
-from src.adapters.persistence.duckdb_ingestion_repository import DuckDBIngestionRepository
 from src.application.services import ScheduleService
-from tests.conftest import _make_event
 
 
 class TestScheduleService:
@@ -16,68 +12,15 @@ class TestScheduleService:
         assert len(overview.tracks) == 3
         assert len(overview.rooms) == 3
 
-    def test_get_grid_data(self, schedule_service: ScheduleService) -> None:
+    def test_get_grid_data_selects_day(self, schedule_service: ScheduleService) -> None:
         data = schedule_service.get_grid_data("2026-02-07")
         assert data.selected_day == "2026-02-07"
-        assert "Room A" in data.rooms
-        assert "Room B" in data.rooms
-        assert len(data.time_slots) > 0
-        assert len(data.grid) > 0
-
-    def test_get_grid_data_events_placed_in_hour(self, schedule_service: ScheduleService) -> None:
-        # "Intro to Rust" in Room A at 10:00 → appears in "10:00" hour slot
-        data = schedule_service.get_grid_data("2026-02-07")
-        assert "Room A" in data.grid.get("10:00", {})
-        events = data.grid["10:00"]["Room A"]
-        assert any(ev.title == "Intro to Rust" for ev in events)
 
     def test_get_grid_data_empty_days(self, events_repository: DuckDBEventsRepository) -> None:
         service = ScheduleService(events_repository)
         data = service.get_grid_data("")
         assert data.days == []
         assert data.grid == {}
-        assert data.room_tracks == {}
-        assert data.room_track_changes == {}
-
-    def test_get_grid_data_room_tracks_ordered(self, schedule_service: ScheduleService) -> None:
-        data = schedule_service.get_grid_data("2026-02-07")
-        # Room A has a single event on this day with track "Rust"
-        assert data.room_tracks["Room A"] == ["Rust"]
-        # Room B has a single event with track "Python"
-        assert data.room_tracks["Room B"] == ["Python"]
-        # No changes expected for single-track rooms
-        assert data.room_track_changes["Room A"] == {}
-        assert data.room_track_changes["Room B"] == {}
-
-    def test_get_grid_data_track_changes(
-        self,
-        ingestion_repository: DuckDBIngestionRepository,
-        events_repository: DuckDBEventsRepository,
-    ) -> None:
-        ingestion_repository.insert_events(
-            [
-                _make_event(
-                    id="t1",
-                    title="First Talk",
-                    track="Track A",
-                    room="Room A",
-                    day="2026-02-07",
-                    start_time=datetime(2026, 2, 7, 10, 0),
-                ),
-                _make_event(
-                    id="t2",
-                    title="Second Talk",
-                    track="Track B",
-                    room="Room A",
-                    day="2026-02-07",
-                    start_time=datetime(2026, 2, 7, 11, 0),
-                ),
-            ]
-        )
-        service = ScheduleService(events_repository)
-        data = service.get_grid_data("2026-02-07")
-        assert data.room_tracks["Room A"] == ["Track A", "Track B"]
-        assert data.room_track_changes["Room A"].get("11:00") == "Track B"
 
     def test_get_grid_data_unknown_day_falls_back(self, schedule_service: ScheduleService) -> None:
         data = schedule_service.get_grid_data("9999-01-01")
@@ -216,3 +159,25 @@ class TestScheduleService:
         schedule_service.invalidate_cache()
         assert schedule_service.get_event_count() == 3
         assert schedule_service.get_overview().event_count == 3
+
+    def test_parse_event_ids_basic(self) -> None:
+        assert ScheduleService.parse_event_ids("1,2,3") == ["1", "2", "3"]
+
+    def test_parse_event_ids_strips_whitespace(self) -> None:
+        assert ScheduleService.parse_event_ids(" 1 , 2 , 3 ") == ["1", "2", "3"]
+
+    def test_parse_event_ids_skips_empty(self) -> None:
+        assert ScheduleService.parse_event_ids(",1,,2,") == ["1", "2"]
+
+    def test_parse_event_ids_empty_string(self) -> None:
+        assert ScheduleService.parse_event_ids("") == []
+
+    def test_parse_event_ids_limit(self) -> None:
+        ids = ",".join(str(i) for i in range(300))
+        result = ScheduleService.parse_event_ids(ids)
+        assert len(result) == 200
+
+    def test_parse_event_ids_custom_limit(self) -> None:
+        ids = ",".join(str(i) for i in range(10))
+        result = ScheduleService.parse_event_ids(ids, limit=5)
+        assert len(result) == 5

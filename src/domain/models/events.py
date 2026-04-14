@@ -75,3 +75,17 @@ class EventDetail:
     day: str
     speakers: list[Speaker] = field(default_factory=list)
     links: list[Link] = field(default_factory=list)
+
+    def to_summary(self) -> EventSummary:
+        """Project this detail into a lightweight summary."""
+        return EventSummary(
+            id=self.id,
+            title=self.title,
+            subtitle=self.subtitle,
+            start_time=self.start_time,
+            duration_minutes=self.duration_minutes,
+            room=self.room,
+            track=self.track,
+            day=self.day,
+            abstract=self.abstract,
+        )
