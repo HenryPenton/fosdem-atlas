@@ -22,7 +22,7 @@ def create_schedule_router(
         day: str = Query(default="", max_length=20),
     ) -> HTMLResponse:
         overview = schedule_service.get_overview()
-        selected_day = day if day in overview.days else (overview.days[0] if overview.days else "")
+        selected_day = schedule_service.resolve_selected_day(day)
         return templates.TemplateResponse(
             request=request,
             name="index.html",
@@ -175,7 +175,7 @@ def create_schedule_router(
         request: Request,
         ids: str = Query(default="", max_length=4096),
     ) -> HTMLResponse:
-        event_ids = [i.strip() for i in ids.split(",") if i.strip()]
+        event_ids = schedule_service.parse_event_ids(ids, limit=4096)
         grids_by_day = schedule_service.build_grid_for_ids(event_ids) if event_ids else {}
         return templates.TemplateResponse(
             request=request,

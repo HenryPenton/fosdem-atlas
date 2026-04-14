@@ -29,7 +29,7 @@ def create_export_router(
     def export_schedule_ical(
         ids: str = Query(default="", max_length=10000),
     ) -> Response:
-        event_ids = [i.strip() for i in ids.split(",") if i.strip()][:200]
+        event_ids = schedule_service.parse_event_ids(ids)
         cal = schedule_service.build_ical(event_ids)
         return Response(
             content=cal,

@@ -49,6 +49,18 @@ class ScheduleService:
         self._unique_rooms_cache = None
         self._event_detail_cache.clear()
 
+    @staticmethod
+    def parse_event_ids(ids: str, *, limit: int = 200) -> list[str]:
+        """Normalise a comma-separated event-ID string into a bounded list."""
+        return [i.strip() for i in ids.split(",") if i.strip()][:limit]
+
+    def resolve_selected_day(self, requested: str) -> str:
+        """Return *requested* if it is a known day, else the first available day."""
+        days = self.get_unique_days()
+        if requested in days:
+            return requested
+        return days[0] if days else ""
+
     def get_event_count(self) -> int:
         return self._repo.get_event_count()
 
