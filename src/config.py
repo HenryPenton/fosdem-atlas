@@ -2,8 +2,11 @@
 
 import logging
 import sys
+from importlib.metadata import version as _pkg_version
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+_APP_VERSION = _pkg_version("fosdem-atlas")
 
 
 class Settings(BaseSettings):
@@ -16,8 +19,11 @@ class Settings(BaseSettings):
     )
 
     # App settings
-    version: str = "0.1.0"
     debug: bool = False
+
+    @property
+    def version(self) -> str:
+        return _APP_VERSION
 
     # Server settings
     host: str = "0.0.0.0"
