@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 120
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
 
       - name: Build and start application
         run: |
@@ -21,6 +21,7 @@ jobs:
           done
 
       - name: Wait for initial data scrape
+        # nosemgrep: yaml.github-actions.security.gha-curl-pipe-shell.gha-curl-pipe-shell
         run: |
           for i in $(seq 1 30); do
             count=$(curl -sf http://localhost:8000/api/v1/events | python3 -c "import sys,json; print(len(json.load(sys.stdin)))" 2>/dev/null || echo 0)
@@ -30,7 +31,7 @@ jobs:
           done
 
       - name: Full a11y audit
-        uses: cypress-io/github-action@v7
+        uses: cypress-io/github-action@0ed14f5d30c4ad6e5e8ffb6f57dbb69150137a3f # v7.4.10
         with:
           working-directory: cypress
           spec: e2e/a11y-long.cy.js
@@ -40,7 +41,7 @@ jobs:
 
       - name: Upload screenshots on failure
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: a11y-long-screenshots
           path: cypress/screenshots
