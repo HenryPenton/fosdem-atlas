@@ -24,7 +24,7 @@ repos:
       - id: ruff-format
 
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.8.0
+    rev: v2.4.1
     hooks:
       - id: mypy
         additional_dependencies:
@@ -37,8 +37,8 @@ repos:
     hooks:
       - id: pytest
         name: pytest
-        entry: venv/bin/pytest
-        language: script
+        entry: uv run --extra dev pytest
+        language: system
         pass_filenames: false
         always_run: true
         stages: [pre-commit]

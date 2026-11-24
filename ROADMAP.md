@@ -275,7 +275,7 @@ This phase has its own detailed roadmap: see [NTFY_ROADMAP.md](NTFY_ROADMAP.md).
 | -------------------- | ----------------------- |
 | **Backend**          | Python + FastAPI        |
 | **Database**         | DuckDB (embedded)       |
-| **Scraper**          | Python (httpx + lxml)   |
+| **Scraper**          | Python (httpx2 + lxml)   |
 | **Scheduler**        | APScheduler             |
 | **Frontend**         | HTMX + Jinja2           |
 | **Styling**          | Vanilla CSS             |

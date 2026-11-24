@@ -34,7 +34,7 @@ services:
       - FOSDEM_SCRAPE_INTERVAL_MINUTES=5
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "python", "-c", "import httpx; httpx.get('http://localhost:8000/health').raise_for_status()"]
+      test: ["CMD", "python", "-c", "import httpx2; httpx2.get('http://localhost:8000/health').raise_for_status()"]
       interval: 30s
       timeout: 10s
       retries: 3

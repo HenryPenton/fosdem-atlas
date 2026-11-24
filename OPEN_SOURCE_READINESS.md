@@ -46,7 +46,7 @@ absent. Add it in the `add_security_headers` middleware in
 
 ### 5. Test against multiple Python versions in CI
 
-`requires-python = ">=3.13"` but `.github/workflows/ci.yml` only tests 3.13.
+`requires-python = ">=3.14"` but `.github/workflows/ci.yml` only tests 3.14.
 Consider adding a matrix entry for future Python versions as they release to
 ensure forward compatibility.
 

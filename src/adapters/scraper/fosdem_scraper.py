@@ -6,7 +6,7 @@ from datetime import datetime
 from pathlib import Path
 from urllib.parse import urlparse
 
-import httpx
+import httpx2
 import nh3
 from lxml import etree
 
@@ -30,7 +30,7 @@ class FosdemScheduleFetcher:
     def _fetch(self, url: str) -> bytes:
         if urlparse(url).scheme == "file":
             return Path(urlparse(url).path).read_bytes()
-        response = httpx.get(url, timeout=30.0, follow_redirects=True)
+        response = httpx2.get(url, timeout=30.0, follow_redirects=True)
         response.raise_for_status()
         content: bytes = response.content
         return content
