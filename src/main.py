@@ -57,7 +57,7 @@ def _run_scrape() -> None:
 
 
 @asynccontextmanager
-async def _lifespan(_app: FastAPI) -> AsyncGenerator[None, None]:
+async def _lifespan(_app: FastAPI) -> AsyncGenerator[None]:
     logger.info("Starting FOSDEM Atlas v%s", settings.version)
     logger.info("Database: %s", settings.database_path)
     _db.get()

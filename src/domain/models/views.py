@@ -5,7 +5,6 @@ from __future__ import annotations
 from collections import defaultdict
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
-from typing import TypeAlias
 
 from src.domain.models.analytics import (
     ConferenceStats,
@@ -17,17 +16,17 @@ from src.domain.models.analytics import (
 from src.domain.models.events import EventSummary
 
 # time-slot key → room name → events in that slot/room
-ScheduleGrid: TypeAlias = dict[str, dict[str, list[EventSummary]]]
+type ScheduleGrid = dict[str, dict[str, list[EventSummary]]]
 # room name → ordered list of events
-RoomEventMap: TypeAlias = dict[str, list[EventSummary]]
+type RoomEventMap = dict[str, list[EventSummary]]
 # room name → ordered list of track names
-RoomTracks: TypeAlias = dict[str, list[str]]
+type RoomTracks = dict[str, list[str]]
 # slot-key → track name (records where a track change occurs)
-TrackChanges: TypeAlias = dict[str, str]
+type TrackChanges = dict[str, str]
 # room name → TrackChanges for that room
-RoomTrackChanges: TypeAlias = dict[str, TrackChanges]
+type RoomTrackChanges = dict[str, TrackChanges]
 # day → hour → event count
-HeatmapGrid: TypeAlias = dict[str, dict[int, int]]
+type HeatmapGrid = dict[str, dict[int, int]]
 
 
 @dataclass(frozen=True)

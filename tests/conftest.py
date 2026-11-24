@@ -71,7 +71,7 @@ SAMPLE_EVENTS = [
 
 
 @pytest.fixture
-def db_connection(tmp_path: Path) -> Generator[DuckDBConnection, None, None]:
+def db_connection(tmp_path: Path) -> Generator[DuckDBConnection]:
     """In-memory DuckDB connection for tests."""
     db_path = str(tmp_path / "test.duckdb")
     conn = DuckDBConnection(db_path)
