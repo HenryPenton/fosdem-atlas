@@ -3,7 +3,7 @@ FROM node:24-slim AS js-builder
 
 WORKDIR /app/scripts/site
 
-RUN npm install -g pnpm@9.15.0
+RUN npm install -g pnpm@12.23.0
 
 COPY scripts/site/package.json scripts/site/pnpm-lock.yaml ./
 RUN pnpm install --frozen-lockfile
