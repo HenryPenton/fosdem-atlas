@@ -1,7 +1,7 @@
 /**
  * Cypress accessibility test suite for FOSDEM Atlas.
  *
- * Uses cypress-axe (axe-core) to audit every page in both light and dark mode.
+ * Uses axe-core (via support/axe.js) to audit every page in both light and dark mode.
  * Failures are logged with impact level, rule ID, and affected DOM nodes.
  *
  * Run locally:   npx cypress run --spec cypress/e2e/accessibility.cy.js
