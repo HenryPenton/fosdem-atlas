@@ -15,6 +15,10 @@ class TestHealthEndpoint:
         response = client.get("/health")
         assert response.status_code == 200
 
+    def test_api_returns_200(self, client: TestClient) -> None:
+        response = client.get("/api/v1/health")
+        assert response.status_code == 200
+
     def test_returns_healthy_status(self, client: TestClient) -> None:
         data = client.get("/health").json()
         assert data["status"] == "healthy"
@@ -48,17 +52,20 @@ class TestHealthEndpointUnhealthy:
         )
         return TestClient(app, raise_server_exceptions=False)
 
-    def test_returns_503(self, broken_client: TestClient) -> None:
-        response = broken_client.get("/health")
+    @pytest.mark.parametrize("path", ["/health", "/api/v1/health"])
+    def test_returns_503(self, broken_client: TestClient, path: str) -> None:
+        response = broken_client.get(path)
         assert response.status_code == 503
 
-    def test_returns_unhealthy_status(self, broken_client: TestClient) -> None:
-        data = broken_client.get("/health").json()
+    @pytest.mark.parametrize("path", ["/health", "/api/v1/health"])
+    def test_returns_unhealthy_status(self, broken_client: TestClient, path: str) -> None:
+        data = broken_client.get(path).json()
         assert data["status"] == "unhealthy"
 
-    def test_logs_exception(self, broken_client: TestClient) -> None:
-        with patch("src.adapters.web.routers.health.logger") as mock_logger:
-            broken_client.get("/health")
+    @pytest.mark.parametrize("path", ["/health", "/api/v1/health"])
+    def test_logs_exception(self, broken_client: TestClient, path: str) -> None:
+        with patch("src.api.routers.health.logger") as mock_logger:
+            broken_client.get(path)
             mock_logger.exception.assert_called_once()
 
 

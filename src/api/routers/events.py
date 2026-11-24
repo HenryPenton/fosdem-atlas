@@ -9,8 +9,9 @@ from src.api.dtos import (
     LinkDTO,
     SpeakerDTO,
 )
+from src.api.mappers import event_summary_dto
 from src.application.services import ScheduleService
-from src.domain.models.events import EventDetail, EventSummary
+from src.domain.models.events import EventDetail
 
 
 def create_events_router(schedule_service: ScheduleService) -> APIRouter:
@@ -20,7 +21,7 @@ def create_events_router(schedule_service: ScheduleService) -> APIRouter:
     def list_events(
         sort: str = Query(default="time", max_length=10),
     ) -> list[EventSummaryDTO]:
-        return [_event_summary_dto(e) for e in schedule_service.get_all_events(sort=sort)]
+        return [event_summary_dto(e) for e in schedule_service.get_all_events(sort=sort)]
 
     @router.get("/events/search")
     def search_events(
@@ -47,7 +48,7 @@ def create_events_router(schedule_service: ScheduleService) -> APIRouter:
     def get_events_by_ids(
         ids: str = Query(default="", max_length=10000),
     ) -> list[EventDetailDTO]:
-        event_ids = [i.strip() for i in ids.split(",") if i.strip()][:200]
+        event_ids = schedule_service.parse_event_ids(ids)
         return [_event_detail_dto(e) for e in schedule_service.get_events_by_ids(event_ids)]
 
     @router.get("/events/{event_id}")
@@ -58,19 +59,6 @@ def create_events_router(schedule_service: ScheduleService) -> APIRouter:
         return _event_detail_dto(result)
 
     return router
-
-
-def _event_summary_dto(e: EventSummary) -> EventSummaryDTO:
-    return EventSummaryDTO(
-        id=e.id,
-        title=e.title,
-        subtitle=e.subtitle,
-        start_time=e.start_time,
-        duration_minutes=e.duration_minutes,
-        room=e.room,
-        track=e.track,
-        day=e.day,
-    )
 
 
 def _event_detail_dto(e: EventDetail) -> EventDetailDTO:

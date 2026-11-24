@@ -3,7 +3,7 @@
 from fastapi import APIRouter
 
 from src.api.dtos import DayDetailDTO, DayTrackEventsDTO
-from src.api.routers.events import _event_summary_dto
+from src.api.mappers import event_summary_dto
 from src.application.services import ScheduleService
 
 
@@ -29,7 +29,7 @@ def create_days_router(schedule_service: ScheduleService) -> APIRouter:
         return DayTrackEventsDTO(
             day=day,
             track=track,
-            events=[_event_summary_dto(e) for e in events],
+            events=[event_summary_dto(e) for e in events],
         )
 
     @router.get("/rooms")
