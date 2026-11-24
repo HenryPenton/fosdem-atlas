@@ -3,7 +3,7 @@
 import dataclasses
 import logging
 from collections import defaultdict
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 from src.domain.models import (
     DayDetail,
@@ -222,7 +222,7 @@ class ScheduleService:
             duration = ev.duration_minutes
             end = start + timedelta(minutes=duration)
             uid = f"{ev.id}@fosdem-atlas"
-            now = datetime.now(tz=timezone.utc).strftime("%Y%m%dT%H%M%SZ")  # noqa: UP017
+            now = datetime.now(tz=UTC).strftime("%Y%m%dT%H%M%SZ")
             lines.extend(
                 [
                     "BEGIN:VEVENT",

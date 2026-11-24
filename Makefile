@@ -1,4 +1,4 @@
-.PHONY: help dev install prod lock run test lint format audit gitleaks zap zap-active sbom clean commit bump patch minor major smoke-test load-test rate-limit-test cy-install cy-open cy-run cy-smoke cy-a11y cy-a11y-long build-js test-js watch-js fake
+.PHONY: help dev install lock run test lint format audit gitleaks zap zap-active sbom clean commit bump patch minor major smoke-test load-test rate-limit-test cy-install cy-open cy-run cy-smoke cy-a11y cy-a11y-long build-js test-js watch-js fake
 
 # uv manages the virtualenv (.venv) and uv.lock; no manual venv setup needed.
 # Dev tools live in the "dev" extra, so tool targets run with it enabled.
@@ -15,9 +15,6 @@ dev: ## Install development dependencies
 	$(RUN) pre-commit install
 	$(RUN) pre-commit install --hook-type commit-msg
 	cd scripts/site && pnpm install && pnpm build
-
-prod: ## Install production dependencies (matches Docker build)
-	uv sync
 
 lock: ## Update uv.lock after changing dependencies in pyproject.toml
 	uv lock

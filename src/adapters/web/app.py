@@ -109,6 +109,7 @@ def create_app(
             response = JSONResponse(
                 {"error": f"Rate limit exceeded: {rate_exc.detail}"}, status_code=429
             )
+        # app.state is untyped, so the limiter and the value returned from it are Any.
         return request.app.state.limiter._inject_headers(response, request.state.view_rate_limit)  # type: ignore[no-any-return]
 
     app.state.limiter = limiter

@@ -26,8 +26,8 @@ src/
   api/           # REST API DTOs and routers
   config.py      # Pydantic settings
   main.py        # App entry point
-templates/       # Jinja2 HTML templates
-static/          # CSS and JS assets (JS is compiled — do not edit by hand)
+  templates/     # Jinja2 HTML templates
+  static/        # CSS and JS assets (JS is compiled — do not edit by hand)
 scripts/         # Utility scripts (Python, etc.) and site JS toolchain
   scripts/site/  # TypeScript sources compiled to src/static/js/ via tsc
 tests/           # pytest test suite
@@ -62,8 +62,8 @@ database file.
 - **Strict mypy** — do not add `# type: ignore` without a comment explaining
   why
 - **ruff** handles linting and formatting (`line-length = 100`)
-- Domain models live in `src/domain/models.py` as dataclasses
-- Port interfaces live in `src/domain/ports.py` as abstract base classes
+- Domain models live in the `src/domain/models/` package as dataclasses
+- Port interfaces live in `src/domain/ports.py` as `typing.Protocol` classes
 - New dependencies go in `pyproject.toml`; run `make lock` to update
   `uv.lock`, then `make dev` to sync
 
