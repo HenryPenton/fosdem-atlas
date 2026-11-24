@@ -79,3 +79,16 @@ class TestRateLimiting:
         c.get("/")
         response = c.get("/")
         assert "Rate limit exceeded" in response.json()["error"]
+
+    def test_static_files_are_not_rate_limited(
+        self,
+        schedule_service: ScheduleService,
+        analytics_service: AnalyticsService,
+        speaker_service: SpeakerService,
+        settings: Settings,
+    ) -> None:
+        c = _make_rate_limited_client(
+            schedule_service, analytics_service, speaker_service, settings
+        )
+        statuses = [c.get("/static/css/style.css").status_code for _ in range(3)]
+        assert statuses == [200, 200, 200]

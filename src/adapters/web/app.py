@@ -16,8 +16,8 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from slowapi import Limiter
 from slowapi.errors import RateLimitExceeded
-from slowapi.middleware import SlowAPIMiddleware
-from starlette.middleware.base import RequestResponseEndpoint
+from slowapi.middleware import sync_check_limits
+from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
 
 from src.adapters.web.routers.analytics import create_analytics_page_router
 from src.adapters.web.routers.export import create_export_page_router
@@ -41,6 +41,37 @@ limiter = Limiter(
     default_limits=[RATE_LIMIT],
     headers_enabled=True,
 )
+
+
+def _global_rate_limit_scope() -> None:
+    """Stand-in route handler so slowapi applies its default limit to every request."""
+
+
+class GlobalRateLimitMiddleware(BaseHTTPMiddleware):
+    """Apply the limiter's default limits to all requests except static files.
+
+    slowapi's own middleware looks up the endpoint via ``route.endpoint``, which FastAPI
+    no longer exposes for routers added with ``include_router``. It then treats every
+    request as exempt, silently disabling rate limiting.
+    """
+
+    async def dispatch(self, request: Request, call_next: RequestResponseEndpoint) -> Response:
+        app_limiter: Limiter = request.app.state.limiter
+        if not app_limiter.enabled or request.url.path.startswith("/static"):
+            return await call_next(request)
+
+        error_response: Response | None
+        should_inject_headers: bool
+        error_response, should_inject_headers = sync_check_limits(
+            app_limiter, request, _global_rate_limit_scope, request.app
+        )
+        if error_response is not None:
+            return error_response
+
+        response = await call_next(request)
+        if should_inject_headers:
+            response = app_limiter._inject_headers(response, request.state.view_rate_limit)
+        return response
 
 
 def create_app(
@@ -82,7 +113,7 @@ def create_app(
 
     app.state.limiter = limiter
     app.add_exception_handler(RateLimitExceeded, _rate_limit_handler)
-    app.add_middleware(SlowAPIMiddleware)
+    app.add_middleware(GlobalRateLimitMiddleware)
 
     @app.middleware("http")
     async def add_security_headers(

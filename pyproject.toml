@@ -11,7 +11,7 @@ authors = [
 keywords = ["fosdem", "conference", "schedule", "duckdb", "htmx"]
 
 dependencies = [
-    "fastapi==0.136.3",
+    "fastapi==0.163.1",
     "uvicorn[standard]==0.54.0",
     "duckdb==2.0.0",
     "httpx2==2.16.2",
