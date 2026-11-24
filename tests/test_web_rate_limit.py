@@ -2,6 +2,7 @@
 
 from unittest.mock import patch
 
+import pytest
 from fastapi.testclient import TestClient
 from slowapi import Limiter
 
@@ -79,6 +80,34 @@ class TestRateLimiting:
         c.get("/")
         response = c.get("/")
         assert "Rate limit exceeded" in response.json()["error"]
+
+    @pytest.mark.parametrize(
+        "path",
+        [
+            "/",
+            "/speakers",
+            "/analytics",
+            "/events",
+            "/export/events.csv",
+            "/health",
+            "/api/v1/days",
+            "/api/v1/speakers",
+            "/api/v1/overview",
+        ],
+    )
+    def test_every_included_router_is_rate_limited(
+        self,
+        path: str,
+        schedule_service: ScheduleService,
+        analytics_service: AnalyticsService,
+        speaker_service: SpeakerService,
+        settings: Settings,
+    ) -> None:
+        c = _make_rate_limited_client(
+            schedule_service, analytics_service, speaker_service, settings
+        )
+        c.get(path)
+        assert c.get(path).status_code == 429
 
     def test_static_files_are_not_rate_limited(
         self,
