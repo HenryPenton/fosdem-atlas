@@ -38,7 +38,7 @@ Open <http://localhost:8000>. The schedule will be fetched automatically on firs
 git clone https://github.com/HenryPenton/fosdem-atlas.git
 cd fosdem-atlas
 
-# Install dev dependencies (creates venv automatically)
+# Install dev dependencies (uv creates .venv automatically)
 make dev
 
 # Run the application (auto-reload on :8000)
@@ -87,21 +87,23 @@ docker-compose up -d
 
 ### Prerequisites
 
-- Python 3.13+ (edit `PYTHON` in the Makefile if your binary is named differently)
+- Python 3.14+
+- [uv](https://docs.astral.sh/uv/) (creates the `.venv` and installs from `uv.lock`)
 - Make
 
 ### Commands
 
 ```bash
 make help          # Show all available commands
-make dev           # Create venv + install dev dependencies + pre-commit hooks + build JS
-make install       # Create venv + install production dependencies only
+make dev           # uv sync with dev dependencies + pre-commit hooks + build JS
+make install       # uv sync with production dependencies only
+make lock          # Update uv.lock after changing dependencies in pyproject.toml
 make run           # Run with auto-reload on :8000
 make run-prod      # Run in production mode on :8000
 make test          # Run tests
 make lint          # Run ruff + mypy
 make format        # Auto-format with ruff
-make clean         # Remove venv and caches
+make clean         # Remove .venv and caches
 make docker-build  # Build Docker image
 make docker-run    # Run Docker container
 make commit        # Interactive conventional commit
@@ -143,7 +145,7 @@ tests/                   # pytest test suite
 | ---------------- | ----------------------- |
 | **Backend**      | Python + FastAPI        |
 | **Database**     | DuckDB (embedded)       |
-| **Scraper**      | httpx + lxml            |
+| **Scraper**      | httpx2 + lxml           |
 | **Scheduler**    | APScheduler             |
 | **Frontend**     | HTMX + Jinja2           |
 | **Styling**      | Vanilla CSS             |

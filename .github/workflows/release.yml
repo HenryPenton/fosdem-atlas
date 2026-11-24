@@ -22,20 +22,19 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Set up Python
-        uses: actions/setup-python@v6
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v10
         with:
-          python-version: "3.13"
+          python-version: "3.14"
 
       - name: Generate release notes from conventional commits
         run: |
-          pip install commitizen -q
           PREV_TAG=$(git tag --sort=-version:refname | grep -v "^${{ github.ref_name }}$" | head -1 || true)
           if [ -n "$PREV_TAG" ]; then
-            cz changelog --start-rev "$PREV_TAG" --file-name release_notes.txt \
+            uvx --from commitizen cz changelog --start-rev "$PREV_TAG" --file-name release_notes.txt \
               || git log "${PREV_TAG}".."${{ github.ref_name }}" --pretty=format:"- %s" > release_notes.txt
           else
-            cz changelog --file-name release_notes.txt \
+            uvx --from commitizen cz changelog --file-name release_notes.txt \
               || git log "${{ github.ref_name }}" --pretty=format:"- %s" > release_notes.txt
           fi
           # Ensure the file is non-empty

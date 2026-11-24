@@ -1,5 +1,5 @@
 # ── JS builder stage ──────────────────────────────────────────────────────────
-FROM node:22-slim AS js-builder
+FROM node:24-slim AS js-builder
 
 WORKDIR /app/scripts/site
 
@@ -12,33 +12,35 @@ COPY scripts/site/src ./src
 COPY scripts/site/tsconfig.json ./
 RUN pnpm build
 
-# ── Python builder stage ──────────────────────────────────────────────────────
-FROM python:3.13-slim AS builder
-
-WORKDIR /app
-
-RUN python -m venv /app/venv
-ENV PATH="/app/venv/bin:$PATH"
-
-COPY pyproject.toml .
-RUN pip install --upgrade pip && pip install --no-cache-dir .
-
 # ── Runtime stage ─────────────────────────────────────────────────────────────
-FROM python:3.13-slim
+FROM ghcr.io/astral-sh/uv:0.13.9-debian-slim
 
 WORKDIR /app
 
-# Create non-root user
+ENV UV_PROJECT_ENVIRONMENT=/app/venv \
+    UV_PYTHON=3.14 \
+    UV_PYTHON_INSTALL_DIR=/opt/python \
+    UV_PYTHON_PREFERENCE=only-managed \
+    UV_LINK_MODE=copy
+
+# Install Python and dependencies first so this layer is cached until the lockfile changes
+COPY pyproject.toml uv.lock ./
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync --frozen --no-dev --no-editable
+
+# CA certificates so the scraper can fetch the schedule over HTTPS
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends ca-certificates && \
+    rm -rf /var/lib/apt/lists/*
+
+# Create non-root user; the app only writes to /app/data
 RUN useradd --create-home --shell /bin/bash app && \
     mkdir -p /app/data && \
-    chown -R app:app /app
+    chown app:app /app/data
 
-# Copy venv and source from builder — no build tools in the final image
-COPY --from=builder /app/venv /app/venv
 COPY src/ src/
 COPY --from=js-builder /app/src/static/js/ src/static/js/
 
-RUN chown -R app:app /app
 USER app
 
 ENV PATH="/app/venv/bin:$PATH"
@@ -49,7 +51,7 @@ ENV FOSDEM_PORT=8000
 ENV FOSDEM_DATABASE_PATH=/app/data/fosdem.duckdb
 
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD python -c "import httpx; httpx.get('http://localhost:8000/health').raise_for_status()"
+    CMD python -c "import httpx2; httpx2.get('http://localhost:8000/health').raise_for_status()"
 
 EXPOSE 8000
 

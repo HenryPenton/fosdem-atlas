@@ -13,23 +13,23 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - name: Set up Python
-        uses: actions/setup-python@v6
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v10
         with:
-          python-version: "3.13"
-          cache: "pip"
+          python-version: "3.14"
+          enable-cache: true
 
       - name: Install dependencies
-        run: pip install -e ".[dev]"
+        run: uv sync --frozen --extra dev
 
       - name: Run ruff (check)
-        run: ruff check src tests
+        run: uv run --frozen --extra dev ruff check src tests
 
       - name: Run ruff (format check)
-        run: ruff format --check src tests
+        run: uv run --frozen --extra dev ruff format --check src tests
 
       - name: Run mypy
-        run: mypy src
+        run: uv run --frozen --extra dev mypy src
 
   test:
     name: Test
@@ -37,14 +37,14 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - name: Set up Python
-        uses: actions/setup-python@v6
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v10
         with:
-          python-version: "3.13"
-          cache: "pip"
+          python-version: "3.14"
+          enable-cache: true
 
       - name: Install dependencies
-        run: pip install -e ".[dev]"
+        run: uv sync --frozen --extra dev
 
       - name: Run tests
-        run: pytest
+        run: uv run --frozen --extra dev pytest

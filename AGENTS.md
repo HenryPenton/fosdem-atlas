@@ -41,7 +41,7 @@ application layers free of framework or I/O imports.
 ## Development Setup
 
 ```bash
-make dev       # Create venv, install deps, install pre-commit hooks, build JS
+make dev       # uv sync (creates .venv), install pre-commit hooks, build JS
 make run       # Run dev server on :8000
 make test      # Run pytest
 make lint      # ruff + mypy
@@ -57,15 +57,15 @@ database file.
 
 ## Coding Conventions
 
-- **Python 3.13+** — use modern syntax (`X | Y` unions, `match`, etc.)
+- **Python 3.14+** — use modern syntax (`X | Y` unions, `match`, etc.)
 - **Type annotations** on all public functions and methods
 - **Strict mypy** — do not add `# type: ignore` without a comment explaining
   why
 - **ruff** handles linting and formatting (`line-length = 100`)
 - Domain models live in `src/domain/models.py` as dataclasses
 - Port interfaces live in `src/domain/ports.py` as abstract base classes
-- New dependencies go in `pyproject.toml`; run `pip install -e ".[dev]"` to
-  sync
+- New dependencies go in `pyproject.toml`; run `make lock` to update
+  `uv.lock`, then `make dev` to sync
 
 ---
 

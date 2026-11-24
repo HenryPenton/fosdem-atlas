@@ -37,7 +37,7 @@ When adding a new feature, start with the domain model and port, then the applic
 
 ## Code Standards
 
-- **Python 3.13+** — use modern syntax (`X | Y` unions, `match`, etc.)
+- **Python 3.14+** — use modern syntax (`X | Y` unions, `match`, etc.)
 - **Type annotations** required on all public functions and methods
 - **Strict mypy** — do not add `# type: ignore` without an explanatory comment
 - **ruff** handles linting and formatting (`line-length = 100`)
