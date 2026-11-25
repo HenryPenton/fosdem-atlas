@@ -1,5 +1,5 @@
 # ── JS builder stage ──────────────────────────────────────────────────────────
-FROM node:24-slim AS js-builder
+FROM node:24-slim@sha256:873f586f3794f52281bd039bf02c048a0be08fde619338f9941bad1eb6b34530 AS js-builder
 
 WORKDIR /app/scripts/site
 
@@ -13,7 +13,7 @@ COPY scripts/site/tsconfig.json ./
 RUN pnpm build
 
 # ── Runtime stage ─────────────────────────────────────────────────────────────
-FROM ghcr.io/astral-sh/uv:0.13.9-debian-slim
+FROM ghcr.io/astral-sh/uv:0.13.10-debian-slim@sha256:8b48445a9a356d395bc87d0cc15d6a65e91e67424562f6de9fdcd6205ac3f040
 
 WORKDIR /app
 
